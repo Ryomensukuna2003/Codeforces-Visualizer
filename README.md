@@ -1,6 +1,6 @@
 # Codeforces Visualizer
 
-![Codeforces Visualizer Screenshot](https://github.com/user-attachments/assets/52208037-52e6-4e0c-8426-2b3c99ac5ab2)
+![Codeforces Visualizer Screenshot](https://github.com/user-attachments/assets/62dbc2a0-2e81-4107-bd33-835460d6190d)
 
 Codeforces Visualizer is a web application that provides detailed insights and statistics for Codeforces users. It allows you to search for a user and view their performance metrics, submission history, and rating trends in an intuitive and visually appealing interface.
 
