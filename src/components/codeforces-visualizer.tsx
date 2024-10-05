@@ -18,6 +18,8 @@ import { ModeToggle } from "./ui/toggle";
 import { ChartLineBar } from "./chart-bar-label";
 import { CodeforcesUserCard } from "./AboutCard";
 import ChartLineLinear from "./chart-line-linear";
+import Link from 'next/link'
+import { useUsername } from './usernameProvider';
 
 ChartJS.register(
   CategoryScale,
@@ -69,7 +71,7 @@ export function CodeforcesVisualizerComponent() {
     startTimeSeconds:number
   }
 
-  const [username, setUsername] = useState("_Ryomen_sukuna");
+  const { username, setUsername } = useUsername();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setquestions] = useState(0);
@@ -178,16 +180,17 @@ export function CodeforcesVisualizerComponent() {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <div className="flex sm:flex-row justify-between  gap-4">
-        <h1 className="text-3xl font-bold">Codeforces Visualizer</h1>
-        <div className="flex gap-3">
+      <div className="flex sm:flex-row justify-between gap-4 ">
+        <h1 className="text-3xl flex-1 font-bold">Codeforces Visualizer</h1>
+        <div className="flex">
           <Input
             type="text"
             placeholder="Enter Codeforces username"
+            className="rounded-l-lg"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-          <Button onClick={fetchAPI}>Search</Button>
+          <Button className="rounded-r-lg" onClick={fetchAPI}>Search</Button>
         </div>
         <ModeToggle />
       </div>
@@ -232,6 +235,17 @@ export function CodeforcesVisualizerComponent() {
           </ul>
         </CardContent>
       </Card>
+      <div className="flex justify-center space-x-4 ">
+        <Link href="/problems">
+          <Button className="rounded-md">View All Problems</Button>
+        </Link>
+        <Link href="/contests">
+          <Button className="rounded-md">Rating Changes</Button>
+        </Link>
+        <Link href="/submissions">
+          <Button className="rounded-md">View All Submissions</Button>
+        </Link>
+      </div>
     </div>
   );
 }
