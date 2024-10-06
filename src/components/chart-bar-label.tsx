@@ -64,9 +64,10 @@ export function ChartLineBar({data}:ChartLineBarProps) {
             <Bar dataKey="Questions" fill="var(--color-desktop)" radius={8}>
               <LabelList
                 position="top"
-                offset={12}
-                className="fill-foreground"
+                offset={20}
+                className="p-5 fill-foreground "
                 fontSize={12}
+                angle={270}
               />
             </Bar>
           </BarChart>

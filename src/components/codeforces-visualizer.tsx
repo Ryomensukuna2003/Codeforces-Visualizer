@@ -18,8 +18,9 @@ import { ModeToggle } from "./ui/toggle";
 import { ChartLineBar } from "./chart-bar-label";
 import { CodeforcesUserCard } from "./AboutCard";
 import ChartLineLinear from "./chart-line-linear";
-import Link from 'next/link'
-import { useUsername } from './usernameProvider';
+import Link from "next/link";
+import { useUsername } from "./usernameProvider";
+import { UserCardSkeleton, ChartSkeleton, SubmissionsSkeleton } from "./skeleton-components";
 
 ChartJS.register(
   CategoryScale,
@@ -32,15 +33,15 @@ ChartJS.register(
 
 export function CodeforcesVisualizerComponent() {
   interface UserInfo {
-    handle: string; 
-    rating?: number; 
+    handle: string;
+    rating?: number;
     maxRating?: number;
     rank?: string;
     contribution?: number;
     friendOfCount?: number;
     titlePhoto?: string;
   }
-  
+
   interface Submissions {
     id: number;
     problem: {
@@ -55,6 +56,7 @@ export function CodeforcesVisualizerComponent() {
     verdict: string;
     programmingLanguage: string;
   }
+
   interface Rating {
     contestName: string;
     rating: number;
@@ -65,52 +67,51 @@ export function CodeforcesVisualizerComponent() {
     Questions: number;
   }
 
-  interface UpcomingContest{
-    name:string,
-    durationSeconds:number,
-    startTimeSeconds:number
+  interface UpcomingContest {
+    name: string;
+    durationSeconds: number;
+    startTimeSeconds: number;
   }
 
   const { username, setUsername } = useUsername();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
-  const [questions, setquestions] = useState(0);
-  const [total_Solved, setTotalSolved] = useState(0);
-  const [mySet, setMySet] = useState(new Set());
+  const [questions, setQuestions] = useState(0);
+  const [totalSolved, setTotalSolved] = useState(0);
+  const [mySet, setMySet] = useState(new Set<string>());
   const [LineGraphData, setLineGraphData] = useState<Rating[] | null>(null);
   const [barGraphData, setBarGraphData] = useState<RatingFrequency[] | null>(null);
-  const [UpcomingContest,setUpcomingContest]=useState<UpcomingContest[]|null>(null);
+  const [UpcomingContest, setUpcomingContest] = useState<UpcomingContest[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchAPI();
   }, [username]);
 
   const fetchAPI = async () => {
+    setIsLoading(true);
     try {
-      const [userInfo, allSubmissions, rating,contest] = await Promise.all([
+      const [
+        userInfoResponse,
+        allSubmissionsResponse,
+        ratingResponse,
+        contestResponse,
+      ] = await Promise.all([
         fetch(`https://codeforces.com/api/user.info?handles=${username}`),
-        fetch(`https://codeforces.com/api/user.status?handle=${username}&from=1&count=10000`),
+        fetch(
+          `https://codeforces.com/api/user.status?handle=${username}&from=1&count=100000000`
+        ),
         fetch(`https://codeforces.com/api/user.rating?handle=${username}`),
-        fetch('https://codeforces.com/api/contest.list?'),
-      ]);
-      
-
-      const [userInfoData, allSubmissionsData, allRating, upcomingContest] = await Promise.all([
-        userInfo.json(),
-        allSubmissions.json(),
-        rating.json(),
-        contest.json(),
+        fetch("https://codeforces.com/api/contest.list?"),
       ]);
 
-      // For Total solved
-      const totalSolved = allSubmissionsData.result.filter(
-        (element: { verdict: string }) => element.verdict === "OK"
-      ).length;
-
-      // For Total Submissions
-      allSubmissionsData.result.forEach((element: { problem: any }) => {
-        setMySet((prevSet) => new Set(prevSet).add(element.problem.name));
-      });
+      const [userInfoData, allSubmissionsData, allRating, upcomingContest] =
+        await Promise.all([
+          userInfoResponse.json(),
+          allSubmissionsResponse.json(),
+          ratingResponse.json(),
+          contestResponse.json(),
+        ]);
 
       // For Rating Graph
       let ratingArr: Rating[] = [];
@@ -124,37 +125,40 @@ export function CodeforcesVisualizerComponent() {
         }
       );
 
-      // For Question frequency Graph
-      let ratingFreq: RatingFrequency[] = [];
-      let ratingFreqmap = new Map<number, number>();
-      allSubmissionsData.result.forEach(
-        (element: { verdict: string; problem: any }) => {
-          if (element.verdict === "OK") {
-            const problemRating = element.problem.rating;
-            ratingFreqmap.set(
-              problemRating,
-              (ratingFreqmap.get(problemRating) || 0) + 1
-            );
+      // For Total Submissions and unique problems
+      const uniqueProblems = new Set<string>();
+      const ratingFreqMap = new Map<number, number>();
+
+      allSubmissionsData.result.forEach((submission: Submissions) => {
+        const problemKey = `${submission.problem.name}|${submission.problem.rating}`;
+        if (submission.verdict === "OK" && !uniqueProblems.has(problemKey)) {
+          uniqueProblems.add(problemKey);
+          const problemRating = submission.problem.rating;
+          if (problemRating) {
+            ratingFreqMap.set(problemRating, (ratingFreqMap.get(problemRating) || 0) + 1);
           }
         }
-      );
-      ratingFreqmap.forEach((count, rating) => {
-        let x = {
-          question_rating: rating,
-          Questions: count,
-        };
-        ratingFreq.push(x);
       });
-      ratingFreq.sort((a, b) => a.question_rating - b.question_rating);
+
+      setMySet(uniqueProblems);
+      setTotalSolved(uniqueProblems.size);
+
+      // For Question frequency Graph
+      const ratingFreq: RatingFrequency[] = Array.from(ratingFreqMap).map(([rating, count]) => ({
+        question_rating: rating,
+        Questions: count,
+      })).sort((a, b) => a.question_rating - b.question_rating);
+
       setBarGraphData(ratingFreq);
-      console.log(ratingFreq);
       setLineGraphData(ratingArr);
-      setTotalSolved(totalSolved);
       setUserInfo(userInfoData.result[0]);
       setSubmissions(allSubmissionsData.result.slice(0, 10));
-      setquestions(allSubmissionsData.result.length);
+      setQuestions(allSubmissionsData.result.length);
+      setUpcomingContest(upcomingContest.result.filter((contest: any) => contest.phase === "BEFORE"));
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -170,7 +174,7 @@ export function CodeforcesVisualizerComponent() {
 
   const problemStats = {
     total: questions,
-    solved: total_Solved,
+    solved: totalSolved,
     attempted: mySet.size,
   };
 
@@ -190,56 +194,67 @@ export function CodeforcesVisualizerComponent() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-          <Button className="rounded-r-lg" onClick={fetchAPI}>Search</Button>
+          <Button className="rounded-r-lg" onClick={fetchAPI}>
+            Search
+          </Button>
         </div>
         <ModeToggle />
       </div>
 
-      <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+      {isLoading ? (
+        <UserCardSkeleton />
+      ) : (
+        <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+      )}
 
       <div className="flex justify-center w-full gap-4">
         <div className="w-1/2">
-          <ChartLineBar data={chartDatabar} />
+          {isLoading ? <ChartSkeleton /> : <ChartLineBar data={chartDatabar} />}
         </div>
         <div className="w-1/2">
-          <ChartLineLinear data={LineChartData} />
+          {isLoading ? <ChartSkeleton /> : <ChartLineLinear data={LineChartData} />}
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent submissions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {recentSubmissions.map((submission) => (
-              <li
-                key={submission.id}
-                className="flex justify-between items-center"
-              >
-                <span>{submission.problem.name}</span>
-                <div>
-                  <Badge
-                    variant={
-                      submission.verdict === "OK" ? "default" : "destructive"
-                    }
-                  >
-                    {submission.verdict}
-                  </Badge>
-                  <Badge variant="outline" className="ml-2">
-                    {submission.programmingLanguage}
-                  </Badge>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      {isLoading ? (
+        <SubmissionsSkeleton />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent submissions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {recentSubmissions.map((submission) => (
+                <li
+                  key={submission.id}
+                  className="flex justify-between items-center"
+                >
+                  <span>{submission.problem.name}</span>
+                  <div>
+                    <Badge
+                      variant={
+                        submission.verdict === "OK" ? "default" : "destructive"
+                      }
+                    >
+                      {submission.verdict}
+                    </Badge>
+                    <Badge variant="outline" className="ml-2">
+                      {submission.programmingLanguage}
+                    </Badge>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-center space-x-4 ">
         <Link href="/problems">
           <Button className="rounded-md">View All Problems</Button>
         </Link>
-        <Link href="/contests">
+        <Link href="/rating_change">
           <Button className="rounded-md">Rating Changes</Button>
         </Link>
         <Link href="/submissions">

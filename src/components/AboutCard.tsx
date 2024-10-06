@@ -41,6 +41,7 @@ export function CodeforcesUserCard({
       grandmaster: "#FF0000",
       "international grandmaster": "#FF0000",
       "legendary grandmaster": "#FF0000",
+      "tourist":"#FF0000"
     };
     return rankColors[rank.toLowerCase()] || "#808080";
   };
