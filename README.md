@@ -1,71 +1,44 @@
 # Codeforces Visualizer
 
+**Codeforces Visualizer** is a web application designed to provide detailed insights and statistics for Codeforces users. You can search for a user and explore performance metrics, submission history, and rating trends, all presented in an intuitive and visually appealing interface.
 
-![Screenshot from 2024-10-07 14-39-06](https://github.com/user-attachments/assets/7464b6ec-688c-4896-9f67-41b5a8608002)
+![Screenshot from 2024-10-08 01-47-40](https://github.com/user-attachments/assets/c3134e1d-3e10-42b5-9012-179f58018392)
 
-Codeforces Visualizer is a web application that provides detailed insights and statistics for Codeforces users. It allows you to search for a user and view their performance metrics, submission history, and rating trends in an intuitive and visually appealing interface.
+## 🚀 Features
 
-## Features
+- **User Profile Overview**: Displays key metrics such as rating, rank, and contributions.
+- **Submission Statistics**: Breaks down total submissions, solved problems, and problem attempts.
+- **Problem Ratings Visualization**: Visual representation of problem ratings solved by the user.
+- **Rating Change Graph**: Displays rating trends over time to track performance.
+- **Recent Submissions**: Lists the most recent problem submissions for easy access.
+- **Responsive Design**: Fully optimized for both desktop and mobile viewing.
+- **"About You" Insights** (via Gemini API): Personalized insights and trends based on your Codeforces activity.
 
-- User profile overview with rating, rank, and contributions
-- Submission statistics including total submissions, solved problems, and attempts
-- Visual representation of problem ratings solved
-- Rating change graph over time
-- Recent submissions list
-- Responsive design for desktop and mobile viewing
+## 🛠️ Technologies Used
 
-## Technologies Used
+- **[Next.js](https://nextjs.org/)** - React framework for building server-side rendered and static web applications.
+- **[React](https://reactjs.org/)** - JavaScript library for building user interfaces.
+- **[TypeScript](https://www.typescriptlang.org/)** - A typed superset of JavaScript that helps in building robust and scalable applications.
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework for rapid UI development.
+- **[Shadcn UI](https://ui.shadcn.com/)** - Reusable components built with Radix UI and Tailwind CSS.
+- **[Chart.js](https://www.chartjs.org/)** - JavaScript charting library used for creating visual data representations.
+- **[Codeforces API](https://codeforces.com/apiHelp)** - Used to fetch user data and performance statistics.
+- **Gemini API** - Powers the "About You" section, delivering personalized insights based on Codeforces activity.
 
-- [Next.js](https://nextjs.org/) - React framework for building the user interface
-- [React](https://reactjs.org/) - JavaScript library for building user interfaces
-- [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [Shadcn UI](https://ui.shadcn.com/) - Re-usable components built with Radix UI and Tailwind CSS
-- [Chart.js](https://www.chartjs.org/) - JavaScript charting library for data visualization
-- [Codeforces API](https://codeforces.com/apiHelp) - For fetching user data and statistics
+## 🧑‍💻 Getting Started
 
-## Getting Started
-
-This project is bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app). To get started:
-
-1. Clone the repository:
+1. **Clone the repository, install dependencies, and run the development server**:
    ```bash
-   git clone https://github.com/_Ryomen_sukuna/codeforces-visualizer.git
-   cd codeforces-visualizer
-   ```
+   git clone https://github.com/_Ryomen_sukuna/codeforces-visualizer.git && cd codeforces-visualizer && npm install && npm run dev
 
-2. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
-3. Run the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
+## 📈 Future Enhancements
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Comparison Mode**: Compare performance with other Codeforces users.
+- **Advanced Analytics**: Deeper insights into problem-solving patterns.
+- **Contest Tracking**: Notifications and analytics for upcoming contests.
 
-## Learn More
+## 👥 Contributions
 
-To learn more about the technologies used in this project, check out the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [React Documentation](https://reactjs.org/docs/getting-started.html) - learn about React.
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs) - learn about Tailwind CSS.
-- [Chart.js Documentation](https://www.chartjs.org/docs/latest/) - learn about Chart.js.
-- [Codeforces API Documentation](https://codeforces.com/apiHelp) - learn about the Codeforces API.
-
-## Deployment
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs or feature requests.
