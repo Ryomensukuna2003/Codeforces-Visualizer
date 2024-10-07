@@ -12,10 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { useUsername } from "../../components/usernameProvider";
+import { useUsername } from "../../components/contextProvider";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
 
 interface Submissions {
   verdict: string;
@@ -33,8 +32,8 @@ export default function SubmissionsPage() {
   const [allsubmissions, setallSubmissions] = useState<Submissions[] | null>(
     null
   );
-  const [currentPage,setCurrentPage]=useState(1);
-  const [finalPage,setFinalPage]=useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [finalPage, setFinalPage] = useState(false);
   useEffect(() => {
     fetchAPI();
   }, [currentPage]);
@@ -67,14 +66,14 @@ export default function SubmissionsPage() {
   // Mock data - replace with actual API calls
   const submissions = allsubmissions || [];
 
-  const goToNextPage=()=>{
-    setCurrentPage(currentPage+100);
+  const goToNextPage = () => {
+    setCurrentPage(currentPage + 100);
     console.log(currentPage);
-  }
+  };
 
-  const goToPreviousPage=()=>{
-    setCurrentPage(currentPage-100);
-  }
+  const goToPreviousPage = () => {
+    setCurrentPage(currentPage - 99);
+  };
 
   return (
     <div className="container mx-auto p-4 space-y-6 font-sans">
@@ -105,7 +104,7 @@ export default function SubmissionsPage() {
             </TableHeader>
             <TableBody>
               {submissions.map((submission) => (
-                <TableRow>
+                <TableRow key={submission.id}>
                   <TableCell>
                     <Link
                       href={`https://codeforces.com/contest/${submission.contestId}/submission/${submission.id}`}
@@ -130,7 +129,7 @@ export default function SubmissionsPage() {
                   <TableCell>{submission.programmingLanguage}</TableCell>
                   <TableCell>{submission.timeConsumedMillis} ms</TableCell>
                   <TableCell>
-                    {submission.memoryConsumedBytes / 1024} KB
+                    {(submission.memoryConsumedBytes / 1024).toFixed(2)} KB
                   </TableCell>
                 </TableRow>
               ))}
@@ -144,9 +143,7 @@ export default function SubmissionsPage() {
             >
               <ChevronLeft className="mr-2 h-4 w-4" /> Previous
             </Button>
-            <span>
-              Page {currentPage} 
-            </span>
+            <span>Page {currentPage}</span>
             <Button
               onClick={goToNextPage}
               disabled={finalPage}

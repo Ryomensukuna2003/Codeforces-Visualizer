@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useUsername } from "../../components/usernameProvider";
+import { useUsername } from "../../components/contextProvider";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -31,7 +31,7 @@ export default function ContestsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalContests, setTotalContests] = useState(0);
   const contestsPerPage = 100;
-  const { username } = useUsername();
+  const { username, Attempted } = useUsername();
 
   useEffect(() => {
     fetchAPI();
@@ -62,7 +62,7 @@ export default function ContestsPage() {
       setAllRating(ratingArr.slice(from - 1, from - 1 + contestsPerPage));
       setTotalContests(ratingArr.length);
     } catch (error) {
-      console.log("Fucked Up -> ",error)
+      console.log("Fucked Up -> ", error);
     }
   };
 
@@ -106,7 +106,7 @@ export default function ContestsPage() {
             </TableHeader>
             <TableBody>
               {contests.map((contest) => (
-                <TableRow key={contest.id}>
+                <TableRow key={`${contest.id}${contest.contestName}`}>
                   <TableCell>
                     <Link href={`https://codeforces.com/contest/${contest.id}`}>
                       {contest.contestName}

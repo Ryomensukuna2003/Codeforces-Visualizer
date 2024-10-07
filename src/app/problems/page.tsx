@@ -14,8 +14,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { useUsername } from "../../components/usernameProvider";
-import { Checkbox } from "@/components/ui/checkbox"
+import { useUsername } from "../../components/contextProvider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -29,15 +29,31 @@ interface Problem {
   tags: string[];
 }
 
+interface ProblemStatistics {
+  contestId: number;
+  index: string;
+  solvedCount: number;
+}
+
+interface CombinedData {
+  contestId: number;
+  index: string;
+  name: string;
+  type: string;
+  rating: number;
+  tags: string[];
+  solvedCount: number;
+}
+
 export default function ProblemsPage() {
-  const [problems, setProblems] = useState<Problem[]>([]);
-  const [filteredProblems, setFilteredProblems] = useState<Problem[]>([]);
+  const [problems, setProblems] = useState<CombinedData[]>([]);
+  const [filteredProblems, setFilteredProblems] = useState<CombinedData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialRating, setInitialFilter] = useState(800);
   const [endingFilter, setEndingFilter] = useState(3200);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const { username } = useUsername();
+  const { username, Attempted } = useUsername();
   const [currentPage, setCurrentPage] = useState(1);
   const [displayedProblems, setDisplayedProblems] = useState<Problem[]>([]);
   const contestsPerPage = 100;
@@ -55,7 +71,28 @@ export default function ProblemsPage() {
       );
       const data = await response.json();
       if (data.status === "OK") {
-        setProblems(data.result.problems);
+        const combinedArray: CombinedData[] = [];
+        data.result.problems.forEach((problem: Problem) => {
+          const stats = data.result.problemStatistics.find(
+            (stat: ProblemStatistics) =>
+              stat.contestId === problem.contestId &&
+              stat.index === problem.index
+          );
+
+          if (stats) {
+            combinedArray.push({
+              contestId: problem.contestId,
+              index: problem.index,
+              name: problem.name,
+              type: problem.type,
+              rating: problem.rating,
+              tags: problem.tags,
+              solvedCount: stats.solvedCount,
+            });
+          }
+        });
+        // console.log(combinedArray);
+        setProblems(combinedArray);
         const filtered = data.result.problems.filter(
           (problem: Problem) =>
             problem.rating >= initialRating && problem.rating <= endingFilter
@@ -69,6 +106,7 @@ export default function ProblemsPage() {
       setError(
         "An error occurred while fetching problems. Please try again later."
       );
+      console.log(err);
     } finally {
       setIsLoading(false);
     }
@@ -97,9 +135,9 @@ export default function ProblemsPage() {
   const handleSort = () => {
     const sorted = [...filteredProblems].sort((a, b) => {
       if (sortOrder === "asc") {
-        return (a.rating || 0) - (b.rating || 0);
+        return (a.solvedCount || 0) - (b.solvedCount || 0);
       } else {
-        return (b.rating || 0) - (a.rating || 0);
+        return (b.solvedCount || 0) - (a.solvedCount || 0);
       }
     });
     setFilteredProblems(sorted);
@@ -169,7 +207,7 @@ export default function ProblemsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead className="pl-5">Name</TableHead>
                   <TableHead>Rating</TableHead>
                   <TableHead>Tags</TableHead>
                   <TableHead>Solved</TableHead>
@@ -177,8 +215,8 @@ export default function ProblemsPage() {
               </TableHeader>
               <TableBody>
                 {displayedProblems.map((problem) => (
-                  <TableRow key={`${problem.contestId}${problem.index}`}>
-                    <TableCell>
+                  <TableRow key={`${problem.contestId}${problem.index}`} className={Attempted.includes(`${problem.name}|${problem.rating}`) ? "bg-secondary " : ""}>
+                    <TableCell className="pl-5">
                       <Link
                         href={`https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}`}
                         target="_blank"
@@ -199,10 +237,12 @@ export default function ProblemsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                    <Checkbox
-                      checked={true}
-                  // onCheckedChange={field.onChange}
-                />
+                      <Checkbox
+                        checked={Attempted.includes(
+                          `${problem.name}|${problem.rating}`
+                        )}
+                        // onCheckedChange={field.onChange}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

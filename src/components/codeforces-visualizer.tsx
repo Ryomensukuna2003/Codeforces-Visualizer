@@ -19,8 +19,12 @@ import { ChartLineBar } from "./chart-bar-label";
 import { CodeforcesUserCard } from "./AboutCard";
 import ChartLineLinear from "./chart-line-linear";
 import Link from "next/link";
-import { useUsername } from "./usernameProvider";
-import { UserCardSkeleton, ChartSkeleton, SubmissionsSkeleton } from "./skeleton-components";
+import { useUsername } from "./contextProvider";
+import {
+  UserCardSkeleton,
+  ChartSkeleton,
+  SubmissionsSkeleton,
+} from "./skeleton-components";
 
 ChartJS.register(
   CategoryScale,
@@ -73,15 +77,19 @@ export function CodeforcesVisualizerComponent() {
     startTimeSeconds: number;
   }
 
-  const { username, setUsername } = useUsername();
+  const { username, setUsername, Attempted, setAttempted } = useUsername();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setQuestions] = useState(0);
   const [totalSolved, setTotalSolved] = useState(0);
   const [mySet, setMySet] = useState(new Set<string>());
   const [LineGraphData, setLineGraphData] = useState<Rating[] | null>(null);
-  const [barGraphData, setBarGraphData] = useState<RatingFrequency[] | null>(null);
-  const [UpcomingContest, setUpcomingContest] = useState<UpcomingContest[] | null>(null);
+  const [barGraphData, setBarGraphData] = useState<RatingFrequency[] | null>(
+    null
+  );
+  const [UpcomingContest, setUpcomingContest] = useState<
+    UpcomingContest[] | null
+  >(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -135,26 +143,35 @@ export function CodeforcesVisualizerComponent() {
           uniqueProblems.add(problemKey);
           const problemRating = submission.problem.rating;
           if (problemRating) {
-            ratingFreqMap.set(problemRating, (ratingFreqMap.get(problemRating) || 0) + 1);
+            ratingFreqMap.set(
+              problemRating,
+              (ratingFreqMap.get(problemRating) || 0) + 1
+            );
           }
         }
       });
-
       setMySet(uniqueProblems);
       setTotalSolved(uniqueProblems.size);
-
+      setAttempted(Array.from(uniqueProblems));
+      
       // For Question frequency Graph
-      const ratingFreq: RatingFrequency[] = Array.from(ratingFreqMap).map(([rating, count]) => ({
-        question_rating: rating,
-        Questions: count,
-      })).sort((a, b) => a.question_rating - b.question_rating);
+      const ratingFreq: RatingFrequency[] = Array.from(ratingFreqMap)
+        .map(([rating, count]) => ({
+          question_rating: rating,
+          Questions: count,
+        }))
+        .sort((a, b) => a.question_rating - b.question_rating);
 
       setBarGraphData(ratingFreq);
       setLineGraphData(ratingArr);
       setUserInfo(userInfoData.result[0]);
       setSubmissions(allSubmissionsData.result.slice(0, 10));
       setQuestions(allSubmissionsData.result.length);
-      setUpcomingContest(upcomingContest.result.filter((contest: any) => contest.phase === "BEFORE"));
+      setUpcomingContest(
+        upcomingContest.result.filter(
+          (contest: any) => contest.phase === "BEFORE"
+        )
+      );
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -212,7 +229,11 @@ export function CodeforcesVisualizerComponent() {
           {isLoading ? <ChartSkeleton /> : <ChartLineBar data={chartDatabar} />}
         </div>
         <div className="w-1/2">
-          {isLoading ? <ChartSkeleton /> : <ChartLineLinear data={LineChartData} />}
+          {isLoading ? (
+            <ChartSkeleton />
+          ) : (
+            <ChartLineLinear data={LineChartData} />
+          )}
         </div>
       </div>
 
@@ -252,7 +273,7 @@ export function CodeforcesVisualizerComponent() {
 
       <div className="flex justify-center space-x-4 ">
         <Link href="/problems">
-          <Button className="rounded-md">View All Problems</Button>
+          <Button className="rounded-md">Practice Problems</Button>
         </Link>
         <Link href="/rating_change">
           <Button className="rounded-md">Rating Changes</Button>
