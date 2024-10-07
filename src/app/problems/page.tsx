@@ -53,7 +53,7 @@ export default function ProblemsPage() {
   const [initialRating, setInitialFilter] = useState(800);
   const [endingFilter, setEndingFilter] = useState(3200);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const { username, Attempted } = useUsername();
+  const { username, Attempted,setAttempted } = useUsername();
   const [currentPage, setCurrentPage] = useState(1);
   const [displayedProblems, setDisplayedProblems] = useState<Problem[]>([]);
   const contestsPerPage = 100;
@@ -144,7 +144,7 @@ export default function ProblemsPage() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     updateDisplayedProblems(sorted, currentPage);
   };
-
+  console.log(Attempted)
   const totalPages = Math.ceil(filteredProblems.length / contestsPerPage);
 
   const goToNextPage = () => {

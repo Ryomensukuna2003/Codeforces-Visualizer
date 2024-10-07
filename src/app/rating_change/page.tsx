@@ -31,7 +31,7 @@ export default function ContestsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalContests, setTotalContests] = useState(0);
   const contestsPerPage = 100;
-  const { username, Attempted } = useUsername();
+  const { username } = useUsername();
 
   useEffect(() => {
     fetchAPI();

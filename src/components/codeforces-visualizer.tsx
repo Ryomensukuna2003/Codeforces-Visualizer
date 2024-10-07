@@ -20,12 +20,7 @@ import { CodeforcesUserCard } from "./AboutCard";
 import ChartLineLinear from "./chart-line-linear";
 import Link from "next/link";
 import { useUsername } from "./contextProvider";
-import { Roboto } from 'next/font/google'
-
-const roboto = Roboto({
-  weight: '400',
-  subsets: ['latin'],
-})
+import { ImprovementSuggestion } from "./ImprovementSuggestion";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -79,12 +74,12 @@ export function CodeforcesVisualizerComponent() {
     startTimeSeconds: number;
   }
 
-  const { username, setUsername } = useUsername();
+  const { username, setUsername, Attempted, setAttempted } = useUsername();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setquestions] = useState(0);
   const [total_Solved, setTotalSolved] = useState(0);
-  const [mySet, setMySet] = useState(new Set());
+  const [mySet, setMySet] = useState(new Set<string>());
   const [LineGraphData, setLineGraphData] = useState<Rating[] | null>(null);
   const [barGraphData, setBarGraphData] = useState<RatingFrequency[] | null>(
     null
@@ -96,6 +91,10 @@ export function CodeforcesVisualizerComponent() {
   useEffect(() => {
     fetchAPI();
   }, [username]);
+
+  useEffect(() => {
+    console.log("Attempted Array -> ", Attempted);
+  }, [Attempted]);
 
   const fetchAPI = async () => {
     try {
@@ -111,7 +110,6 @@ export function CodeforcesVisualizerComponent() {
         ),
         fetch(`https://codeforces.com/api/user.rating?handle=${username}`),
         fetch("https://codeforces.com/api/contest.list?gym=false"),
-
       ]);
 
       const [userInfoData, allSubmissionsData, allRating, contestData] =
@@ -122,16 +120,25 @@ export function CodeforcesVisualizerComponent() {
           contestResponse.json(),
         ]);
 
-      // For Total solved
-      const totalSolved = allSubmissionsData.result.filter(
-        (element: { verdict: string }) => element.verdict === "OK"
-      ).length;
-
-      console.log(contestData);
-      // For Total Submissions
-      allSubmissionsData.result.forEach((element: { problem: any }) => {
-        setMySet((prevSet) => new Set(prevSet).add(element.problem.name));
+      // For Total solved and unique problems
+      const uniqueProblems = new Set<string>();
+      const ratingFreqMap = new Map<number, number>();
+      allSubmissionsData.result.forEach((submission: Submissions) => {
+        const problemKey = `${submission.problem.name}|${submission.problem.rating}`;
+        if (submission.verdict === "OK" && !uniqueProblems.has(problemKey)) {
+          uniqueProblems.add(problemKey);
+          const problemRating = submission.problem.rating;
+          if (problemRating) {
+            ratingFreqMap.set(
+              problemRating,
+              (ratingFreqMap.get(problemRating) || 0) + 1
+            );
+          }
+        }
       });
+      setMySet(uniqueProblems);
+      setTotalSolved(uniqueProblems.size);
+      setAttempted(Array.from(uniqueProblems));
 
       // For Rating Graph
       let ratingArr: Rating[] = [];
@@ -147,19 +154,7 @@ export function CodeforcesVisualizerComponent() {
 
       // For Question frequency Graph
       let ratingFreq: RatingFrequency[] = [];
-      let ratingFreqmap = new Map<number, number>();
-      allSubmissionsData.result.forEach(
-        (element: { verdict: string; problem: any }) => {
-          if (element.verdict === "OK") {
-            const problemRating = element.problem.rating;
-            ratingFreqmap.set(
-              problemRating,
-              (ratingFreqmap.get(problemRating) || 0) + 1
-            );
-          }
-        }
-      );
-      ratingFreqmap.forEach((count, rating) => {
+      ratingFreqMap.forEach((count, rating) => {
         let x = {
           question_rating: rating,
           Questions: count,
@@ -174,11 +169,10 @@ export function CodeforcesVisualizerComponent() {
         .filter((contest: UpcomingContest) => contest.phase === "BEFORE" && contest.startTimeSeconds > now)
         .sort((a: UpcomingContest, b: UpcomingContest) => a.startTimeSeconds - b.startTimeSeconds)
         .slice(0, 5);
-      
 
+      console.log("Rating frequency -> ", ratingFreq);
       setBarGraphData(ratingFreq);
       setLineGraphData(ratingArr);
-      setTotalSolved(totalSolved);
       setUserInfo(userInfoData.result[0]);
       setSubmissions(allSubmissionsData.result.slice(0, 10));
       setquestions(allSubmissionsData.result.length);
@@ -196,6 +190,7 @@ export function CodeforcesVisualizerComponent() {
     contribution: userInfo?.contribution,
     friendOfCount: userInfo?.friendOfCount,
     avatar: userInfo?.titlePhoto,
+    ratingFreq: barGraphData,
   };
 
   const problemStats = {
@@ -239,10 +234,10 @@ export function CodeforcesVisualizerComponent() {
                 {upcomingContests.map((contest) => (
                   <li key={contest.id} className="flex justify-between items-center">
                     <Link href={`https://codeforces.com/contest/${contest.id}`}>
-                    <span>{contest.name}</span>
+                      <span>{contest.name}</span>
                     </Link>
                     <Badge>
-                        {new Date(contest.startTimeSeconds * 1000).toLocaleString([], { hour: '2-digit', minute: '2-digit', year: 'numeric', month: 'numeric', day: 'numeric' })}
+                      {new Date(contest.startTimeSeconds * 1000).toLocaleString([], { hour: '2-digit', minute: '2-digit', year: 'numeric', month: 'numeric', day: 'numeric' })}
                     </Badge>
                   </li>
                 ))}
@@ -253,6 +248,7 @@ export function CodeforcesVisualizerComponent() {
           </CardContent>
         </Card>
       </div>
+      <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
