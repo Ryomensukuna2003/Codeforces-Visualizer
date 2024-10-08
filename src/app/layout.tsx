@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { UsernameProvider } from "../components/contextProvider";
+import { ThemeProvider } from "@/components/Providers/theme-provider";
+import { UsernameProvider } from "../components/Providers/contextProvider";
 
 export const metadata: Metadata = {
   title: "CF-Visualizer",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useUsername } from "../../components/contextProvider";
+import { useUsername } from "../../components/Providers/contextProvider";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -41,10 +42,9 @@ export default function ContestsPage() {
     const from = (currentPage - 1) * contestsPerPage + 1;
     try {
       // Api handling -------------------------------------------------------
-      const rating = await fetch(
-        `https://codeforces.com/api/user.rating?handle=${username}`
-      );
-      const ratingJson = await rating.json();
+      const ratingJson = await axios
+        .get(`https://codeforces.com/api/user.rating?handle=${username}`)
+        .then((response) => response.data);
       let ratingArr: Rating[] = [];
       ratingJson.result.forEach((element: Rating) => {
         let obj1 = {

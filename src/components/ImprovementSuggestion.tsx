@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { useUsername } from "./contextProvider";
+import { useUsername } from "./Providers/contextProvider";
 
 interface ImprovementSuggestionProps {
   userData: {
@@ -75,7 +75,7 @@ export function ImprovementSuggestion({
           <div className="space-y-4">
             <p className="text-base text-muted-foreground">
               <p className="text-base">
-              <ReactMarkdown>{suggestion}</ReactMarkdown>
+                <ReactMarkdown>{suggestion}</ReactMarkdown>
               </p>
             </p>
             <Button onClick={() => setSuggestion(null)}>

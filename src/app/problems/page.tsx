@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { useUsername } from "../../components/contextProvider";
+import { useUsername } from "../../components/Providers/contextProvider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronUp, ChevronDown } from "lucide-react";
@@ -53,7 +53,7 @@ export default function ProblemsPage() {
   const [initialRating, setInitialFilter] = useState(800);
   const [endingFilter, setEndingFilter] = useState(3200);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const { username, Attempted,setAttempted } = useUsername();
+  const { username, Attempted, setAttempted } = useUsername();
   const [currentPage, setCurrentPage] = useState(1);
   const [displayedProblems, setDisplayedProblems] = useState<Problem[]>([]);
   const contestsPerPage = 100;
@@ -144,7 +144,7 @@ export default function ProblemsPage() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     updateDisplayedProblems(sorted, currentPage);
   };
-  console.log(Attempted)
+  console.log(Attempted);
   const totalPages = Math.ceil(filteredProblems.length / contestsPerPage);
 
   const goToNextPage = () => {
@@ -215,7 +215,14 @@ export default function ProblemsPage() {
               </TableHeader>
               <TableBody>
                 {displayedProblems.map((problem) => (
-                  <TableRow key={`${problem.contestId}${problem.index}`} className={Attempted.includes(`${problem.name}|${problem.rating}`) ? "bg-secondary " : ""}>
+                  <TableRow
+                    key={`${problem.contestId}${problem.index}`}
+                    className={
+                      Attempted.includes(`${problem.name}|${problem.rating}`)
+                        ? "bg-secondary "
+                        : ""
+                    }
+                  >
                     <TableCell className="pl-5">
                       <Link
                         href={`https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}`}

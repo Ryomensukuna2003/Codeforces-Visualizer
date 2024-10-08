@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,12 +16,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "./ui/toggle";
-import { ChartLineBar } from "./chart-bar-label";
+import { ChartLineBar } from "./Bar_Chart";
 import { CodeforcesUserCard } from "./AboutCard";
-import ChartLineLinear from "./chart-line-linear";
+import ChartLineLinear from "./Line_Chart";
 import Link from "next/link";
-import { useUsername } from "./contextProvider";
+import { useUsername } from "./Providers/contextProvider";
 import { ImprovementSuggestion } from "./ImprovementSuggestion";
+import SleepingCat from "./cat";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -74,7 +76,7 @@ export function CodeforcesVisualizerComponent() {
     startTimeSeconds: number;
   }
 
-  const { username, setUsername, Attempted, setAttempted } = useUsername();
+  const { username, setUsername, setAttempted } = useUsername();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setquestions] = useState(0);
@@ -84,45 +86,39 @@ export function CodeforcesVisualizerComponent() {
   const [barGraphData, setBarGraphData] = useState<RatingFrequency[] | null>(
     null
   );
-  const [upcomingContests, setUpcomingContests] = useState<UpcomingContest[] | null>(
-    null
-  );
+  const [upcomingContests, setUpcomingContests] = useState<
+    UpcomingContest[] | null
+  >(null);
 
   useEffect(() => {
     fetchAPI();
   }, [username]);
 
-  useEffect(() => {
-    console.log("Attempted Array -> ", Attempted);
-  }, [Attempted]);
-
   const fetchAPI = async () => {
     try {
-      const [
-        userInfoResponse,
-        allSubmissionsResponse,
-        ratingResponse,
-        contestResponse,
-      ] = await Promise.all([
-        fetch(`https://codeforces.com/api/user.info?handles=${username}`),
-        fetch(
-          `https://codeforces.com/api/user.status?handle=${username}&from=1&count=100000000`
-        ),
-        fetch(`https://codeforces.com/api/user.rating?handle=${username}`),
-        fetch("https://codeforces.com/api/contest.list?gym=false"),
-      ]);
-
       const [userInfoData, allSubmissionsData, allRating, contestData] =
         await Promise.all([
-          userInfoResponse.json(),
-          allSubmissionsResponse.json(),
-          ratingResponse.json(),
-          contestResponse.json(),
+          axios
+            .get(`https://codeforces.com/api/user.info?handles=${username}`)
+            .then((response) => response.data),
+          axios
+            .get(
+              `https://codeforces.com/api/user.status?handle=${username}&from=1&count=100000000`
+            )
+            .then((response) => response.data),
+          axios
+            .get(`https://codeforces.com/api/user.rating?handle=${username}`)
+            .then((response) => response.data),
+          axios
+            .get("https://codeforces.com/api/contest.list?gym=false")
+            .then((response) => response.data),
         ]);
 
-      // For Total solved and unique problems
       const uniqueProblems = new Set<string>();
       const ratingFreqMap = new Map<number, number>();
+      let ratingArr: Rating[] = [];
+      let ratingFreq: RatingFrequency[] = [];
+
       allSubmissionsData.result.forEach((submission: Submissions) => {
         const problemKey = `${submission.problem.name}|${submission.problem.rating}`;
         if (submission.verdict === "OK" && !uniqueProblems.has(problemKey)) {
@@ -136,12 +132,8 @@ export function CodeforcesVisualizerComponent() {
           }
         }
       });
-      setMySet(uniqueProblems);
-      setTotalSolved(uniqueProblems.size);
-      setAttempted(Array.from(uniqueProblems));
 
       // For Rating Graph
-      let ratingArr: Rating[] = [];
       allRating.result.forEach(
         (element: { contestName: string; newRating: number }) => {
           let x = {
@@ -152,8 +144,7 @@ export function CodeforcesVisualizerComponent() {
         }
       );
 
-      // For Question frequency Graph
-      let ratingFreq: RatingFrequency[] = [];
+      // For Question solved frequency Graph
       ratingFreqMap.forEach((count, rating) => {
         let x = {
           question_rating: rating,
@@ -166,11 +157,19 @@ export function CodeforcesVisualizerComponent() {
       // For Upcoming Contests
       const now = Math.floor(Date.now() / 1000);
       const upcomingContests = contestData.result
-        .filter((contest: UpcomingContest) => contest.phase === "BEFORE" && contest.startTimeSeconds > now)
-        .sort((a: UpcomingContest, b: UpcomingContest) => a.startTimeSeconds - b.startTimeSeconds)
+        .filter(
+          (contest: UpcomingContest) =>
+            contest.phase === "BEFORE" && contest.startTimeSeconds > now
+        )
+        .sort(
+          (a: UpcomingContest, b: UpcomingContest) =>
+            a.startTimeSeconds - b.startTimeSeconds
+        )
         .slice(0, 5);
 
-      console.log("Rating frequency -> ", ratingFreq);
+      setMySet(uniqueProblems);
+      setTotalSolved(uniqueProblems.size);
+      setAttempted(Array.from(uniqueProblems));
       setBarGraphData(ratingFreq);
       setLineGraphData(ratingArr);
       setUserInfo(userInfoData.result[0]);
@@ -205,6 +204,7 @@ export function CodeforcesVisualizerComponent() {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
+      {/* Nav Bar  */}
       <div className="flex sm:flex-row justify-between gap-4 ">
         <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
         <div className="flex">
@@ -222,34 +222,54 @@ export function CodeforcesVisualizerComponent() {
         <ModeToggle />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Contests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {upcomingContests && upcomingContests.length > 0 ? (
-              <ul className="space-y-2">
-                {upcomingContests.map((contest) => (
-                  <li key={contest.id} className="flex justify-between items-center">
-                    <Link href={`https://codeforces.com/contest/${contest.id}`}>
-                      <span>{contest.name}</span>
-                    </Link>
-                    <Badge>
-                      {new Date(contest.startTimeSeconds * 1000).toLocaleString([], { hour: '2-digit', minute: '2-digit', year: 'numeric', month: 'numeric', day: 'numeric' })}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No upcoming contests found.</p>
+      <div className="relative">
+        <div className="absolute  left-15 right-5  ">
+          <SleepingCat />
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* User Card  */}
+          <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+          <Card>
+        {/* Upcoming Contest  */}
+        <CardHeader>
+          <CardTitle>Upcoming Contests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {upcomingContests && upcomingContests.length > 0 ? (
+            <ul className="space-y-2">
+          {upcomingContests.map((contest) => (
+            <li
+              key={contest.id}
+              className="flex justify-between items-center"
+            >
+              <Link href={`https://codeforces.com/contest/${contest.id}`}>
+            <span>{contest.name}</span>
+              </Link>
+              <Badge>
+            {new Date(contest.startTimeSeconds * 1000).toLocaleString(
+              [],
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+              }
             )}
-          </CardContent>
-        </Card>
+              </Badge>
+            </li>
+          ))}
+            </ul>
+          ) : (
+            <p>No upcoming contests found.</p>
+          )}
+        </CardContent>
+          </Card>
+        </div>
       </div>
       <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
+      {/* Graphs  */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -269,6 +289,7 @@ export function CodeforcesVisualizerComponent() {
         </Card>
       </div>
 
+      {/* Recent Submissions  */}
       <Card>
         <CardHeader>
           <CardTitle>Recent submissions</CardTitle>
