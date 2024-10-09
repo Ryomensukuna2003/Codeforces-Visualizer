@@ -6,9 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useUsername } from "../components/Providers/contextProvider";
 
-
 export default function UsernamePopup() {
-  const [temp,setTemp] = useState('')
+  const [temp, setTemp] = useState('')
   const { username, setUsername } = useUsername();
   const [isOpen, setIsOpen] = useState(false)
 
@@ -24,15 +23,12 @@ export default function UsernamePopup() {
     }
   }
 
-
-
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px] bg-white text-black font-sans ">
+      <DialogContent className="sm:max-w-[425px] bg-card text-card-foreground font-sans">
         <DialogHeader>
           <DialogTitle>Welcome!</DialogTitle>
-          <DialogDescription >
+          <DialogDescription>
             Please enter your username to continue.
           </DialogDescription>
         </DialogHeader>
@@ -43,11 +39,11 @@ export default function UsernamePopup() {
               placeholder="Enter your username"
               value={temp}
               onChange={(e) => setTemp(e.target.value)}
-              className="border-gray-300 focus:border-black"
+              className="border-input focus:border-ring"
             />
           </div>
-          <DialogFooter >
-            <Button type="submit" className="mt-5 rounded">
+          <DialogFooter>
+            <Button type="submit" className="mt-5 rounded bg-primary text-primary-foreground">
               Set Username
             </Button>
           </DialogFooter>
