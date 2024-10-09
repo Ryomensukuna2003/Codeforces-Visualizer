@@ -40,6 +40,7 @@ export const Upcoming_Contest = ({
                     className="space-x-2"
                   >
                     <span>{contest.name}</span>
+                  </Link>
                     <Badge className={isContestToday ? "bg-red-500" : ""}>
                       {isContestToday
                         ? "Today"
@@ -51,7 +52,6 @@ export const Upcoming_Contest = ({
                             day: "numeric",
                           })}
                     </Badge>
-                  </Link>
                 </li>
               );
             })}
