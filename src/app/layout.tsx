@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/Providers/theme-provider";
 import { UsernameProvider } from "../components/Providers/contextProvider";
+import UsernamePopup from "../hooks/username-popup";
 
 export const metadata: Metadata = {
   title: "CF-Visualizer",
@@ -22,7 +23,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <UsernameProvider>{children}</UsernameProvider>
+          <UsernameProvider>
+            <UsernamePopup />
+            {children}
+          </UsernameProvider>
         </ThemeProvider>
       </body>
     </html>

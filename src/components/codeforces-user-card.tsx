@@ -6,30 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Trophy, Users, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { CodeforcesUserCardProps } from "@/app/types";
 
-interface UserInfo {
-  handle: string;
-  rating?: number;
-  maxRating?: number;
-  rank?: string;
-  contribution?: number;
-  friendOfCount?: number;
-  avatar?: string;
-}
-
-interface ProblemStats {
-  total: number;
-  solved: number;
-  attempted: number;
-}
-
-interface CodeforcesUserCardProps {
-  userInfo: UserInfo;
-  problemStats: ProblemStats;
-}
 
 export function CodeforcesUserCard({
-  userInfo,
+  AboutUser,
   problemStats,
 }: CodeforcesUserCardProps) {
   const getRankColor = (rank: string) => {
@@ -53,17 +34,17 @@ export function CodeforcesUserCard({
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
         <div className="flex items-center space-x-4">
           <Avatar className="h-24 w-24 ring-4 ring-white">
-            <AvatarImage src={userInfo.avatar} alt={userInfo.handle} />
-            <AvatarFallback className="text-2xl font-bold">{userInfo.handle[0]}</AvatarFallback>
+            <AvatarImage src={AboutUser.avatar} alt={AboutUser.handle} />
+            <AvatarFallback className="text-2xl font-bold">{AboutUser.handle[0]}</AvatarFallback>
           </Avatar>
           <div className="flex-grow">
-            <h2 className="text-2xl font-bold text-white mb-1">{userInfo.handle}</h2>
-            <Badge variant="secondary" className={`text-xs px-2 py-1 ${getRankColor(userInfo.rank || '')}`}>
-              {userInfo.rank}
+            <h2 className="text-2xl font-bold text-white mb-1">{AboutUser.handle}</h2>
+            <Badge variant="secondary" className={`text-xs px-2 py-1 ${getRankColor(AboutUser.rank || '')}`}>
+              {AboutUser.rank}
             </Badge>
             <p className="text-white text-sm mt-2">
-              Rating: <span className="font-semibold">{userInfo.rating}</span>
-              <span className="text-xs ml-1">(max: {userInfo.maxRating})</span>
+              Rating: <span className="font-semibold">{AboutUser.rating}</span>
+              <span className="text-xs ml-1">(max: {AboutUser.maxRating})</span>
             </p>
           </div>
         </div>
@@ -73,13 +54,13 @@ export function CodeforcesUserCard({
           <div className="flex items-center">
             <Trophy className="w-5 h-5 text-yellow-500 mr-2" />
             <span className="text-sm">
-              Contribution: <span className="font-semibold">{userInfo.contribution}</span>
+              Contribution: <span className="font-semibold">{AboutUser.contribution}</span>
             </span>
           </div>
           <div className="flex items-center">
             <Users className="w-5 h-5 text-blue-500 mr-2" />
             <span className="text-sm">
-              Friend of: <span className="font-semibold">{userInfo.friendOfCount}</span>
+              Friend of: <span className="font-semibold">{AboutUser.friendOfCount}</span>
             </span>
           </div>
         </div>

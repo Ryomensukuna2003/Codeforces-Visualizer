@@ -19,31 +19,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {Problem,ProblemStatistics,CombinedData} from '../types'
 
-interface Problem {
-  contestId: number;
-  index: string;
-  name: string;
-  type: string;
-  rating: number;
-  tags: string[];
-}
-
-interface ProblemStatistics {
-  contestId: number;
-  index: string;
-  solvedCount: number;
-}
-
-interface CombinedData {
-  contestId: number;
-  index: string;
-  name: string;
-  type: string;
-  rating: number;
-  tags: string[];
-  solvedCount: number;
-}
 
 export default function ProblemsPage() {
   const [problems, setProblems] = useState<CombinedData[]>([]);

@@ -24,6 +24,12 @@ interface CodeforcesUserCardProps {
   userInfo: UserInfo;
   problemStats: ProblemStats;
 }
+const SleepingCatStyles = `
+  @keyframes sleepingCat {
+    0%, 50% { background-position: -64px 0; }
+    50%, 100% { background-position: -64px -32px; }
+  }
+`;
 
 export function CodeforcesUserCard({
   userInfo,
@@ -48,6 +54,7 @@ export function CodeforcesUserCard({
 
   return (
     <div>
+      <style>{SleepingCatStyles}</style>
       <Card className="shadow-sm rounded-lg overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center space-x-4">

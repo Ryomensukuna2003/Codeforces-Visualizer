@@ -17,18 +17,11 @@ import { useUsername } from "../../components/Providers/contextProvider";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { RatingChange } from "../types";
 
-interface Rating {
-  contestName: string;
-  ratingUpdateTimeSeconds: number;
-  rank: number;
-  oldRating: number;
-  newRating: number;
-  id: number;
-}
 
 export default function ContestsPage() {
-  const [allRating, setAllRating] = useState<Rating[] | null>(null);
+  const [allRating, setAllRating] = useState<RatingChange[] | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalContests, setTotalContests] = useState(0);
   const contestsPerPage = 100;
@@ -45,8 +38,8 @@ export default function ContestsPage() {
       const ratingJson = await axios
         .get(`https://codeforces.com/api/user.rating?handle=${username}`)
         .then((response) => response.data);
-      let ratingArr: Rating[] = [];
-      ratingJson.result.forEach((element: Rating) => {
+      let ratingArr: RatingChange[] = [];
+      ratingJson.result.forEach((element: RatingChange) => {
         let obj1 = {
           contestName: element.contestName,
           ratingUpdateTimeSeconds: element.ratingUpdateTimeSeconds,

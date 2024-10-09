@@ -15,21 +15,13 @@ import { useEffect, useState } from "react";
 import { useUsername } from "../../components/Providers/contextProvider";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {SubmissionsType} from '../types'
 
-interface Submissions {
-  verdict: string;
-  problem: any;
-  contestId: number;
-  programmingLanguage: string;
-  timeConsumedMillis: number;
-  memoryConsumedBytes: number;
-  id: string;
-}
 
 export default function SubmissionsPage() {
   const { username } = useUsername();
 
-  const [allsubmissions, setallSubmissions] = useState<Submissions[] | null>(
+  const [allsubmissions, setallSubmissions] = useState<SubmissionsType[] | null>(
     null
   );
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,8 +37,8 @@ export default function SubmissionsPage() {
       );
       const SubmissionJson = await allSubmissions.json();
       if (SubmissionJson.result.length < 100) setFinalPage(true);
-      let AllSubmissions: Submissions[] = [];
-      SubmissionJson.result?.forEach((element: Submissions) => {
+      let AllSubmissions: SubmissionsType[] = [];
+      SubmissionJson.result?.forEach((element: SubmissionsType) => {
         let obj1 = {
           verdict: element.verdict,
           problem: element.problem.name,

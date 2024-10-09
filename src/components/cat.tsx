@@ -22,11 +22,3 @@ const SleepingCat: React.FC = () => {
 };
 
 export default SleepingCat;
-
-// Separate constant for the CSS animation
-export const SleepingCatStyles = `
-  @keyframes sleepingCat {
-    0%, 50% { background-position: -64px 0; }
-    50.0001%, 100% { background-position: -64px -32px; }
-  }
-`;

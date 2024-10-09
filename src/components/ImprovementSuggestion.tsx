@@ -4,54 +4,12 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { useUsername } from "./Providers/contextProvider";
-
-interface ProblemRatingDistribution {
-  rating: number;
-  count: number;
-}
-
-interface TagStatistics {
-  tag: string;
-  count: number;
-}
+import { BorderBeam } from "@/components/ui/border-beam";
+import MarkdownFade from "./ui/markdownFade";
+import {  ImprovementSuggestionProps } from "@/app/types";
 
 
-interface CodeforcesUserData {
-  handle: string;
-  rating: number;
-  maxRating: number;
-  rank: string;
-  maxRank: string;
-  contribution: number;
-  friendOfCount: number;
-  lastOnlineTimeSeconds: number;
-  registrationTimeSeconds: number;
-  problemRatingDistribution: ProblemRatingDistribution[]
-  contestsParticipated: number;
-  bestRank: number;
-  worstRank: number;
-  topSolvedTags: TagStatistics[];
-  totalAcceptedProblems: number;
-  averageAcceptedProblemRating: number;
-  
-  recentContests: number;
-  averageRatingChange: number;
-  bestRatingChange: number;
-  worstRatingChange: number;
-}
-
-interface ProblemStats {
-  total: number;
-  solved: number;
-  attempted: number;
-}
-
-interface ImprovementSuggestionProps {
-  userData: CodeforcesUserData;
-  problemStats: ProblemStats;
-}
 export function ImprovementSuggestion({
   userData,
   problemStats,
@@ -87,39 +45,40 @@ export function ImprovementSuggestion({
   };
 
   return (
-    <Card className="mt-6">
-      <CardHeader>
-        <CardTitle>Hey wanna know what you're missing 😉 </CardTitle>
-        <p className="text-base text-muted-foreground">
-          Get Personalized advice with gemini
-        </p>
-      </CardHeader>
-      <CardContent>
-        <ReactMarkdown></ReactMarkdown>
-        {suggestion ? (
-          <div className="space-y-4">
-            <div className="text-base text-muted-foreground">
-              <p className="text-base">
-                <ReactMarkdown>{suggestion}</ReactMarkdown>
-              </p>
+    <div className="relative w-full h-full rounded-xl">
+      <BorderBeam />
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Hey, wanna know what you're missing? 😉</CardTitle>
+          <p className="text-base text-muted-foreground">
+            Get Personalized advice with Gemini
+          </p>
+        </CardHeader>
+        <CardContent>
+          {suggestion ? (
+            <div className="space-y-4">
+              <MarkdownFade 
+                content={suggestion} 
+                className="text-base text-muted-foreground"
+              />
+              <Button onClick={() => setSuggestion(null)}>
+                Get Another Suggestion
+              </Button>
             </div>
-            <Button onClick={() => setSuggestion(null)}>
-              Get Another Suggestion
+          ) : (
+            <Button onClick={getSuggestion} disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Suggestion...
+                </>
+              ) : (
+                "Get Personalized Suggestion"
+              )}
             </Button>
-          </div>
-        ) : (
-          <Button onClick={getSuggestion} disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating Suggestion...
-              </>
-            ) : (
-              "Get Personalized Suggestion"
-            )}
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
