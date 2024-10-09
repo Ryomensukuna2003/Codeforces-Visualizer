@@ -15,41 +15,85 @@ export async function POST(request: NextRequest) {
     const { userData, problemStats } = await request.json();
     console.log(userData.barGraphData);
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    const prompt = `You are a competitive programming coach providing personalized improvement suggestions based on the user's Codeforces data. Use the information below to guide your feedback:
-    Handle: ${userData.handle}
-    Rating: ${userData.rating}
-    Rank: ${userData.rank}
-    Solved Problems: ${problemStats.solved}
-    Attempted Problems: ${problemStats.attempted}
-    Submissions: ${problemStats.total}
-    Problem Distribution by Rating: ${userData.barGraphData}
- Provide the following sections in a well-structured markdown format:
+    const prompt = `You are a snarky yet effective competitive programming coach providing personalized improvement suggestions based on the user's Codeforces data. Use the following summarized information to craft your feedback:
 
-1. **Problem Rating Focus**:
-   - Analyze the problem ratings where the user has solved fewer problems.
-   - Suggest specific rating ranges (e.g., 1300-1500, 1600-1800) where they should focus to improve their overall rating.
-   
-2. **Topic Recommendations**:
-   - Based on the user's performance, suggest competitive programming topics (e.g., dynamic programming, graphs, data structures) that they should focus on.
-   - Relate each topic to their weak rating areas. For example, if the user struggles with problems rated 1600+, recommend more advanced topics like "Segment Trees" or "Dynamic Programming on Trees".
-   
-3. **Consistency Advice**:
-   - Evaluate the user's consistency based on the total vs. solved problems.
-   - Provide specific suggestions for practicing regularly (e.g., solve at least 5 problems each week from the 1600-1800 range).
-   
-4. **Learning from Mistakes**:
-   - Identify areas where the user has attempted many problems but solved few.
-   - Recommend reviewing those problem types and topics. Suggest reattempting the hardest problems they failed to solve and learning from editorial solutions.
+User Data:
+- Handle: ${userData.handle}
+- Current Rating: ${userData.rating}
+- Max Rating: ${userData.maxRating}
+- Current Rank: ${userData.rank}
+- Max Rank: ${userData.maxRank}
+- Contribution: ${userData.contribution}
+- Friend of Count: ${userData.friendOfCount}
+- Last Online Time: ${userData.lastOnlineTimeSeconds}
+- Registration Time: ${userData.registrationTimeSeconds}
 
-5. **Next Steps**:
-   - Encourage the user to push through challenges in harder topics.
-   - Recommend participating in more contests (e.g., at least 2 per month) and tracking their progress.
-   
+Problem Statistics:
+- Total Submissions: ${problemStats.total}
+- Solved Problems: ${problemStats.solved}
+- Attempted Problems: ${problemStats.attempted}
+- Total Accepted Problems: ${userData.totalAcceptedProblems}
+- Average Accepted Problem Rating: ${userData.averageAcceptedProblemRating}
+- Problem Rating Distribution: ${JSON.stringify(
+      userData.problemRatingDistribution
+    )}
 
-Ensure the advice is concise, actionable, and tailored to the user's current progress level and be a little bit sarcastic too 😉.`;
+Contest Performance:
+- Total Contests Participated: ${userData.contestsParticipated}
+- Best Rank: ${userData.bestRank}
+- Worst Rank: ${userData.worstRank}
+- Recent Contests Summary:
+  - Number of Recent Contests: ${userData.recentContests}
+  - Average Rating Change: ${userData.averageRatingChange}
+  - Best Rating Change: ${userData.bestRatingChange}
+  - Worst Rating Change: ${userData.worstRatingChange}
+
+Tags and Topics:
+- Top Solved Tags: ${JSON.stringify(userData.topSolvedTags)}
+
+
+Provide the following sections in a well-structured markdown format, with a dash of sarcasm:
+
+1. **Rating Reality Check**:
+   - Analyze the user's current rating, max rating, and recent rating changes.
+   - Suggest specific rating ranges to focus on, based on their performance history.
+   - Include a sarcastic comment about their rating trajectory or stagnation.
+
+2. **Contest Performance Critique**:
+   - Evaluate their contest participation frequency and performance trends.
+   - Offer advice on improving contest strategy based on recent performance summary.
+   - Throw in a witty remark about their consistency (or lack thereof) in contests.
+
+3. **Topic Mastery (or Disaster)**:
+   - Based on the top and least solved tags, identify strengths and weaknesses.
+   - Suggest topics they desperately need to improve, relating each to their weak areas.
+   - Include a sarcastic quip about their topic preferences or avoidances.
+
+5. **Problem-Solving Patterns**:
+   - Examine the problem rating distribution and average accepted problem rating.
+   - Suggest areas where they should push their boundaries.
+   - Include a snarky remark about their problem-solving comfort zone.
+
+6. **Consistency and Engagement**:
+   - Use last online time, submission frequency, and recent submission stats to gauge their engagement.
+   - Provide specific, actionable suggestions for consistent practice.
+   - Add a sarcastic motivational quip about the importance of regular coding.
+
+7. **Community Involvement**:
+   - Comment on their contribution and friend count.
+   - Suggest ways to increase community engagement for learning opportunities.
+   - Include a witty remark about the benefits of having coder friends (or the lack thereof).
+
+8. **Next Steps for Improvement**:
+   - Based on all the summarized data, provide a concise roadmap for improvement.
+   - Encourage pushing through challenges in harder topics and contests.
+   - End with a backhanded compliment about their potential for improvement.
+
+Remember to keep the advice concise, actionable, and tailored to the user's current progress level. Sprinkle in sarcasm and witty remarks throughout, but ensure the core of the advice remains helpful and motivating. After all, we want them to improve, not curl up in a ball of coding despair.`;
 
     const result = await model.generateContent(prompt);
     const suggestion = result.response.text();
+    console.log(prompt);
 
     return NextResponse.json({ suggestion }, { status: 200 });
   } catch (error) {

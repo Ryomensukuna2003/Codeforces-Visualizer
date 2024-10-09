@@ -38,8 +38,11 @@ export function CodeforcesVisualizerComponent() {
     rating?: number;
     maxRating?: number;
     rank?: string;
+    maxRank?: string;
     contribution?: number;
     friendOfCount?: number;
+    lastOnlineTimeSeconds: number;
+    registrationTimeSeconds: number;
     titlePhoto?: string;
   }
 
@@ -62,9 +65,9 @@ export function CodeforcesVisualizerComponent() {
     rating: number;
   }
 
-  interface RatingFrequency {
-    question_rating: number;
-    Questions: number;
+  interface ProblemRatingDistribution {
+    rating: number;
+    count: number;
   }
 
   interface UpcomingContest {
@@ -76,23 +79,43 @@ export function CodeforcesVisualizerComponent() {
     startTimeSeconds: number;
   }
 
+  interface TagStatistics {
+    tag: string;
+    count: number;
+  }
+
   const { username, setUsername, setAttempted } = useUsername();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setquestions] = useState(0);
   const [total_Solved, setTotalSolved] = useState(0);
   const [mySet, setMySet] = useState(new Set<string>());
-  const [LineGraphData, setLineGraphData] = useState<Rating[] | null>(null);
-  const [barGraphData, setBarGraphData] = useState<RatingFrequency[] | null>(
-    null
+  const [LineGraphData, setLineGraphData] = useState<Rating[]>([]);
+  const [barGraphData, setBarGraphData] = useState<ProblemRatingDistribution[]>(
+    []
   );
   const [upcomingContests, setUpcomingContests] = useState<
     UpcomingContest[] | null
   >(null);
+  const [contestsParticipated, setcontestsParticipated] = useState<number>(0);
+  const [bestRank, setbestRank] = useState<number>(Number.MAX_SAFE_INTEGER);
+  const [worstRank, setworstRank] = useState<number>(0);
+  const [averageRatingChange, setaverageRatingChange] = useState<number>(0);
+  const [bestRatingChange, setbestRatingChange] = useState<number>(0);
+  const [worstRatingChange, setworstRatingChange] = useState<number>(0);
+  const [TotalAcceptedProblems, setTotalAcceptedProblems] = useState<number>(0);
+  const [averageAcceptedProblemRating, setaverageAcceptedProblemRating] =
+    useState<number>(0);
+  const [TagStatistics, setTagStatistics] = useState<TagStatistics[]>([]);
 
   useEffect(() => {
     fetchAPI();
   }, [username]);
+
+  // For logging data
+  // useEffect(() => {
+  //   console.log(contestsParticipated);
+  // },[contestsParticipated])
 
   const fetchAPI = async () => {
     try {
@@ -103,7 +126,7 @@ export function CodeforcesVisualizerComponent() {
             .then((response) => response.data),
           axios
             .get(
-              `https://codeforces.com/api/user.status?handle=${username}&from=1&count=100000000`
+              `https://codeforces.com/api/user.status?handle=${username}&from=1`
             )
             .then((response) => response.data),
           axios
@@ -117,11 +140,56 @@ export function CodeforcesVisualizerComponent() {
       const uniqueProblems = new Set<string>();
       const ratingFreqMap = new Map<number, number>();
       let ratingArr: Rating[] = [];
-      let ratingFreq: RatingFrequency[] = [];
+      let ratingFreq: ProblemRatingDistribution[] = [];
+      setcontestsParticipated(allRating.result.length);
+      let totalRatingChange = 0; // Initialize total rating change
+      // for userData
+      allRating.result.forEach(
+        (element: { rank: number; oldRating: number; newRating: number }) => {
+          if (element.rank) {
+            const ratingChange = element.newRating - element.oldRating;
+            totalRatingChange += ratingChange; // Accumulate rating change
+            setbestRatingChange((prev) => Math.max(prev, ratingChange));
+            setworstRatingChange((prev) => Math.min(prev, ratingChange));
+            setbestRank((prev) => Math.min(prev, element.rank));
+            setworstRank((prev) => Math.max(prev, element.rank));
+          }
+        }
+      );
+      setaverageRatingChange(totalRatingChange / allRating.result.length); // Calculate average rating change
+
+      barGraphData?.forEach((element) => {
+        setaverageAcceptedProblemRating((prev) => prev + element.rating);
+      });
+      setaverageAcceptedProblemRating((prev) => prev / TotalAcceptedProblems);
+
+      // for userData
+      let x: string[] = [];
+      allSubmissionsData.result.forEach((submission: Submissions) => {
+        if (submission.verdict === "OK") {
+          submission.problem.tags.forEach((tag) => {
+            x.push(tag);
+          });
+        }
+      });
+      x.sort();
+      let count = 1;
+      for (let i = 1; i < x.length; i++) {
+        if (x[i] === x[i - 1]) {
+          count++;
+        } else {
+          setTagStatistics((prev) => [
+            ...prev,
+            { tag: x[i - 1], count: count },
+          ]);
+          count = 1;
+        }
+      }
 
       allSubmissionsData.result.forEach((submission: Submissions) => {
         const problemKey = `${submission.problem.name}|${submission.problem.rating}`;
         if (submission.verdict === "OK" && !uniqueProblems.has(problemKey)) {
+          setTotalAcceptedProblems((prev) => prev + 1);
           uniqueProblems.add(problemKey);
           const problemRating = submission.problem.rating;
           if (problemRating) {
@@ -147,12 +215,12 @@ export function CodeforcesVisualizerComponent() {
       // For Question solved frequency Graph
       ratingFreqMap.forEach((count, rating) => {
         let x = {
-          question_rating: rating,
-          Questions: count,
+          rating: rating,
+          count: count,
         };
         ratingFreq.push(x);
       });
-      ratingFreq.sort((a, b) => a.question_rating - b.question_rating);
+      ratingFreq.sort((a, b) => a.rating - b.rating);
 
       // For Upcoming Contests
       const now = Math.floor(Date.now() / 1000);
@@ -183,13 +251,28 @@ export function CodeforcesVisualizerComponent() {
 
   const userData = {
     handle: userInfo?.handle || "USER",
-    rating: userInfo?.rating,
-    maxRating: userInfo?.maxRating,
-    rank: userInfo?.rank,
-    contribution: userInfo?.contribution,
-    friendOfCount: userInfo?.friendOfCount,
+    rating: userInfo?.rating ?? 0,
+    maxRating: userInfo?.maxRating ?? 0,
+    rank: userInfo?.rank ?? "unranked",
+    maxRank: userInfo?.maxRank ?? "unranked",
+    contribution: userInfo?.contribution ?? 0,
+    friendOfCount: userInfo?.friendOfCount ?? 0,
+    lastOnlineTimeSeconds: userInfo?.lastOnlineTimeSeconds ?? 0,
+    registrationTimeSeconds: userInfo?.registrationTimeSeconds ?? 0,
     avatar: userInfo?.titlePhoto,
-    ratingFreq: barGraphData,
+    problemRatingDistribution: barGraphData,
+    contestsParticipated: contestsParticipated,
+    bestRank: bestRank,
+    worstRank: worstRank,
+    topSolvedTags: TagStatistics,
+
+    recentContests: contestsParticipated,
+    averageRatingChange: averageRatingChange,
+    bestRatingChange: bestRatingChange,
+    worstRatingChange: worstRatingChange,
+
+    totalAcceptedProblems: TotalAcceptedProblems,
+    averageAcceptedProblemRating: averageAcceptedProblemRating,
   };
 
   const problemStats = {
@@ -230,43 +313,45 @@ export function CodeforcesVisualizerComponent() {
           {/* User Card  */}
           <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
           <Card>
-        {/* Upcoming Contest  */}
-        <CardHeader>
-          <CardTitle>Upcoming Contests</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {upcomingContests && upcomingContests.length > 0 ? (
-            <ul className="space-y-2">
-          {upcomingContests.map((contest) => (
-            <li
-              key={contest.id}
-              className="flex justify-between items-center"
-            >
-              <Link href={`https://codeforces.com/contest/${contest.id}`}>
-            <span>{contest.name}</span>
-              </Link>
-              <Badge>
-            {new Date(contest.startTimeSeconds * 1000).toLocaleString(
-              [],
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-              }
-            )}
-              </Badge>
-            </li>
-          ))}
-            </ul>
-          ) : (
-            <p>No upcoming contests found.</p>
-          )}
-        </CardContent>
+            {/* Upcoming Contest  */}
+            <CardHeader>
+              <CardTitle>Upcoming Contests</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {upcomingContests && upcomingContests.length > 0 ? (
+                <ul className="space-y-2">
+                  {upcomingContests.map((contest) => (
+                    <li
+                      key={contest.id}
+                      className="flex justify-between items-center"
+                    >
+                      <Link
+                        href={`https://codeforces.com/contest/${contest.id}`}
+                      >
+                        <span>{contest.name}</span>
+                      </Link>
+                      <Badge>
+                        {new Date(
+                          contest.startTimeSeconds * 1000
+                        ).toLocaleString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No upcoming contests found.</p>
+              )}
+            </CardContent>
           </Card>
         </div>
       </div>
+
       <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
       {/* Graphs  */}

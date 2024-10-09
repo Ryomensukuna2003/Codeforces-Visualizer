@@ -26,8 +26,8 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface DataPoint {
-  question_rating: number;
-  Questions: number;
+  rating: number;
+  count: number;
 }
 
 interface ChartLineBarProps {

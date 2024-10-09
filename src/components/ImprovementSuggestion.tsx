@@ -7,26 +7,51 @@ import { Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useUsername } from "./Providers/contextProvider";
 
+interface ProblemRatingDistribution {
+  rating: number;
+  count: number;
+}
+
+interface TagStatistics {
+  tag: string;
+  count: number;
+}
+
+
+interface CodeforcesUserData {
+  handle: string;
+  rating: number;
+  maxRating: number;
+  rank: string;
+  maxRank: string;
+  contribution: number;
+  friendOfCount: number;
+  lastOnlineTimeSeconds: number;
+  registrationTimeSeconds: number;
+  problemRatingDistribution: ProblemRatingDistribution[]
+  contestsParticipated: number;
+  bestRank: number;
+  worstRank: number;
+  topSolvedTags: TagStatistics[];
+  totalAcceptedProblems: number;
+  averageAcceptedProblemRating: number;
+  
+  recentContests: number;
+  averageRatingChange: number;
+  bestRatingChange: number;
+  worstRatingChange: number;
+}
+
+interface ProblemStats {
+  total: number;
+  solved: number;
+  attempted: number;
+}
+
 interface ImprovementSuggestionProps {
-  userData: {
-    handle: string;
-    rating?: number;
-    rank?: string;
-    ratingFreq: RatingFrequency[] | null;
-  };
-
-  problemStats: {
-    total: number;
-    solved: number;
-    attempted: number;
-  };
+  userData: CodeforcesUserData;
+  problemStats: ProblemStats;
 }
-
-interface RatingFrequency {
-  question_rating: number;
-  Questions: number;
-}
-
 export function ImprovementSuggestion({
   userData,
   problemStats,
@@ -73,11 +98,11 @@ export function ImprovementSuggestion({
         <ReactMarkdown></ReactMarkdown>
         {suggestion ? (
           <div className="space-y-4">
-            <p className="text-base text-muted-foreground">
+            <div className="text-base text-muted-foreground">
               <p className="text-base">
                 <ReactMarkdown>{suggestion}</ReactMarkdown>
               </p>
-            </p>
+            </div>
             <Button onClick={() => setSuggestion(null)}>
               Get Another Suggestion
             </Button>
