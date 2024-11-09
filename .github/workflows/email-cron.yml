@@ -1,0 +1,45 @@
+name: Daily Email Scheduler
+
+on:
+  schedule:
+    - cron: "47 12 * * *" # Runs at 12:38 UTC daily
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  trigger-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current time
+        run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_ENV
+
+      - name: Trigger Email API
+        id: email-trigger
+        continue-on-error: true
+        run: |
+          echo "Starting email trigger at $TIMESTAMP"
+          response=$(curl -X POST \
+            -H "Content-Type: application/json" \
+            -w "\n%{http_code}" \
+            https://cf-visualizer-kappa.vercel.app/api/send_email)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$ d')
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" != "200" ]; then
+            echo "::error::API call failed with status $http_code"
+            exit 1
+          fi
+
+      - name: Handle API failure
+        if: steps.email-trigger.outcome == 'failure'
+        run: |
+          echo "Email API call failed at $TIMESTAMP"
+          # Retry after 30 seconds
+          sleep 30
+          echo "Retrying API call..."
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            https://cf-visualizer-kappa.vercel.app/api/send_email

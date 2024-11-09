@@ -17,7 +17,12 @@ export const Upcoming_Contest = ({
       date.getFullYear() === today.getFullYear()
     );
   };
-
+  console.log("Upcoming Contest -> ",upcomingContest);
+  upcomingContest.map((contest)=>{
+    if(contest.phase==="BEFORE"){
+      console.log(contest.name+" "+contest.startTimeSeconds);
+    }
+  })
   return (
     <Card>
       <CardHeader>

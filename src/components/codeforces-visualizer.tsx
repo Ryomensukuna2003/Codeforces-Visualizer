@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import {  CardContent,  } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "./ui/toggle";
@@ -77,12 +77,13 @@ export function CodeforcesVisualizerComponent() {
 
   useEffect(() => {
     fetchAPI();
+    // fetch("/api/send_email", {
+    //   method: "POST",
+    // })
+      // .then((response) => response.json())
+      // .then((data) => console.log(data))
+      // .catch((error) => console.error("Error:", error));
   }, [username]);
-
-  // For logging data
-  useEffect(() => {
-    console.log("Bar graph data", barGraphData);
-  }, [barGraphData]);
 
   const fetchAPI = async () => {
     try {
