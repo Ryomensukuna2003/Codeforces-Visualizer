@@ -2,7 +2,7 @@ name: Daily Email Scheduler
 
 on:
   schedule:
-    - cron: "47 12 * * *" # Runs at 12:38 UTC daily
+    - cron: "55 12 * * *" # Runs at 12:38 UTC daily
   workflow_dispatch: # Allows manual trigger
 
 jobs:
