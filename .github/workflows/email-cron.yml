@@ -1,8 +1,8 @@
-name: Daily Email Scheduler
+name: Contest Reminder Email Scheduler
 
 on:
   schedule:
-    - cron: "55 12 * * *" # Runs at 12:38 UTC daily
+    - cron: "*/10 * * * *" # Runs every 10 minutes
   workflow_dispatch: # Allows manual trigger
 
 jobs:
