@@ -1,4 +1,4 @@
-# Codeforces Visualizer  [ **[Link](https://cf-visualizer-kappa.vercel.app/)** ]
+# Codeforces Visualizer  [ **[Link](https://cfstats.vercel.app/)** ]
 
 **Codeforces Visualizer** is a web application designed to provide detailed insights and statistics for Codeforces users. You can search for a user and explore performance metrics, submission history, and rating trends, all presented in an intuitive and visually appealing interface.
 
