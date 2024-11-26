@@ -1,8 +1,6 @@
-"use client";
-
-import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-
+"use client"
+import { TrendingUp } from "lucide-react"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import {
   Card,
   CardContent,
@@ -10,20 +8,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
+} from "@/components/ui/chart"
 
 interface DataPoint {
   contestName: string;
@@ -35,57 +26,63 @@ interface ChartLineLinearProps {
 }
 
 export default function ChartLineLinear({ data }: ChartLineLinearProps) {
+  const chartConfig = {
+    desktop: {
+      label: "Rating",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Rating Graph</CardTitle>
-        <CardDescription>Showing rating changes over contests</CardDescription>
+        <CardTitle>Line Chart - Linear</CardTitle>
+        <CardDescription>Rating Changes Over Contests</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <AreaChart
+            <LineChart
             accessibilityLayer
             data={data}
-            margin={{
-              left: -20,
-              right: 12,
-            }}
-          >
+            >
             <CartesianGrid vertical={false} />
+            <YAxis/>
             <XAxis
               dataKey="contestName"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => {
+                let index = value.search("Div.");
+                console.log("Index=> ", index);
+                return "Div "+value.substr(index+4,2).trim();
+              }}
             />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickCount={5}
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent />}
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Area
+            <Line
               dataKey="rating"
-              type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={0.4}
+              type="linear"
               stroke="var(--color-desktop)"
+              strokeWidth={2}
+              dot={{
+              fill: "var(--color-desktop)",
+              }}
+              activeDot={{
+              r: 6,
+              }}
             />
-          </AreaChart>
+            </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              This graph displays rating changes over multiple contests.<TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground"></div>
-          </div>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        <div className="flex gap-2 font-medium leading-none">
+        Showing rating changes over contests <TrendingUp className="h-4 w-4" />
         </div>
+       
       </CardFooter>
     </Card>
-  );
+  )
 }

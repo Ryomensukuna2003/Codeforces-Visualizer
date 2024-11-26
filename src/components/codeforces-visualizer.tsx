@@ -76,7 +76,17 @@ export function CodeforcesVisualizerComponent() {
   const [averageAcceptedProblemRating, setaverageAcceptedProblemRating] =
     useState<number>(0);
   const [TagStatistics, setTagStatistics] = useState<TagStatistics[]>([]);
-  const [HeatMap, setHeatMap] = useState<{ date: string; desktop: number }[]>([]);
+  const [HeatMap, setHeatMap] = useState<{ date: string; desktop: number }[]>(
+    []
+  );
+  const handleSaveUsername = async () => {
+    try {
+      const response = await axios.post("/api/user", { username });
+      console.log("User saved:", response.data);
+    } catch (error) {
+      console.error("Failed to save username:", error);
+    }
+  };
 
   useEffect(() => {
     fetchAPI();
@@ -85,11 +95,11 @@ export function CodeforcesVisualizerComponent() {
 
   useEffect(() => {
     console.log("HeatMap-> ", HeatMap);
-  }
-  , [HeatMap]);
+  }, [HeatMap]);
 
   const fetchAPI = async () => {
     try {
+      await handleSaveUsername();
       const [userInfoData, allSubmissionsData, allRating, contestData] =
         await Promise.all([
           axios
@@ -112,7 +122,7 @@ export function CodeforcesVisualizerComponent() {
       const ratingFreqMap = new Map<number, number>();
       let ratingArr: Rating[] = [];
       let ratingFreq: ProblemRatingDistribution[] = [];
-      
+
       processHeatMapData(allSubmissionsData);
       setcontestsParticipated(allRating.result.length);
       const heatMapData = processHeatMapData(allSubmissionsData);
@@ -189,7 +199,7 @@ export function CodeforcesVisualizerComponent() {
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="mx-auto mx-2 p-4 space-y-6">
       {/* Nav Bar  */}
       <div className="flex sm:flex-row justify-between gap-4 ">
         <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
@@ -222,17 +232,17 @@ export function CodeforcesVisualizerComponent() {
       <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
       {/* Graphs  */}
-      <div className="flex gap-4 ">
-        <CardContent className="flex-1 p-0 ">
+      <div className="flex flex-col md:flex-row gap-4">
+        <CardContent className="flex-1 p-0">
           <ChartLineBar data={barGraphData} />
         </CardContent>
         <CardContent className="flex-1 p-0">
           <ChartLineLinear data={LineGraphData} />
         </CardContent>
       </div>
+      <div className="mt-4">
         <HeatMapGraph data={HeatMap} />
-
-      {/* Recent Submissions  */}
+      </div>
       <RecentSubmissions submissions={submissions || []} />
       {/* Buttons  */}
       <div className="flex justify-center space-x-4 ">

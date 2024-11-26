@@ -118,7 +118,7 @@ export const getUpcomingContests = (contestData: any, now: number) => {
 };
 
 
-export const processHeatMapData=(allSubmissionsData: any)=>{
+export function processHeatMapData(allSubmissionsData: any): { date: string; desktop: number }[] {
   let HeatMapData= allSubmissionsData.result.map((submission:any) => {
     return {
       x: submission.creationTimeSeconds,
@@ -136,8 +136,8 @@ export const processHeatMapData=(allSubmissionsData: any)=>{
 
   const groupedHeatMapData = Object.keys(groupedByDate).map((date) => {
     return {
-      x: date,
-      y: groupedByDate[date],
+      date: date,
+      desktop: groupedByDate[date],
     };
   });
   return groupedHeatMapData;

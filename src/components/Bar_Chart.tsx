@@ -59,14 +59,17 @@ export function ChartLineBar({ data }: ChartLineBarProps) {
             <YAxis />
             <ChartTooltip
               cursor={true}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent />}
             />
-            <Bar dataKey="count" fill="var(--color-desktop)" radius={8}>
+            <Bar dataKey="count" type="natural"
+              fill="var(--color-desktop)"
+              fillOpacity={1}
+              stroke="var(--color-desktop)"   radius={8}>
               <LabelList
                 dataKey="count" // Displaying the count values
                 position="top"
                 offset={20}
-                className="p-5 fill-foreground"
+                className="p-5 border border-red border-5px"
                 fontSize={12}
                 angle={0} // Removed the angle to show count clearly
               />
