@@ -9,6 +9,7 @@ interface BorderBeamProps {
   colorFrom?: string;
   colorTo?: string;
   delay?: number;
+  theme?: "light" | "dark";
 }
 
 export const BorderBeam = ({
@@ -20,7 +21,20 @@ export const BorderBeam = ({
   colorFrom = "white",
   colorTo = "#18181B",
   delay = 0,
+  theme = "light",
 }: BorderBeamProps) => {
+  const lightThemeColors = {
+    colorFrom: "white",
+    colorTo: "#18181B",
+  };
+
+  const darkThemeColors = {
+    colorFrom: "#18181B",
+    colorTo: "white",
+  };
+
+  const themeColors = theme === "light" ? lightThemeColors : darkThemeColors;
+
   return (
     <div
       style={
@@ -29,8 +43,8 @@ export const BorderBeam = ({
           "--duration": duration,
           "--anchor": anchor,
           "--border-width": borderWidth,
-          "--color-from": colorFrom,
-          "--color-to": colorTo,
+          "--color-from": themeColors.colorFrom,
+          "--color-to": themeColors.colorTo,
           "--delay": `-${delay}s`,
         } as React.CSSProperties
       }

@@ -23,6 +23,7 @@ import { useUsername } from "./Providers/contextProvider";
 import { ImprovementSuggestion } from "./ImprovementSuggestion";
 import RecentSubmissions from "./RecentSubmissions";
 import { Upcoming_Contest } from "./Upcoming_Contest";
+import { HeatMapGraph } from "./ui/HeatMap";
 import SleepingCat from "./cat";
 import {
   UserInfo,
@@ -39,6 +40,7 @@ import {
   processRatingGraph,
   processRatingFreqGraph,
   getUpcomingContests,
+  processHeatMapData,
 } from "../lib/utils";
 
 ChartJS.register(
@@ -74,16 +76,17 @@ export function CodeforcesVisualizerComponent() {
   const [averageAcceptedProblemRating, setaverageAcceptedProblemRating] =
     useState<number>(0);
   const [TagStatistics, setTagStatistics] = useState<TagStatistics[]>([]);
+  const [HeatMap, setHeatMap] = useState<{ date: string; desktop: number }[]>([]);
 
   useEffect(() => {
     fetchAPI();
-    // fetch("/api/send_email", {
-    //   method: "POST",
-    // })
-      // .then((response) => response.json())
-      // .then((data) => console.log(data))
-      // .catch((error) => console.error("Error:", error));
+    console.log("UserName-> ", username);
   }, [username]);
+
+  useEffect(() => {
+    console.log("HeatMap-> ", HeatMap);
+  }
+  , [HeatMap]);
 
   const fetchAPI = async () => {
     try {
@@ -109,7 +112,11 @@ export function CodeforcesVisualizerComponent() {
       const ratingFreqMap = new Map<number, number>();
       let ratingArr: Rating[] = [];
       let ratingFreq: ProblemRatingDistribution[] = [];
+      
+      processHeatMapData(allSubmissionsData);
       setcontestsParticipated(allRating.result.length);
+      const heatMapData = processHeatMapData(allSubmissionsData);
+      setHeatMap(heatMapData);
       // for userData
       processRatings(
         allRating,
@@ -223,6 +230,7 @@ export function CodeforcesVisualizerComponent() {
           <ChartLineLinear data={LineGraphData} />
         </CardContent>
       </div>
+        <HeatMapGraph data={HeatMap} />
 
       {/* Recent Submissions  */}
       <RecentSubmissions submissions={submissions || []} />

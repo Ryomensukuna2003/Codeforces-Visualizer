@@ -3,6 +3,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/Providers/theme-provider";
 import { UsernameProvider } from "../components/Providers/contextProvider";
 import UsernamePopup from "../hooks/username-popup";
+import { Toaster } from "@/components/ui/toaster"
+
 
 export const metadata: Metadata = {
   title: "CF-Visualizer",
@@ -27,6 +29,7 @@ export default function RootLayout({
             <UsernamePopup />
             {children}
           </UsernameProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -116,3 +116,29 @@ export const getUpcomingContests = (contestData: any, now: number) => {
     )
     .slice(0, 5);
 };
+
+
+export const processHeatMapData=(allSubmissionsData: any)=>{
+  let HeatMapData= allSubmissionsData.result.map((submission:any) => {
+    return {
+      x: submission.creationTimeSeconds,
+      y: submission.problem.rating,
+      };
+  });
+  const groupedByDate = HeatMapData.reduce((acc: any, curr: any) => {
+    const date = new Date(curr.x * 1000).toISOString().split('T')[0];
+    if (!acc[date]) {
+      acc[date] = 0;
+    }
+    acc[date]++;
+    return acc;
+  }, {});
+
+  const groupedHeatMapData = Object.keys(groupedByDate).map((date) => {
+    return {
+      x: date,
+      y: groupedByDate[date],
+    };
+  });
+  return groupedHeatMapData;
+}

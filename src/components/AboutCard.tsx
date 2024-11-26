@@ -1,6 +1,7 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CalendarDays, Code2, Trophy, Users, Search, BellRing, Settings } from 'lucide-react'
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -87,32 +88,43 @@ export function CodeforcesUserCard({
           </div>
 
           <Separator className="my-4" />
-          <div className="flex h-auto items-center space-x-4 mb-4 ml-5 text-sm">
-            <div className="flex-1">
-              <p className="font-semibold">
-                Contribution:{" "}
-                <span className="font-normal">{userInfo.contribution}</span>
-              </p>
-              <p className="font-semibold">
-                Friend of:{" "}
-                <span className="font-normal">{userInfo.friendOfCount}</span>
-              </p>
-            </div>
-
-            <div className="flex-1">
-              <p className="font-semibold">
-                Total Submissions:{" "}
-                <span className="font-normal">{problemStats.total}</span>
-              </p>
-              <p className="font-semibold">
-                Solved:{" "}
-                <span className="font-normal">{problemStats.solved}</span>
-              </p>
-              <p className="font-semibold">
-                Attempted:{" "}
-                <span className="font-normal">{problemStats.attempted}</span>
-              </p>
-            </div>
+          <div className="grid grid-cols-2 gap-2">
+          <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
+                <Trophy className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{problemStats.total}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Solved Problems</CardTitle>
+                <Code2 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{problemStats.solved}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Contribution</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{userInfo.contribution}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Friends</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{userInfo.friendOfCount}</div>
+              </CardContent>
+            </Card>
           </div>
         </CardContent>
       </Card>
