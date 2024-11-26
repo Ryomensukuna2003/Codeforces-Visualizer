@@ -3,8 +3,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/Providers/theme-provider";
 import { UsernameProvider } from "../components/Providers/contextProvider";
 import UsernamePopup from "../hooks/username-popup";
-import { Toaster } from "@/components/ui/toaster"
-
+import { Toaster } from "@/components/ui/toaster";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
   title: "CF-Visualizer",
@@ -28,6 +29,8 @@ export default function RootLayout({
           <UsernameProvider>
             <UsernamePopup />
             {children}
+            <SpeedInsights />
+            <Analytics/>
           </UsernameProvider>
           <Toaster />
         </ThemeProvider>

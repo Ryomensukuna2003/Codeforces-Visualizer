@@ -25,7 +25,7 @@ export default function UsernamePopup() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px] bg-card text-card-foreground font-sans">
+      <DialogContent className="sm:max-w-[425px]  text-card-foreground font-sans">
         <DialogHeader>
           <DialogTitle>Welcome!</DialogTitle>
           <DialogDescription>

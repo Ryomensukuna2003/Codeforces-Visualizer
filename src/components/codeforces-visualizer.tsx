@@ -66,6 +66,7 @@ export function CodeforcesVisualizerComponent() {
   const [upcomingContests, setUpcomingContests] = useState<
     UpcomingContest[] | null
   >(null);
+  const [newName, setNewName] = useState(true);
   const [contestsParticipated, setcontestsParticipated] = useState<number>(0);
   const [bestRank, setbestRank] = useState<number>(Number.MAX_SAFE_INTEGER);
   const [worstRank, setworstRank] = useState<number>(0);
@@ -91,7 +92,8 @@ export function CodeforcesVisualizerComponent() {
   useEffect(() => {
     fetchAPI();
     console.log("UserName-> ", username);
-  }, [username]);
+    setNewName(false);
+  }, [newName]);
 
   useEffect(() => {
     console.log("HeatMap-> ", HeatMap);
@@ -199,7 +201,7 @@ export function CodeforcesVisualizerComponent() {
   };
 
   return (
-    <div className="mx-auto mx-2 p-4 space-y-6">
+    <div className="mx-2 p-4 space-y-6">
       {/* Nav Bar  */}
       <div className="flex sm:flex-row justify-between gap-4 ">
         <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
@@ -211,7 +213,7 @@ export function CodeforcesVisualizerComponent() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-          <Button className="rounded-r-lg" onClick={fetchAPI}>
+          <Button className="rounded-r-lg" onClick={() => setNewName(true)}>
             Search
           </Button>
         </div>
