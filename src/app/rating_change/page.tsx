@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,14 +17,16 @@ import { useEffect, useState } from "react";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { RatingChange } from "../types";
+import { useStore } from "../../components/Providers/fetchAPI";
 
 
 export default function ContestsPage() {
-  const [allRating, setAllRating] = useState<RatingChange[] | null>(null);
+  const [fullRating, setFullRating] = useState<RatingChange[] | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalContests, setTotalContests] = useState(0);
   const contestsPerPage = 100;
-  const { username } = useUsername();
+  const {allRating} = useStore() as any;
+
 
   useEffect(() => {
     fetchAPI();
@@ -34,12 +35,8 @@ export default function ContestsPage() {
   const fetchAPI = async () => {
     const from = (currentPage - 1) * contestsPerPage + 1;
     try {
-      // Api handling -------------------------------------------------------
-      const ratingJson = await axios
-        .get(`https://codeforces.com/api/user.rating?handle=${username}`)
-        .then((response) => response.data);
       let ratingArr: RatingChange[] = [];
-      ratingJson.result.forEach((element: RatingChange) => {
+      allRating.result.forEach((element: RatingChange) => {
         let obj1 = {
           contestName: element.contestName,
           ratingUpdateTimeSeconds: element.ratingUpdateTimeSeconds,
@@ -50,16 +47,15 @@ export default function ContestsPage() {
         };
         ratingArr.push(obj1);
       });
-      // Api handling -------------------------------------------------------
 
-      setAllRating(ratingArr.slice(from - 1, from - 1 + contestsPerPage));
+      setFullRating(ratingArr.slice(from - 1, from - 1 + contestsPerPage));
       setTotalContests(ratingArr.length);
     } catch (error) {
       console.log("Fucked Up -> ", error);
     }
   };
 
-  const contests = allRating || [];
+  const contests = fullRating || [];
 
   const totalPages = Math.ceil(totalContests / contestsPerPage);
 
@@ -98,7 +94,7 @@ export default function ContestsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contests.map((contest) => (
+              {contests.map((contest:any) => (
                 <TableRow key={`${contest.id}${contest.contestName}`}>
                   <TableCell>
                     <Link href={`https://codeforces.com/contest/${contest.id}`}>

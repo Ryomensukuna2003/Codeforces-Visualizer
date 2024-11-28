@@ -54,7 +54,6 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
               tickMargin={8}
               tickFormatter={(value) => {
                 let index = value.search("Div.");
-                console.log("Index=> ", index);
                 return "Div "+value.substr(index+4,2).trim();
               }}
             />

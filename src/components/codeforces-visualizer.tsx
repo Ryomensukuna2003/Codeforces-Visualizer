@@ -21,10 +21,13 @@ import ChartLineLinear from "./Line_Chart";
 import Link from "next/link";
 import { useUsername } from "./Providers/contextProvider";
 import { ImprovementSuggestion } from "./ImprovementSuggestion";
+import UsernamePopup from "../hooks/username-popup";
 import RecentSubmissions from "./RecentSubmissions";
 import { Upcoming_Contest } from "./Upcoming_Contest";
 import { HeatMapGraph } from "./ui/HeatMap";
 import SleepingCat from "./cat";
+import { useStore } from "./Providers/fetchAPI";
+import Skeleton_Fragment from "./skeleton-components"
 import {
   UserInfo,
   Submissions,
@@ -66,7 +69,6 @@ export function CodeforcesVisualizerComponent() {
   const [upcomingContests, setUpcomingContests] = useState<
     UpcomingContest[] | null
   >(null);
-  const [newName, setNewName] = useState(true);
   const [contestsParticipated, setcontestsParticipated] = useState<number>(0);
   const [bestRank, setbestRank] = useState<number>(Number.MAX_SAFE_INTEGER);
   const [worstRank, setworstRank] = useState<number>(0);
@@ -80,46 +82,38 @@ export function CodeforcesVisualizerComponent() {
   const [HeatMap, setHeatMap] = useState<{ date: string; desktop: number }[]>(
     []
   );
+
+  // Importing raw fetched data
+  const { userInfoData, allSubmissionsData, allRating, contestData, fetchData } = useStore() as {
+    userInfoData: any;
+    allSubmissionsData: any;
+    allRating: any;
+    contestData: any;
+    fetchData: (username: string) => void;
+  };
+
+  const [isloading, setisloading] = useState(true);
+
+  // Save username to the database
   const handleSaveUsername = async () => {
     try {
-      const response = await axios.post("/api/user", { username });
-      console.log("User saved:", response.data);
+      await axios.post("/api/user", { username });
     } catch (error) {
       console.error("Failed to save username:", error);
     }
   };
 
+  // If API data is changed, parse the data
   useEffect(() => {
-    fetchAPI();
-    console.log("UserName-> ", username);
-    setNewName(false);
-  }, [newName]);
+    if (userInfoData && allSubmissionsData && allRating && contestData) {
+      parseData();
+    }
+  }, [userInfoData, allSubmissionsData, allRating, contestData])
 
-  useEffect(() => {
-    console.log("HeatMap-> ", HeatMap);
-  }, [HeatMap]);
 
-  const fetchAPI = async () => {
+  const parseData = async () => {
     try {
       await handleSaveUsername();
-      const [userInfoData, allSubmissionsData, allRating, contestData] =
-        await Promise.all([
-          axios
-            .get(`https://codeforces.com/api/user.info?handles=${username}`)
-            .then((response) => response.data),
-          axios
-            .get(
-              `https://codeforces.com/api/user.status?handle=${username}&from=1`
-            )
-            .then((response) => response.data),
-          axios
-            .get(`https://codeforces.com/api/user.rating?handle=${username}`)
-            .then((response) => response.data),
-          axios
-            .get("https://codeforces.com/api/contest.list?gym=false")
-            .then((response) => response.data),
-        ]);
-
       const uniqueProblems = new Set<string>();
       const ratingFreqMap = new Map<number, number>();
       let ratingArr: Rating[] = [];
@@ -165,6 +159,7 @@ export function CodeforcesVisualizerComponent() {
       setSubmissions(allSubmissionsData.result.slice(0, 10));
       setquestions(allSubmissionsData.result.length);
       setUpcomingContests(upcomingContests);
+      setisloading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -200,64 +195,92 @@ export function CodeforcesVisualizerComponent() {
     attempted: mySet.size,
   };
 
-  return (
-    <div className="mx-2 p-4 space-y-6">
-      {/* Nav Bar  */}
-      <div className="flex sm:flex-row justify-between gap-4 ">
-        <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
-        <div className="flex">
-          <Input
-            type="text"
-            placeholder="Enter Codeforces username"
-            className="rounded-l-lg"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <Button className="rounded-r-lg" onClick={() => setNewName(true)}>
-            Search
-          </Button>
+  if (isloading) {
+      return (
+        <div className="mx-2 p-4 space-y-6">
+          <div className="flex sm:flex-row justify-between gap-4 ">
+            <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
+            <div className="flex">
+              <Input
+                type="text"
+                placeholder="Enter Codeforces username"
+                className="rounded-l-lg"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <Button className="rounded-r-lg" onClick={() => fetchData(username)}>
+                Search
+              </Button>
+            </div>
+            <ModeToggle />
+          </div>
+          <Skeleton_Fragment />
         </div>
-        <ModeToggle />
-      </div>
+      );
+    } else {
 
-      <div className="relative">
-        <div className="absolute  left-15 right-5  ">
-          <SleepingCat />
-        </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* User Card  */}
-          <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
-          <Upcoming_Contest upcomingContest={upcomingContests || []} />
-        </div>
-      </div>
-      {/* Improvement Suggestion  */}
-      <ImprovementSuggestion userData={userData} problemStats={problemStats} />
+    return (
 
-      {/* Graphs  */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <CardContent className="flex-1 p-0">
-          <ChartLineBar data={barGraphData} />
-        </CardContent>
-        <CardContent className="flex-1 p-0">
-          <ChartLineLinear data={LineGraphData} />
-        </CardContent>
+      <div className="mx-2 p-4 space-y-6">
+        {/* Nav Bar  */}
+        <div className="flex sm:flex-row justify-between gap-4 ">
+          <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
+          <div className="flex">
+            <Input
+              type="text"
+              placeholder="Enter Codeforces username"
+              className="rounded-l-lg"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <Button className="rounded-r-lg" onClick={() => fetchData(username)}>
+              Search
+            </Button>
+          </div>
+          <ModeToggle />
+        </div>
+
+        <UsernamePopup />
+
+        <div className="relative">
+          <div className="absolute  left-15 right-5  ">
+            <SleepingCat />
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* User Card  */}
+            <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+            <Upcoming_Contest upcomingContest={upcomingContests || []} />
+          </div>
+        </div>
+        {/* Improvement Suggestion  */}
+        <ImprovementSuggestion userData={userData} problemStats={problemStats} />
+
+        {/* Graphs  */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <CardContent className="flex-1 p-0">
+            <ChartLineBar data={barGraphData} />
+          </CardContent>
+          <CardContent className="flex-1 p-0">
+            <ChartLineLinear data={LineGraphData} />
+          </CardContent>
+        </div>
+        <div className="mt-4">
+          <HeatMapGraph data={HeatMap} />
+        </div>
+        <RecentSubmissions submissions={submissions || []} />
+        {/* Buttons  */}
+        <div className="flex justify-center space-x-4 ">
+          <Link href="/problems">
+            <Button className="rounded-md">View All Problems</Button>
+          </Link>
+          <Link href="/rating_change">
+            <Button className="rounded-md">Rating Changes</Button>
+          </Link>
+          <Link href="/submissions">
+            <Button className="rounded-md">View All Submissions</Button>
+          </Link>
+        </div>
       </div>
-      <div className="mt-4">
-        <HeatMapGraph data={HeatMap} />
-      </div>
-      <RecentSubmissions submissions={submissions || []} />
-      {/* Buttons  */}
-      <div className="flex justify-center space-x-4 ">
-        <Link href="/problems">
-          <Button className="rounded-md">View All Problems</Button>
-        </Link>
-        <Link href="/rating_change">
-          <Button className="rounded-md">Rating Changes</Button>
-        </Link>
-        <Link href="/submissions">
-          <Button className="rounded-md">View All Submissions</Button>
-        </Link>
-      </div>
-    </div>
-  );
+    );
+  }
 }

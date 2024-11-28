@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { CloudCog } from "lucide-react"
 
 const chartConfig = {
   submissions: {
@@ -36,8 +35,8 @@ interface HeatMapGraphProps {
 
 export function HeatMapGraph({ data }: HeatMapGraphProps) {
   const [timeRange, setTimeRange] = React.useState("ALL")
-  
-  console.log("Data-> ",data);
+
+  // console.log("Data-> ",data);
   const filteredData = React.useMemo(() => {
     const referenceDate = new Date()
     let startDate = new Date(0)
@@ -61,7 +60,7 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
         startDate = new Date("2023-01-01");
         break;
     }
-    
+
     return data
       .filter((item) => {
         const x = new Date(item.date)
@@ -74,6 +73,12 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
     [filteredData]
   )
 
+  const max_submissions = React.useMemo(
+    () => filteredData.reduce((acc, curr) => Math.max(acc, curr.desktop), 0),
+    [filteredData]
+  )
+
+
   return (
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
@@ -83,13 +88,19 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
             Total submissions for the selected time range
           </CardDescription>
         </div>
-        <div className="flex items-center gap-2 px-4">
-          <span className="text-sm text-muted-foreground">Total Submissions:</span>
+        <div className="relative z-30 flex flex-col justify-center gap-1 border-t px-6 py-4 text-left bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <span className="text-sm text-muted-foreground">Total Submissions</span>
           <span className="text-lg font-bold">{total.toLocaleString()}</span>
         </div>
-        <Select value={timeRange} onValueChange={setTimeRange}>
+        <div className="relative z-30 flex flex-col justify-center gap-1 border-t px-6 py-4 text-left bg-muted/50 border-r sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <span className="text-sm text-muted-foreground">Max Submissions</span>
+          <span className="text-lg font-bold">{max_submissions.toLocaleString()}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="px-2 sm:p-6">
+      <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
-            className="w-[160px] rounded-lg sm:ml-auto"
+            className="w-[160px] rounded-lg sm:ml-auto mb-4"
             aria-label="Select a time range"
           >
             <SelectValue placeholder="Select Time Range" />
@@ -115,8 +126,6 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
             </SelectItem>
           </SelectContent>
         </Select>
-      </CardHeader>
-      <CardContent className="px-2 sm:p-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
@@ -145,7 +154,7 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
                 })
               }}
             />
-            <YAxis dataKey="desktop" className="font-bold"/>
+            <YAxis dataKey="desktop" className="font-bold" />
             <ChartTooltip
               content={
                 <ChartTooltipContent

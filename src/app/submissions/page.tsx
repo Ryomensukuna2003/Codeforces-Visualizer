@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,10 +33,10 @@ export default function SubmissionsPage() {
 
   const fetchAPI = async () => {
     try {
-      const allSubmissions = await fetch(
+      const response = await axios.get(
         `https://codeforces.com/api/user.status?handle=${username}&from=${currentPage}&count=${100}`
       );
-      const SubmissionJson = await allSubmissions.json();
+      const SubmissionJson = response.data;
       if (SubmissionJson.result.length < 100) setFinalPage(true);
       let AllSubmissions: SubmissionsType[] = [];
       SubmissionJson.result?.forEach((element: SubmissionsType) => {

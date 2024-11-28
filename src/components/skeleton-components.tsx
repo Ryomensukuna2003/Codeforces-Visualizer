@@ -1,6 +1,6 @@
 // components/skeleton-components.tsx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { Skeleton } from "./ui/skeleton";
 export const UserCardSkeleton = () => (
   <Card>
     <CardHeader className="flex flex-row items-center gap-4">
@@ -11,6 +11,10 @@ export const UserCardSkeleton = () => (
         <div className="h-6 w-16 bg-gray-200 rounded animate-pulse" />
       </div>
     </CardHeader>
+    <CardContent>
+      <Skeleton className="h-12 w-12 rounded-full" />
+    </CardContent>
+
     <CardContent className="grid sm:grid-cols-2 gap-4">
       <div className="space-y-2">
         <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
@@ -26,7 +30,10 @@ export const UserCardSkeleton = () => (
 );
 
 export const ChartSkeleton = () => (
-  <div className="h-64 bg-gray-200 rounded animate-pulse" />
+  <>
+    <div className="h-64 bg-gray-200 rounded animate-pulse" />
+    <div className="h-64 bg-gray-200 rounded animate-pulse" />
+  </>
 );
 
 export const SubmissionsSkeleton = () => (
@@ -49,3 +56,16 @@ export const SubmissionsSkeleton = () => (
     </CardContent>
   </Card>
 );
+
+
+const SkeletonFragment = () => {
+  return (
+    <div className="mx-2 p-4 space-y-6">
+      <UserCardSkeleton />
+      <ChartSkeleton />
+      <SubmissionsSkeleton />
+    </div>
+  );
+}
+
+export default SkeletonFragment;
