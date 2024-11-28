@@ -19,7 +19,7 @@ import { ChartLineBar } from "./Bar_Chart";
 import { CodeforcesUserCard } from "./AboutCard";
 import ChartLineLinear from "./Line_Chart";
 import Link from "next/link";
-import { useUsername } from "./Providers/contextProvider";
+import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 import { ImprovementSuggestion } from "./ImprovementSuggestion";
 import UsernamePopup from "../hooks/username-popup";
 import RecentSubmissions from "./RecentSubmissions";
@@ -56,7 +56,12 @@ ChartJS.register(
 );
 
 export function CodeforcesVisualizerComponent() {
-  const { username, setUsername, setAttempted } = useUsername();
+  const { username, setUsername, Attempted, setAttempted } = useUsernameStore() as {
+    username: string;
+    setUsername: (username: string) => void;
+    Attempted: string[];
+    setAttempted: (attempted: string[]) => void;
+  };
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setquestions] = useState(0);

@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useUsername } from "../components/Providers/contextProvider";
 import { useStore } from '@/components/Providers/fetchAPI';
+import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+
 
 export default function UsernamePopup() {
   const [temp, setTemp] = useState('');
-  const { username, setUsername } = useUsername();
+  const { username, setUsername } = useUsernameStore() as { username: string; setUsername: (username: string) => void };
   const { fetchData } = useStore() as {
     fetchData: (username: string) => void;
   };

@@ -4,20 +4,20 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useUsername } from "./Providers/contextProvider";
+import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+
 import { BorderBeam } from "@/components/ui/border-beam";
 import MarkdownFade from "./ui/markdownFade";
-import {  ImprovementSuggestionProps } from "@/app/types";
+import { ImprovementSuggestionProps } from "@/app/types";
 
 
 export function ImprovementSuggestion({
   userData,
   problemStats,
 }: ImprovementSuggestionProps) {
+  const { username } = useUsernameStore() as { username: string };
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { username } = useUsername();
-
   useEffect(() => {
     setSuggestion(null);
   }, [username]);
@@ -57,8 +57,8 @@ export function ImprovementSuggestion({
         <CardContent>
           {suggestion ? (
             <div className="space-y-4">
-              <MarkdownFade 
-                content={suggestion} 
+              <MarkdownFade
+                content={suggestion}
                 className="text-base text-muted-foreground"
               />
               <Button onClick={() => setSuggestion(null)}>
