@@ -13,15 +13,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { useUsername } from "../../components/Providers/contextProvider";
+import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import {SubmissionsType} from '../types'
+import { SubmissionsType } from '../types'
 
 
 export default function SubmissionsPage() {
-  const { username } = useUsername();
-
+  const { username } = useUsernameStore() as {
+    username: string;
+  };
   const [allsubmissions, setallSubmissions] = useState<SubmissionsType[] | null>(
     null
   );

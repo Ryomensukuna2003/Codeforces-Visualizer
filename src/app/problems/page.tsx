@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { useUsername } from "../../components/Providers/contextProvider";
+import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 import { Checkbox } from "@/components/ui/checkbox";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronUp, ChevronDown } from "lucide-react";
@@ -30,7 +30,10 @@ export default function ProblemsPage() {
   const [initialRating, setInitialFilter] = useState(800);
   const [endingFilter, setEndingFilter] = useState(3200);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const { username, Attempted, setAttempted } = useUsername();
+  const { username, Attempted } = useUsernameStore() as {
+    username: string;
+    Attempted: string[];
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const [displayedProblems, setDisplayedProblems] = useState<Problem[]>([]);
   const contestsPerPage = 100;

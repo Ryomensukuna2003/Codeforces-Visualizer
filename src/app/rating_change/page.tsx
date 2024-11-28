@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useUsername } from "../../components/Providers/contextProvider";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -25,7 +24,7 @@ export default function ContestsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalContests, setTotalContests] = useState(0);
   const contestsPerPage = 100;
-  const {allRating} = useStore() as any;
+  const { allRating } = useStore() as any;
 
 
   useEffect(() => {
@@ -94,7 +93,7 @@ export default function ContestsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contests.map((contest:any) => (
+              {contests.map((contest: any) => (
                 <TableRow key={`${contest.id}${contest.contestName}`}>
                   <TableCell>
                     <Link href={`https://codeforces.com/contest/${contest.id}`}>
