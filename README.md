@@ -2,7 +2,7 @@
 
 **Codeforces Visualizer** is a web application designed to provide detailed insights and statistics for Codeforces users. You can search for a user and explore performance metrics, submission history, and rating trends, all presented in an intuitive and visually appealing interface.
 
-![Screenshot from 2024-10-10 03-04-30](https://github.com/user-attachments/assets/862f70c6-be6b-4ae9-acad-2984655a6560)
+![Screenshot from 2024-11-30 18-57-52](https://github.com/user-attachments/assets/6abb3684-60f2-4636-9d21-c4e5f055778e)
 
 ## 🚀 Features
 
@@ -29,7 +29,7 @@
 
 1. **Clone the repository, install dependencies, and run the development server**:
    ```bash
-   git clone https://github.com/_Ryomen_sukuna/codeforces-visualizer.git && cd codeforces-visualizer && npm install && npm run dev
+   git clone https://github.com/Ryomensukuna2003/Codeforces-Visualizer.git && cd Codeforces-Visualizer && npm i && npm run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
