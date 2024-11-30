@@ -67,7 +67,7 @@ export default function ContestsPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6 font-sans">
+    <div className="container mx-auto p-4 space-y-6 ">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl flex-1 font-bold">Contests</h1>
         <Link className="mr-3" href="/">

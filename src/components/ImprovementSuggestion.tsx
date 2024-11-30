@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
-
 import { BorderBeam } from "@/components/ui/border-beam";
 import MarkdownFade from "./ui/markdownFade";
 import { ImprovementSuggestionProps } from "@/app/types";

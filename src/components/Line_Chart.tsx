@@ -58,7 +58,7 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
               }}
             />
             <ChartTooltip
-              cursor={false}
+              cursor={true}
               content={<ChartTooltipContent />}
             />
             <Line

@@ -1,27 +1,32 @@
 "use client"
 import { useToast } from "@/hooks/use-toast"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog"
 import { Label } from "./ui/label"
 import { UpcomingContest as UpcomingContestType } from "@/app/types"
 import Link from "next/link"
-import { Bell, Mail, KeyRound, ArrowRight } from "lucide-react"
+import { Bell, Mail, KeyRound, ArrowRight,AlignRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useStore } from "./Providers/fetchAPI";
+import ContestSheet from "./contest-sheet"
 
 export const Upcoming_Contest = ({
   upcomingContest,
 }: {
   upcomingContest: UpcomingContestType[]
 }) => {
+
+  const { UpcomingContestData } = useStore() as { UpcomingContestData: any };
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
   const [isOtpSent, setIsOtpSent] = useState(false)
   const { toast } = useToast()
+  const [Contests, setContests] = useState<any>([]);
 
   const handleSendOtp = () => {
     setIsOtpSent(true)
@@ -30,6 +35,29 @@ export const Upcoming_Contest = ({
       description: "Please check your email for the OTP.",
     })
   }
+  interface Contest {
+    host: string;
+    [key: string]: any;
+  }
+
+  interface UpcomingContestData {
+    objects: Contest[];
+  }
+
+  const ParseContestData = (UpcomingContestData: UpcomingContestData) => {
+    const filteredContests = UpcomingContestData.objects.filter((contest: Contest) => 
+      contest.host === "codeforces.com" || contest.host === "codechef.com" || contest.host === "atcoder.jp"
+    ).map((contest: Contest) => ({
+      name: contest.event,
+      start: new Date(contest.start),
+      href: contest.href
+    }));
+    setContests(filteredContests.sort((a, b) => a.start.getTime() - b.start.getTime()));
+  };
+  useEffect(() => {
+    ParseContestData(UpcomingContestData);
+  }, [UpcomingContestData]);
+
 
   const handleVerifyOtp = () => {
     setIsModalOpen(false)
@@ -41,27 +69,30 @@ export const Upcoming_Contest = ({
       description: "You will now receive notifications for upcoming contests.",
     })
   }
-  const isToday = (date: Date) => {
+  const isToday = (dateString: string) => {
+    const specificDate = new Date(dateString);
     const today = new Date();
     return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
+      specificDate.getDate() === today.getDate() &&
+      specificDate.getMonth() === today.getMonth() &&
+      specificDate.getFullYear() === today.getFullYear()
     );
   };
 
   return (
-    
+
     <Card>
       <CardHeader>
         <CardTitle>Upcoming Contests</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Button onClick={() => setIsModalOpen(true)} className="mb-4 w-full sm:w-auto">
+      <CardContent className="grid grid-cols-2 gap-4 place-content-between">
+        <Button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
           <Bell className="mr-2 h-4 w-4" />
           Get notified for Upcoming contest
         </Button>
-        {/* Rest of the card content remains unchanged */}
+        <div className="flex justify-end">
+          <ContestSheet contests={Contests} />
+        </div>
       </CardContent>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -86,19 +117,19 @@ export const Upcoming_Contest = ({
               >
                 <div className="grid gap-4 py-4">
                   <div className="flex items-center gap-4">
-                  <Label htmlFor="email" className="whitespace-nowrap">
-                    Email
-                  </Label>
-                  <div className="flex-1 relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <Input
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-12 rounded"
-                    placeholder="your@email.com"
-                    />
-                  </div>
+                    <Label htmlFor="email" className="whitespace-nowrap">
+                      Email
+                    </Label>
+                    <div className="flex-1 relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Input
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-12 rounded"
+                        placeholder="your@email.com"
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -111,20 +142,20 @@ export const Upcoming_Contest = ({
                 transition={{ duration: 0.2 }}
               >
                 <div className="grid gap-4 py-4">
-                <div className="flex items-center gap-4">
-                <Label htmlFor="email" className="whitespace-nowrap">
-                    OTP
-                  </Label>
-                  <div className="flex-1 relative">
-                    <KeyRound className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <Input
-                    id="otp"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="pl-12 rounded"
-                    placeholder="Enter OTP"
-                    />
-                  </div>
+                  <div className="flex items-center gap-4">
+                    <Label htmlFor="email" className="whitespace-nowrap">
+                      OTP
+                    </Label>
+                    <div className="flex-1 relative">
+                      <KeyRound className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Input
+                        id="otp"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        className="pl-12 rounded"
+                        placeholder="Enter OTP"
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -141,35 +172,41 @@ export const Upcoming_Contest = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <CardContent>
+      <CardContent className="overflow-y-auto">
         {upcomingContest && upcomingContest.length > 0 ? (
           <ul className="space-y-2">
-            {upcomingContest.map((contest) => {
-              const contestDate = new Date(contest.startTimeSeconds * 1000);
-              const isContestToday = isToday(contestDate);
-
+            {Contests.slice(0, 6).map((contest: any) => {
+              const isContestToday = isToday(contest.start);
               return (
-                <li
+                <li 
                   key={contest.id}
-                  className="flex justify-between items-center"
+                  className="flex items-center border-l-4  pl-4"
                 >
-                  <Link
-                    href={`https://codeforces.com/contest/${contest.id}`}
-                    className="space-x-2"
-                  >
-                    <span>{contest.name}</span>
-                  </Link>
-                    <Badge className={isContestToday ? "bg-red-500" : ""}>
+                  <div className="flex flex-col sm:flex-row w-full items-start sm:items-center justify-between">
+                    <Link
+                      href={contest.href}
+                      className="flex-grow mr-4 max-w-[70%] "
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className="text-sm sm:text-base font-medium break-words ">
+                        {contest.name}
+                      </span>
+                    </Link>
+                    <Badge
+                      className={`${isContestToday ? "bg-red-500" : ""} flex-shrink-0 text-xs sm:text-sm`}
+                    >
                       {isContestToday
                         ? "Today"
-                        : contestDate.toLocaleString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            year: "numeric",
-                            month: "numeric",
-                            day: "numeric",
-                          })}
+                        : contest.start.toLocaleString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                     </Badge>
+                  </div>
                 </li>
               );
             })}
@@ -178,6 +215,7 @@ export const Upcoming_Contest = ({
           <p>No upcoming contests found.</p>
         )}
       </CardContent>
+
     </Card>
   )
 }

@@ -200,92 +200,71 @@ export function CodeforcesVisualizerComponent() {
     attempted: mySet.size,
   };
 
-  if (isloading) {
-      return (
-        <div className="mx-2 p-4 space-y-6">
-          <div className="flex sm:flex-row justify-between gap-4 ">
-            <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
-            <div className="flex">
-              <Input
-                type="text"
-                placeholder="Enter Codeforces username"
-                className="rounded-l-lg"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <Button className="rounded-r-lg" onClick={() => fetchData(username)}>
-                Search
-              </Button>
-            </div>
-            <ModeToggle />
-          </div>
-          <Skeleton_Fragment />
-        </div>
-      );
-    } else {
+  return (
 
-    return (
-
-      <div className="mx-2 p-4 space-y-6">
-        {/* Nav Bar  */}
-        <div className="flex sm:flex-row justify-between gap-4 ">
-          <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
-          <div className="flex">
-            <Input
-              type="text"
-              placeholder="Enter Codeforces username"
-              className="rounded-l-lg"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <Button className="rounded-r-lg" onClick={() => fetchData(username)}>
-              Search
-            </Button>
-          </div>
-          <ModeToggle />
+    <div className="mx-2 p-4 space-y-6">
+      {/* Nav Bar  */}
+      <div className="flex sm:flex-row justify-between gap-4 ">
+        <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
+        <div className="flex">
+          <Input
+            type="text"
+            placeholder="Enter Codeforces username"
+            className="rounded-l-lg"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <Button className="rounded-r-lg" onClick={() => fetchData(username)}>
+            Search
+          </Button>
         </div>
-
-        <UsernamePopup />
-
-        <div className="relative">
-          <div className="absolute  left-15 right-5  ">
-            <SleepingCat />
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* User Card  */}
-            <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
-            <Upcoming_Contest upcomingContest={upcomingContests || []} />
-          </div>
-        </div>
-        {/* Improvement Suggestion  */}
-        <ImprovementSuggestion userData={userData} problemStats={problemStats} />
-
-        {/* Graphs  */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <CardContent className="flex-1 p-0">
-            <ChartLineBar data={barGraphData} />
-          </CardContent>
-          <CardContent className="flex-1 p-0">
-            <ChartLineLinear data={LineGraphData} />
-          </CardContent>
-        </div>
-        <div className="mt-4">
-          <HeatMapGraph data={HeatMap} />
-        </div>
-        <RecentSubmissions submissions={submissions || []} />
-        {/* Buttons  */}
-        <div className="flex justify-center space-x-4 ">
-          <Link href="/problems">
-            <Button className="rounded-md">View All Problems</Button>
-          </Link>
-          <Link href="/rating_change">
-            <Button className="rounded-md">Rating Changes</Button>
-          </Link>
-          <Link href="/submissions">
-            <Button className="rounded-md">View All Submissions</Button>
-          </Link>
-        </div>
+        <ModeToggle />
       </div>
-    );
-  }
+
+      <UsernamePopup />
+      {isloading && <Skeleton_Fragment />}
+      {!isloading && (
+        <>
+          <div className="relative">
+            <div className="absolute  left-15 right-5  ">
+              <SleepingCat />
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* User Card  */}
+              <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+              <Upcoming_Contest upcomingContest={upcomingContests || []} />
+            </div>
+          </div>
+          {/* Improvement Suggestion  */}
+          <ImprovementSuggestion userData={userData} problemStats={problemStats} />
+
+          {/* Graphs  */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <CardContent className="flex-1 p-0">
+              <ChartLineBar data={barGraphData} />
+            </CardContent>
+            <CardContent className="flex-1 p-0">
+              <ChartLineLinear data={LineGraphData} />
+            </CardContent>
+          </div>
+          <div className="mt-4">
+            <HeatMapGraph data={HeatMap} />
+          </div>
+          <RecentSubmissions submissions={submissions || []} />
+          {/* Buttons  */}
+          <div className="flex justify-center space-x-4 ">
+            <Link href="/problems">
+              <Button className="rounded-md">View All Problems</Button>
+            </Link>
+            <Link href="/rating_change">
+              <Button className="rounded-md">Rating Changes</Button>
+            </Link>
+            <Link href="/submissions">
+              <Button className="rounded-md">View All Submissions</Button>
+            </Link>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }

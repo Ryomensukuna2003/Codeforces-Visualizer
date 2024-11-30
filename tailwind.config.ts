@@ -8,10 +8,6 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-  	fontFamily: {
-  		sans: ["ui-sans-serif", "system-ui"],
-  		Nunito: ["Nunito"]
-  	},
   	extend: {
   		keyframes: {
   			oneko: {

@@ -58,7 +58,7 @@ export function CodeforcesUserCard({
       <style>{SleepingCatStyles}</style>
       <Card className="shadow-sm rounded-lg overflow-hidden">
         <CardContent className="p-4">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 mb-4">
             <Avatar className="h-32 w-32">
               <AvatarImage
                 src={userInfo.avatar}
@@ -87,9 +87,8 @@ export function CodeforcesUserCard({
             </div>
           </div>
 
-          <Separator className="my-4" />
-          <div className="grid grid-cols-2 gap-2">
-          <Card>
+          <div className="grid grid-cols-2 gap-2 ">
+            <Card className="border-x-0 border-y-0 border-l-4 bg-muted/20 rounded-r-lg rounded-l-none">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
                 <Trophy className="h-4 w-4 text-muted-foreground" />
@@ -98,7 +97,7 @@ export function CodeforcesUserCard({
                 <div className="text-2xl font-bold">{problemStats.total}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-x-0 border-y-0 border-l-4 bg-muted/20 rounded-r-lg rounded-l-none">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Solved Problems</CardTitle>
                 <Code2 className="h-4 w-4 text-muted-foreground" />
@@ -107,7 +106,7 @@ export function CodeforcesUserCard({
                 <div className="text-2xl font-bold">{problemStats.solved}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-x-0 border-y-0 border-l-4 bg-muted/20 rounded-r-lg rounded-l-none">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Contribution</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -116,7 +115,7 @@ export function CodeforcesUserCard({
                 <div className="text-2xl font-bold">{userInfo.contribution}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-x-0 border-y-0 border-l-4 bg-muted/20 rounded-r-lg rounded-l-none">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Friends</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />

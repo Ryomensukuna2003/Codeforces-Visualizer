@@ -8,6 +8,7 @@ import { useStore } from '@/components/Providers/fetchAPI';
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 
 
+
 export default function UsernamePopup() {
   const [temp, setTemp] = useState('');
   const { username, setUsername } = useUsernameStore() as { username: string; setUsername: (username: string) => void };
@@ -25,7 +26,7 @@ export default function UsernamePopup() {
 
   return (
     <Dialog open={username === ""}>
-      <DialogContent className="sm:max-w-[425px] text-card-foreground font-sans">
+      <DialogContent className="sm:max-w-[425px] text-card-foreground">
         <DialogHeader>
           <DialogTitle>Welcome!</DialogTitle>
           <DialogDescription>
