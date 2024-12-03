@@ -67,14 +67,14 @@ export function CodeforcesUserCard({
               />
               <AvatarFallback>{userInfo.handle[0]}</AvatarFallback>
             </Avatar>
-            <div className="flex-grow text-4xl">
+            <div className="flex-grow text-2xl sm:text-4xl">
               <h2
-                className="text-2xl font-bold"
+                className="text-xl sm:text-2xl font-bold"
                 style={{ color: getRankColor(userInfo.rank || "") }}
               >
                 {userInfo.handle}
               </h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600">
                 Rating: {userInfo.rating} [max: {userInfo.maxRating}]
               </p>
               <Badge
@@ -94,7 +94,7 @@ export function CodeforcesUserCard({
                 <Trophy className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{problemStats.total}</div>
+                <div className="text-xl sm:text-2xl font-bold">{problemStats.total}</div>
               </CardContent>
             </Card>
             <Card className="border-x-0 border-y-0 border-l-4 bg-muted/20 rounded-r-lg rounded-l-none">
@@ -103,7 +103,7 @@ export function CodeforcesUserCard({
                 <Code2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{problemStats.solved}</div>
+                <div className="text-xl sm:text-2xl font-bold">{problemStats.solved}</div>
               </CardContent>
             </Card>
             <Card className="border-x-0 border-y-0 border-l-4 bg-muted/20 rounded-r-lg rounded-l-none">
@@ -112,7 +112,7 @@ export function CodeforcesUserCard({
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{userInfo.contribution}</div>
+                <div className="text-xl sm:text-2xl font-bold">{userInfo.contribution}</div>
               </CardContent>
             </Card>
             <Card className="border-x-0 border-y-0 border-l-4 bg-muted/20 rounded-r-lg rounded-l-none">
@@ -121,7 +121,7 @@ export function CodeforcesUserCard({
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{userInfo.friendOfCount}</div>
+                <div className="text-xl sm:text-2xl font-bold">{userInfo.friendOfCount}</div>
               </CardContent>
             </Card>
           </div>

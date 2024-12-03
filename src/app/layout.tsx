@@ -5,9 +5,8 @@ import UsernamePopup from "../hooks/username-popup";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Inter } from 'next/font/google';
-import { Roboto } from 'next/font/google'
 import localFont from 'next/font/local'
+import Head from "next/head";
 
 export const metadata: Metadata = {
   title: "CF-Visualizer",
@@ -15,28 +14,20 @@ export const metadata: Metadata = {
 };
 
 const local = localFont({
-  src: '/Fonts/JetBrainsMono-Regular.woff2',
+  src: '/Fonts/JetBrainsMono-Medium.woff2',
   display: 'swap',
 })
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-})
-const roboto = Roboto({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-})
- 
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en"  suppressHydrationWarning={true}>
-      <body suppressHydrationWarning={true}>
+    <html lang="en" className={`${local.className} h-full w-screen`} suppressHydrationWarning={true}>
+      <Head><link rel="icon" href="src/app/favicon.svg"></link></Head>
+      <body className="h-full w-screen" suppressHydrationWarning={true}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Bell, Mail, KeyRound, ArrowRight,AlignRight } from "lucide-react"
+import { AlignRight } from "lucide-react"
 
 
 export default function ContestSheet({ contests }: { contests: any[] }) {
@@ -21,9 +21,9 @@ export default function ContestSheet({ contests }: { contests: any[] }) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
 
-        <Button variant="outline">View Upcoming Contests &nbsp; <AlignRight /></Button>
+        <Button variant="outline" className='w-full'> View Upcoming Contests &nbsp; <AlignRight /></Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+      <SheetContent side="right" className="w-full sm:w-[540px]">
         <SheetHeader>
           <SheetTitle>Upcoming Programming Contests</SheetTitle>
         </SheetHeader>

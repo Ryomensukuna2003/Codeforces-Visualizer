@@ -99,8 +99,9 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
       <Select value={timeRange} onValueChange={setTimeRange}>
+        <div className="flex justify-center mt-2">
           <SelectTrigger
-            className="w-[160px] rounded-lg sm:ml-auto mb-4"
+            className="w-[160px] rounded-lg sm:ml-auto mb-4 justify-center"
             aria-label="Select a time range"
           >
             <SelectValue placeholder="Select Time Range" />
@@ -125,10 +126,11 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
               Year 2023
             </SelectItem>
           </SelectContent>
+          </div>
         </Select>
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+          className="aspect-auto h-[250px] w-full overflow-x-auto"
         >
           <LineChart
             accessibilityLayer
@@ -152,11 +154,13 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
                   month: "short",
                   day: "numeric",
                 })
-              }}
-            />
-            <YAxis dataKey="desktop" className="font-bold" />
-            <ChartTooltip
-              content={
+                }}
+              />
+              {window.innerWidth > 768 && (
+                <YAxis dataKey="desktop" className="font-bold" />
+              )}
+              <ChartTooltip
+                content={
                 <ChartTooltipContent
                   className="w-[150px]"
                   nameKey="submissions"

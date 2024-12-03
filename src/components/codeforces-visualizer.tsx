@@ -21,13 +21,15 @@ import ChartLineLinear from "./Line_Chart";
 import Link from "next/link";
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 import { ImprovementSuggestion } from "./ImprovementSuggestion";
-import UsernamePopup from "../hooks/username-popup";
 import RecentSubmissions from "./RecentSubmissions";
 import { Upcoming_Contest } from "./Upcoming_Contest";
 import { HeatMapGraph } from "./ui/HeatMap";
 import SleepingCat from "./cat";
 import { useStore } from "./Providers/fetchAPI";
 import Skeleton_Fragment from "./skeleton-components"
+import { Search } from "lucide-react";
+import UsernamePopup from "../hooks/username-popup";
+import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
   UserInfo,
   Submissions,
@@ -55,7 +57,10 @@ ChartJS.register(
   Legend
 );
 
+
+
 export function CodeforcesVisualizerComponent() {
+
   const { username, setUsername, Attempted, setAttempted } = useUsernameStore() as {
     username: string;
     setUsername: (username: string) => void;
@@ -87,6 +92,19 @@ export function CodeforcesVisualizerComponent() {
   const [HeatMap, setHeatMap] = useState<{ date: string; desktop: number }[]>(
     []
   );
+  const [isWideScreen, setIsWideScreen] = useState(false);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsWideScreen(window.innerWidth > 768);
+    };
+
+    // Set initial value and add event listener
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Importing raw fetched data
   const { userInfoData, allSubmissionsData, allRating, contestData, fetchData } = useStore() as {
@@ -194,6 +212,7 @@ export function CodeforcesVisualizerComponent() {
     averageAcceptedProblemRating: averageAcceptedProblemRating,
   };
 
+ 
   const problemStats = {
     total: questions,
     solved: total_Solved,
@@ -201,70 +220,78 @@ export function CodeforcesVisualizerComponent() {
   };
 
   return (
-
-    <div className="mx-2 p-4 space-y-6">
+    <div>
       {/* Nav Bar  */}
-      <div className="flex sm:flex-row justify-between gap-4 ">
-        <h1 className="text-3xl flex-1 font-semibold">Codeforces Visualizer</h1>
-        <div className="flex">
-          <Input
-            type="text"
-            placeholder="Enter Codeforces username"
-            className="rounded-l-lg"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <Button className="rounded-r-lg" onClick={() => fetchData(username)}>
-            Search
-          </Button>
+      {/* for bigger screen */}
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 pb-4 flex gap-2 ">
+        <h1 className="text-xl flex-1 font-semibold sm:text-3xl">Codeforces Visualizer</h1>
+        <div className="flex sm:flex-row">
+          {isWideScreen && (
+            <>
+              <Input
+                type="text"
+                placeholder="Enter Codeforces username"
+                className="rounded-t-lg sm:rounded-l-lg sm:rounded-t-none"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <Button
+                className="rounded-b-lg sm:rounded-r-lg sm:rounded-b-none"
+                onClick={() => fetchData(username)}
+              >
+                Search
+              </Button>
+            </>
+          )}
         </div>
         <ModeToggle />
       </div>
 
-      <UsernamePopup />
-      {isloading && <Skeleton_Fragment />}
-      {!isloading && (
-        <>
-          <div className="relative">
-            <div className="absolute  left-15 right-5  ">
-              <SleepingCat />
+      <div className="mx-2 p-4 pt-0 space-y-6">
+        {isloading && <Skeleton_Fragment />}
+        {!isloading && (
+          <>
+            <div className="relative">
+              <div className="absolute  left-15 right-5  ">
+                <SleepingCat />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* User Card  */}
+                <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+                <Upcoming_Contest upcomingContest={upcomingContests || []} />
+              </div>
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* User Card  */}
-              <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
-              <Upcoming_Contest upcomingContest={upcomingContests || []} />
-            </div>
-          </div>
-          {/* Improvement Suggestion  */}
-          <ImprovementSuggestion userData={userData} problemStats={problemStats} />
+            {/* Improvement Suggestion  */}
+            <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
-          {/* Graphs  */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <CardContent className="flex-1 p-0">
-              <ChartLineBar data={barGraphData} />
-            </CardContent>
-            <CardContent className="flex-1 p-0">
-              <ChartLineLinear data={LineGraphData} />
-            </CardContent>
-          </div>
-          <div className="mt-4">
-            <HeatMapGraph data={HeatMap} />
-          </div>
-          <RecentSubmissions submissions={submissions || []} />
-          {/* Buttons  */}
-          <div className="flex justify-center space-x-4 ">
-            <Link href="/problems">
-              <Button className="rounded-md">View All Problems</Button>
-            </Link>
-            <Link href="/rating_change">
-              <Button className="rounded-md">Rating Changes</Button>
-            </Link>
-            <Link href="/submissions">
-              <Button className="rounded-md">View All Submissions</Button>
-            </Link>
-          </div>
-        </>
-      )}
+            {/* Graphs  */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <CardContent className="flex-1 p-0">
+                <ChartLineBar data={barGraphData} />
+              </CardContent>
+              <CardContent className="flex-1 p-0">
+                <ChartLineLinear data={LineGraphData} />
+              </CardContent>
+            </div>
+            <div className="mt-4">
+              <HeatMapGraph data={HeatMap} />
+            </div>
+            <RecentSubmissions submissions={submissions || []} />
+            {/* Buttons  */}
+            <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <Link href="/problems">
+                <Button className="rounded-md w-full sm:w-auto">View All Problems</Button>
+              </Link>
+              <Link href="/rating_change">
+                <Button className="rounded-md w-full sm:w-auto">Rating Changes</Button>
+              </Link>
+              <Link href="/submissions">
+                <Button className="rounded-md w-full sm:w-auto">View All Submissions</Button>
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

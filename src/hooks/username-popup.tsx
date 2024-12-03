@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader,  DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useStore } from '@/components/Providers/fetchAPI';
@@ -9,7 +9,7 @@ import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zu
 
 
 
-export default function UsernamePopup() {
+export default function UsernamePopup () {
   const [temp, setTemp] = useState('');
   const { username, setUsername } = useUsernameStore() as { username: string; setUsername: (username: string) => void };
   const { fetchData } = useStore() as {
@@ -26,15 +26,14 @@ export default function UsernamePopup() {
 
   return (
     <Dialog open={username === ""}>
-      <DialogContent className="sm:max-w-[425px] text-card-foreground">
+      <DialogContent className="sm:max-w-[425px] text-card-foreground w-full max-w-full mx-2">
         <DialogHeader>
-          <DialogTitle>Welcome!</DialogTitle>
           <DialogDescription>
             Please enter your username to continue.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4 pb-2">
+          <div className="grid gap-4 pb-4">
             <Input
               id="username"
               placeholder="Enter your username"
