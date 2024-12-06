@@ -56,7 +56,7 @@ export function CodeforcesUserCard({
   return (
     <div>
       <style>{SleepingCatStyles}</style>
-      <Card className="shadow-sm rounded-lg overflow-hidden">
+      <Card className="">
         <CardContent className="p-4">
           <div className="flex items-center space-x-4 mb-4">
             <Avatar className="h-32 w-32">

@@ -35,7 +35,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <UsernamePopup />
+
           {children}
+
           <SpeedInsights />
           <Analytics />
           <Toaster />

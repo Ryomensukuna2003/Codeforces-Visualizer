@@ -35,6 +35,9 @@ interface ChartLineBarProps {
 }
 
 export function ChartLineBar({ data }: ChartLineBarProps) {
+
+  const max_Submissions= data.reduce((max, p) => p.count > max ? p.count : max, data[0].count);
+
   return (
     <Card>
       <CardHeader>
@@ -52,15 +55,15 @@ export function ChartLineBar({ data }: ChartLineBarProps) {
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="rating" // Corrected to use "rating"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-            />
-            <YAxis />
-            <ChartTooltip
-              cursor={true}
-              content={<ChartTooltipContent />}
-            />
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+              />
+              <YAxis domain={[0, Math.ceil(max_Submissions / 50) * 50]} />
+              <ChartTooltip
+                cursor={true}
+                content={<ChartTooltipContent />}
+              />
             <Bar dataKey="count" type="natural"
               fill="var(--color-desktop)"
               fillOpacity={1}

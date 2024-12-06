@@ -222,7 +222,6 @@ export function CodeforcesVisualizerComponent() {
   return (
     <div>
       {/* Nav Bar  */}
-      {/* for bigger screen */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 pb-4 flex gap-2 ">
         <h1 className="text-xl flex-1 font-semibold sm:text-3xl">Codeforces Visualizer</h1>
         <div className="flex sm:flex-row">

@@ -72,9 +72,9 @@ export default function SubmissionsPage() {
 
   return (
     <div className="container mx-auto p-4 space-y-6 ">
-      <div className="flex justify-between items-center">
-        <h1 className="flex-1 text-3xl font-bold">Submissions</h1>
-        <Link href="/" className="mr-3">
+     <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 flex gap-2 ">
+        <h1 className="text-3xl flex-1 font-bold">Submissions</h1>
+        <Link className="mr-3" href="/">
           <Button className="rounded" variant="outline">
             Back to Dashboard
           </Button>

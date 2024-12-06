@@ -68,7 +68,7 @@ export default function ContestsPage() {
 
   return (
     <div className="container mx-auto p-4 space-y-6 ">
-      <div className="flex justify-between items-center">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 flex gap-2 ">
         <h1 className="text-3xl flex-1 font-bold">Contests</h1>
         <Link className="mr-3" href="/">
           <Button className="rounded" variant="outline">
@@ -77,7 +77,6 @@ export default function ContestsPage() {
         </Link>
         <ModeToggle />
       </div>
-
       <Card>
         <CardHeader className="font-2xl">
           <CardTitle>Contest History [{totalContests}]</CardTitle>

@@ -1,15 +1,16 @@
 'use client'
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader,  DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useStore } from '@/components/Providers/fetchAPI';
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+import { FloatingInput, FloatingLabel, FloatingLabelInput } from '@/components/ui/floating-label-input';
 
 
 
-export default function UsernamePopup () {
+export default function UsernamePopup() {
   const [temp, setTemp] = useState('');
   const { username, setUsername } = useUsernameStore() as { username: string; setUsername: (username: string) => void };
   const { fetchData } = useStore() as {
@@ -33,15 +34,10 @@ export default function UsernamePopup () {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 pb-4">
-            <Input
-              id="username"
-              placeholder="Enter your username"
-              value={temp}
+          <div className="relative grid gap-10 pb-4 ">
+            <FloatingLabelInput id="floating-demo" label="Username" value={temp}
               onChange={(e) => setTemp(e.target.value)}
-              className="border-input focus:border-ring"
-              autoComplete="off"
-            />
+              autoComplete="off" />
           </div>
           <DialogFooter>
             <Button
@@ -49,7 +45,7 @@ export default function UsernamePopup () {
               className="mt-5 rounded bg-primary text-primary-foreground"
             >
               Set Username
-            </Button>
+          </Button>
           </DialogFooter>
         </form>
       </DialogContent>

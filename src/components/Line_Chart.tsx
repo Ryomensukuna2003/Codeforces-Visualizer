@@ -33,18 +33,32 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
     },
   } satisfies ChartConfig;
 
+  const max_Rating=data.map((item)=>item.rating).reduce((a,b)=>Math.max(a,b));
+  const current_Rating=data[data.length-1].rating;
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Line Chart - Linear</CardTitle>
-        <CardDescription>Rating Changes Over Contests</CardDescription>
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+
+          <CardTitle>Line Chart - Linear</CardTitle>
+          <CardDescription>Rating Changes Over Contests</CardDescription>
+        </div>
+        <div className="relative z-30 flex flex-col justify-center gap-1 border-t  px-6 py-4 text-left bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <span className="text-sm text-muted-foreground">Current Rating</span>
+          <span className="text-lg font-bold">{current_Rating}</span>
+        </div>
+        <div className="relative z-30 flex flex-col justify-center gap-1 rounded-tr-xl border-t px-6 py-4 text-left bg-muted/50 border-r sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <span className="text-sm text-muted-foreground">Max Rating</span>
+          <span className="text-lg font-bold">{max_Rating}</span>
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="w-full overflow-x-auto">
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={data}>
               <CartesianGrid vertical={false} />
-              <YAxis className="pl-5" />
+              <YAxis className="pl-5" tickCount={22} scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
               <XAxis
                 dataKey="contestName"
                 tickLine={false}
