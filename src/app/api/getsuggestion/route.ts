@@ -13,7 +13,6 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 export async function POST(request: NextRequest) {
   try {
     const { userData, problemStats } = await request.json();
-    console.log(userData.barGraphData);
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const prompt = `You are a snarky yet effective competitive programming coach providing personalized improvement suggestions based on the user's Codeforces data. Use the following summarized information to craft your feedback:
 
@@ -93,7 +92,6 @@ Remember to keep the advice concise, actionable, and tailored to the user's curr
 
     const result = await model.generateContent(prompt);
     const suggestion = result.response.text();
-    console.log(prompt);
 
     return NextResponse.json({ suggestion }, { status: 200 });
   } catch (error) {

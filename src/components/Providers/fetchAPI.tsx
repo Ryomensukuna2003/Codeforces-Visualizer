@@ -5,7 +5,6 @@ import axios from "axios";
 const handleSaveUsername = async (username: string) => {
   try {
     const response = await axios.post("/api/user", { username });
-    console.log("User saved:", response.data);
   } catch (error) {
     console.error("Failed to save username:", error);
   }
@@ -30,7 +29,6 @@ export const useStore = create(
           axios.get("https://codeforces.com/api/contest.list?gym=false").then((res) => res.data),
           axios.get(`https://clist.by:443/api/v4/contest/?upcoming=true&username=Casper&api_key=${process.env.NEXT_PUBLIC_CLIST_API_KEY}&limit=100&offset=100`).then((res) => res.data),
         ]);
-        console.log("API called");
         // Update the store state
         set({ userInfoData, allSubmissionsData, allRating, contestData,UpcomingContestData, isLoading: false });
       } catch (error) {

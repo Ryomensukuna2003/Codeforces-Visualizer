@@ -6,13 +6,20 @@ import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog"
-import { Label } from "./ui/label"
 import { UpcomingContest as UpcomingContestType } from "@/app/types"
 import Link from "next/link"
-import { Bell, Mail, KeyRound, ArrowRight } from "lucide-react"
+import { Bell, Mail, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useStore } from "./Providers/fetchAPI";
+import { Loader2 } from "lucide-react"
 import ContestSheet from "./contest-sheet"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
+
 
 export const Upcoming_Contest = ({
   upcomingContest,
@@ -26,17 +33,86 @@ export const Upcoming_Contest = ({
   const [isOtpSent, setIsOtpSent] = useState(false)
   const { toast } = useToast()
   const [Contests, setContests] = useState<any>([]);
+  const [fetching, setFetching] = useState(false);
 
-  const handleSendOtp = () => {
+  const generate_OTP = async (email: string) => {
+    try {
+      const response = await fetch("/api/generate_OTP", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (response.status === 400) {
+        return "Email already registered";
+      }
+      if (response.ok) {
+        return "OTP sent successfully";
+      } else {
+        return "Failed to send OTP";
+      }
+    } catch (error) {
+      return "OTP Generation error";
+    }
+  }
+
+  const verify_otp = async (email: string, otp: string) => {
+    try {
+      const response = await fetch("/api/verify_OTP", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+      if (response.ok) {
+        await fetch("/api/add_subscriber", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+        )
+        return "OTP verified successfully";
+      } else {
+        console.error("Failed to verify OTP");
+        return "Failed to verify OTP";
+      }
+    } catch (error) {
+      console.error("Failed to verify OTP:", error);
+    }
+  }
+
+  const handleSendOtp = async () => {
+    const toast_title = await generate_OTP(email);
     setIsOtpSent(true)
     toast({
-      title: "OTP Sent",
-      description: "Please check your email for the OTP.",
+      title: toast_title,
+      description: toast_title === 'Email already registered' ? "Bitch ass nigga." : "Please check your email for the OTP.",
+    })
+  }
+
+  const handleVerifyOtp = async () => {
+    setFetching(true);
+    const toast_title = await verify_otp(email, otp);
+    setFetching(false);
+    setIsModalOpen(false)
+    setIsOtpSent(false)
+    setEmail("")
+    setOtp("")
+    toast({
+      title: toast_title,
+      description: toast_title === "OTP verified successfully" ? "You will now receive notifications for upcoming contests." : "Please try again.",
     })
   }
 
   interface Contest {
     host: string;
+    event: string;
+    start: string;
+    href: string;
     [key: string]: any;
   }
 
@@ -45,7 +121,7 @@ export const Upcoming_Contest = ({
   }
 
   const ParseContestData = (UpcomingContestData: UpcomingContestData) => {
-    const filteredContests = UpcomingContestData.objects.filter((contest: Contest) => 
+    const filteredContests = UpcomingContestData.objects.filter((contest: Contest) =>
       contest.host === "codeforces.com" || contest.host === "codechef.com" || contest.host === "atcoder.jp"
     ).map((contest: Contest) => ({
       name: contest.event,
@@ -59,16 +135,6 @@ export const Upcoming_Contest = ({
     ParseContestData(UpcomingContestData);
   }, [UpcomingContestData]);
 
-  const handleVerifyOtp = () => {
-    setIsModalOpen(false)
-    setIsOtpSent(false)
-    setEmail("")
-    setOtp("")
-    toast({
-      title: "Verification Successful",
-      description: "You will now receive notifications for upcoming contests.",
-    })
-  }
 
   const isToday = (dateString: string) => {
     const specificDate = new Date(dateString);
@@ -80,15 +146,16 @@ export const Upcoming_Contest = ({
     );
   };
 
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Upcoming Contests</CardTitle>
       </CardHeader>
-      
+
       <CardContent className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <Button 
-          onClick={() => setIsModalOpen(true)} 
+        <Button
+          onClick={() => setIsModalOpen(true)}
           className="w-full sm:w-auto"
         >
           <Bell className="mr-2 h-4 w-4" />
@@ -107,7 +174,7 @@ export const Upcoming_Contest = ({
               Get Notified
             </DialogTitle>
           </DialogHeader>
-          
+
           <AnimatePresence mode="wait">
             {!isOtpSent ? (
               <motion.div
@@ -119,9 +186,7 @@ export const Upcoming_Contest = ({
               >
                 <div className="grid gap-4 py-4">
                   <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <Label htmlFor="email" className="whitespace-nowrap">
-                      Email
-                    </Label>
+
                     <div className="flex-1 relative w-full">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                       <Input
@@ -144,32 +209,33 @@ export const Upcoming_Contest = ({
                 transition={{ duration: 0.2 }}
               >
                 <div className="grid gap-4 py-4">
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <Label htmlFor="email" className="whitespace-nowrap">
-                      OTP
-                    </Label>
-                    <div className="flex-1 relative w-full">
-                      <KeyRound className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                      <Input
-                        id="otp"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        className="pl-12 rounded w-full"
-                        placeholder="Enter OTP"
-                      />
-                    </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <InputOTP maxLength={6} className="pl-12" value={otp} onChange={(otp) => setOtp(otp)}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
                   </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-          
-          <DialogFooter>
+
+          <DialogFooter className="flex items-center justify-center">
             <Button
               onClick={!isOtpSent ? handleSendOtp : handleVerifyOtp}
               className="w-full sm:w-auto rounded"
+              disabled={fetching}
             >
-              {!isOtpSent ? "Send OTP" : "Verify OTP"}
+              {!isOtpSent ? "Send OTP" : fetching ? "Verifying" : "Verify OTP"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </DialogFooter>
@@ -182,7 +248,7 @@ export const Upcoming_Contest = ({
             {Contests.slice(0, 6).map((contest: any) => {
               const isContestToday = isToday(contest.start);
               return (
-                <li 
+                <li
                   key={contest.id}
                   className="flex items-center justify-between border-l-4 border-primary/20 pl-4  hover:bg-muted/50 transition-colors rounded"
                 >
@@ -202,12 +268,12 @@ export const Upcoming_Contest = ({
                     {isContestToday
                       ? "Today"
                       : contest.start.toLocaleString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          year: "numeric",
-                          month: "numeric",
-                          day: "numeric",
-                        })}
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                      })}
                   </Badge>
                 </li>
               );

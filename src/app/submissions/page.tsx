@@ -63,7 +63,6 @@ export default function SubmissionsPage() {
 
   const goToNextPage = () => {
     setCurrentPage(currentPage + 100);
-    console.log(currentPage);
   };
 
   const goToPreviousPage = () => {

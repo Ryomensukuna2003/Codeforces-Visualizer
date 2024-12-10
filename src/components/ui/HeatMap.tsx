@@ -36,7 +36,6 @@ interface HeatMapGraphProps {
 export function HeatMapGraph({ data }: HeatMapGraphProps) {
   const [timeRange, setTimeRange] = React.useState("ALL")
 
-  // console.log("Data-> ",data);
   const filteredData = React.useMemo(() => {
     const referenceDate = new Date()
     let startDate = new Date(0)

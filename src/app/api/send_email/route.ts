@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import axios from "axios";
+import { prisma } from "@/lib/prisma";
 
 // Rate limiting object (basic)
 const lastRunTime: { [key: string]: number } = {};
@@ -36,8 +37,14 @@ async function handleEmailRequest(method: string) {
 }
 
 async function sendEmail() {
+  // Getting all subscribers
+  const All_subscribers = await prisma.subscriber
+    .findMany()
+    .then((subscribers) => {
+      return subscribers.map((subscriber) => subscriber.email);
+    });
+
   const startTime = Date.now();
-  console.log(`[${new Date().toISOString()}] Starting email process`);
 
   try {
     // Validate environment variables
@@ -46,13 +53,19 @@ async function sendEmail() {
     }
 
     // Fetch upcoming contests
-    const contestResponse = await axios.get("https://codeforces.com/api/contest.list?gym=false");
+    const contestResponse = await axios.get(
+      "https://codeforces.com/api/contest.list?gym=false"
+    );
     const contestData = contestResponse.data;
 
     // Check for contests starting within the next 20 minutes
     const now = Math.floor(Date.now() / 1000);
     const upcomingContests = contestData.result.filter((contest: any) => {
-      return contest.phase === "BEFORE" && contest.startTimeSeconds > now && contest.startTimeSeconds <= now + 1200;
+      return (
+        contest.phase === "BEFORE" &&
+        contest.startTimeSeconds > now &&
+        contest.startTimeSeconds <= now + 1200
+      );
     });
 
     if (upcomingContests.length === 0) {
@@ -75,7 +88,6 @@ async function sendEmail() {
     // Verify connection
     try {
       await transporter.verify();
-      console.log("SMTP connection verified successfully");
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`SMTP verification failed: ${error.message}`);
@@ -86,15 +98,19 @@ async function sendEmail() {
 
     // Prepare email content with timestamp
     const timestamp = new Date().toISOString();
-    const contestDetails = upcomingContests.map((contest: any) => {
-      return `<li>${contest.name} - ${new Date(contest.startTimeSeconds * 1000).toLocaleString()}</li>`;
-    }).join("");
+    const contestDetails = upcomingContests
+      .map((contest: any) => {
+        return `<li>${contest.name} - ${new Date(
+          contest.startTimeSeconds * 1000
+        ).toLocaleString()}</li>`;
+      })
+      .join("");
 
     const emailContent = {
-      from: '"Shivanshu" <mshivanshu1264@gmail.com>',
-      to: "fousedoncareer2026@gmail.com",
+      from: '"CF Stats" <cfstats9@gmail.com>',
+      to: "",
       subject: `Upcoming Contests - ${timestamp}`,
-      text: `The following contests are starting within the next 20 minutes:\n${contestDetails}`,
+      text: `The following contests are starting within the next few minutes:\n${contestDetails}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h2>Upcoming Contests</h2>
@@ -109,10 +125,15 @@ async function sendEmail() {
     };
 
     // Send email
-    const info = await transporter.sendMail(emailContent);
+    let info = { messageId: "N/A" };
+    for (const subscriber of All_subscribers) {
+      emailContent.to = subscriber;
+      info = await transporter.sendMail(emailContent);
+      
+    }
 
     const duration = Date.now() - startTime;
-    console.log(`Email sent successfully in ${duration}ms. Message ID: ${info.messageId}`);
+    
 
     return NextResponse.json(
       {

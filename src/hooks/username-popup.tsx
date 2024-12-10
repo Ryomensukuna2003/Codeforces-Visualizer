@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useStore } from '@/components/Providers/fetchAPI';
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
-import { FloatingInput, FloatingLabel, FloatingLabelInput } from '@/components/ui/floating-label-input';
+import { FloatingLabelInput } from '@/components/ui/floating-label-input';
 
 
 
@@ -35,7 +34,7 @@ export default function UsernamePopup() {
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="relative grid gap-10 pb-4 ">
-            <FloatingLabelInput id="floating-demo" label="Username" value={temp}
+            <FloatingLabelInput id="floating-demo" label="Username" type='text' value={temp}
               onChange={(e) => setTemp(e.target.value)}
               autoComplete="off" />
           </div>

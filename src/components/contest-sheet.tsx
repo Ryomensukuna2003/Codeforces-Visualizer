@@ -20,12 +20,11 @@ export default function ContestSheet({ contests }: { contests: any[] }) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-
         <Button variant="outline" className='w-full'> View Upcoming Contests &nbsp; <AlignRight /></Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:w-[540px]">
         <SheetHeader>
-          <SheetTitle>Upcoming Programming Contests</SheetTitle>
+          <SheetTitle className='pt-4'>Upcoming Programming Contests</SheetTitle>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-120px)] mt-6 pr-4">
           <div className="space-y-4 ">

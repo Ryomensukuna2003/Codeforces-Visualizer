@@ -71,7 +71,6 @@ export default function ProblemsPage() {
             });
           }
         });
-        // console.log(combinedArray);
         setProblems(combinedArray);
         const filtered = data.result.problems.filter(
           (problem: Problem) =>
@@ -86,7 +85,6 @@ export default function ProblemsPage() {
       setError(
         "An error occurred while fetching problems. Please try again later."
       );
-      console.log(err);
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +122,6 @@ export default function ProblemsPage() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     updateDisplayedProblems(sorted, currentPage);
   };
-  console.log(Attempted);
   const totalPages = Math.ceil(filteredProblems.length / contestsPerPage);
 
   const goToNextPage = () => {
