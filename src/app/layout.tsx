@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from 'next/font/local'
-import Head from "next/head";
 
 export const metadata: Metadata = {
   title: "CF-Visualizer",
@@ -29,7 +28,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${local.className} h-full w-screen`} suppressHydrationWarning={true}>
-      <Head><link rel="icon" href="src/app/favicon.svg"></link></Head>
       <body className="h-full w-screen" suppressHydrationWarning={true}>
         <ThemeProvider
           attribute="class"
@@ -38,7 +36,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <UsernamePopup />
-
           {children}
 
           <SpeedInsights />

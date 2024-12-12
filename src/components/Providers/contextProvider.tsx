@@ -9,5 +9,7 @@ export const useUsernameStore = create(
     setUsername: (username: string) => set({ username }),
     Attempted: [],
     setAttempted: (Attempted: string[]) => set({ Attempted }),
+    UsernamePopupisopen: true,
+    setUsernamePopupisopen: (isOpen: boolean) => set({ UsernamePopupisopen: isOpen }),
   }))
 );

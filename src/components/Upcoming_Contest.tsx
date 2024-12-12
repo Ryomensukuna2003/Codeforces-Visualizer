@@ -11,7 +11,6 @@ import Link from "next/link"
 import { Bell, Mail, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useStore } from "./Providers/fetchAPI";
-import { Loader2 } from "lucide-react"
 import ContestSheet from "./contest-sheet"
 import {
   InputOTP,
@@ -33,6 +32,7 @@ export const Upcoming_Contest = ({
   const [isOtpSent, setIsOtpSent] = useState(false)
   const { toast } = useToast()
   const [Contests, setContests] = useState<any>([]);
+  const [allContests, setAllContests] = useState<any>([]);
   const [fetching, setFetching] = useState(false);
 
   const generate_OTP = async (email: string) => {
@@ -121,9 +121,11 @@ export const Upcoming_Contest = ({
   }
 
   const ParseContestData = (UpcomingContestData: UpcomingContestData) => {
+    if (!UpcomingContestData) return;
     const filteredContests = UpcomingContestData.objects.filter((contest: Contest) =>
       contest.host === "codeforces.com" || contest.host === "codechef.com" || contest.host === "atcoder.jp"
     ).map((contest: Contest) => ({
+      platform: contest.host,
       name: contest.event,
       start: new Date(contest.start),
       href: contest.href
@@ -131,8 +133,23 @@ export const Upcoming_Contest = ({
     setContests(filteredContests.sort((a, b) => a.start.getTime() - b.start.getTime()));
   };
 
+  const ParseAllContestData = (UpcomingContestData: UpcomingContestData) => {
+    if (!UpcomingContestData) return;
+    const filteredContests = UpcomingContestData.objects.map((contest: Contest) => ({
+      platform: contest.host,
+      name: contest.event,
+      start: new Date(contest.start),
+      href: contest.href
+    }));
+    setAllContests(filteredContests.sort((a, b) => a.start.getTime() - b.start.getTime()));
+  }
+
   useEffect(() => {
+    upcomingContest.map((contest: UpcomingContestType) => {
+      console.log("UpcomingContestData->> " + contest.name);
+    })
     ParseContestData(UpcomingContestData);
+    ParseAllContestData(UpcomingContestData);
   }, [UpcomingContestData]);
 
 
@@ -152,22 +169,21 @@ export const Upcoming_Contest = ({
       <CardHeader>
         <CardTitle>Upcoming Contests</CardTitle>
       </CardHeader>
-
-      <CardContent className="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <CardContent className="flex flex-col sm:flex-row gap-4 flex-wrap">
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto flex-1"
         >
           <Bell className="mr-2 h-4 w-4" />
           Get notified for Upcoming contest
         </Button>
-        <div className="w-full sm:w-auto">
-          <ContestSheet contests={Contests} />
-        </div>
-      </CardContent>
 
+        <ContestSheet contests={allContests} />
+      </CardContent>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2">
+        <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2" aria-describedby="notification-dialog-description">
+          <DialogTitle className="hidden">Welcome to Codeforces Visualizer</DialogTitle>
+
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center">
               <Bell className="mr-2 h-6 w-6 text-primary" />
@@ -245,11 +261,11 @@ export const Upcoming_Contest = ({
       <CardContent>
         {upcomingContest && upcomingContest.length > 0 ? (
           <ul className="space-y-3">
-            {Contests.slice(0, 6).map((contest: any) => {
+            {Contests.slice(0, 6).map((contest: any, index: number) => {
               const isContestToday = isToday(contest.start);
               return (
                 <li
-                  key={contest.id}
+                  key={contest.id || index}
                   className="flex items-center justify-between border-l-4 border-primary/20 pl-4  hover:bg-muted/50 transition-colors rounded"
                 >
                   <Link

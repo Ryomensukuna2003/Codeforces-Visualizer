@@ -1,6 +1,6 @@
 "use client"
 import { TrendingUp } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import {
   Card,
   CardContent,
@@ -33,14 +33,13 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
     },
   } satisfies ChartConfig;
 
-  const max_Rating=data.map((item)=>item.rating).reduce((a,b)=>Math.max(a,b));
-  const current_Rating=data[data.length-1].rating;
+  const max_Rating = data.map((item) => item.rating).reduce((a, b) => Math.max(a, b));
+  const current_Rating = data[data.length - 1].rating;
 
   return (
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-
           <CardTitle>Line Chart - Linear</CardTitle>
           <CardDescription>Rating Changes Over Contests</CardDescription>
         </div>
@@ -55,35 +54,33 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="w-full overflow-x-auto">
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={data}>
-              <CartesianGrid vertical={false} />
-              <YAxis className="pl-5" tickCount={22} scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
-              <XAxis
-                dataKey="contestName"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => {
-                  let index = value.search("Div.");
-                  return "Div " + value.substr(index + 4, 2).trim();
-                }}
-              />
-              <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
-              <Line
-                dataKey="rating"
-                type="linear"
-                stroke="var(--color-desktop)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-desktop)",
-                }}
-                activeDot={{
-                  r: 6,
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <LineChart width={656} height={369} data={data}>
+            <CartesianGrid vertical={false} />
+            <YAxis className="pl-5" tickCount={22} scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
+            <XAxis
+              dataKey="contestName"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => {
+                let index = value.search("Div.");
+                return "Div " + value.substr(index + 4, 2).trim();
+              }}
+            />
+            <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
+            <Line
+              dataKey="rating"
+              type="linear"
+              stroke="var(--color-desktop)"
+              strokeWidth={2}
+              dot={{
+                fill: "var(--color-desktop)",
+              }}
+              activeDot={{
+                r: 6,
+              }}
+            />
+          </LineChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">

@@ -20,7 +20,7 @@ export default function ContestSheet({ contests }: { contests: any[] }) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className='w-full'> View Upcoming Contests &nbsp; <AlignRight /></Button>
+        <Button variant="outline" className='flex-1'> View Upcoming Contests &nbsp; <AlignRight /></Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:w-[540px]">
         <SheetHeader>
@@ -35,6 +35,7 @@ export default function ContestSheet({ contests }: { contests: any[] }) {
                     <a href={contest.href} target="_blank" rel="noopener noreferrer" className="hover:underline">
                       {contest.name}
                     </a>
+                    <p className='text-muted-foreground text-sm mb-2'>{contest.platform}</p>
                   </CardTitle>
                   <CardDescription>
                     Starts: {new Date(contest.start).toLocaleString()}

@@ -1,7 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import axios from "axios";
+import Link from "next/link";
+import ChartLineLinear from "./Line_Chart";
+import RecentSubmissions from "./RecentSubmissions";
+import SleepingCat from "./cat";
+import Skeleton_Fragment from "./skeleton-components"
+import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from "react";
+import { CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "./ui/toggle";
+import { ChartLineBar } from "./Bar_Chart";
+import { CodeforcesUserCard } from "./AboutCard";
+import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+import { ImprovementSuggestion } from "./ImprovementSuggestion";
+import { Upcoming_Contest } from "./Upcoming_Contest";
+import { HeatMapGraph } from "./ui/HeatMap";
+import { useStore } from "./Providers/fetchAPI";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,25 +28,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "./ui/toggle";
-import { ChartLineBar } from "./Bar_Chart";
-import { CodeforcesUserCard } from "./AboutCard";
-import ChartLineLinear from "./Line_Chart";
-import Link from "next/link";
-import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
-import { ImprovementSuggestion } from "./ImprovementSuggestion";
-import RecentSubmissions from "./RecentSubmissions";
-import { Upcoming_Contest } from "./Upcoming_Contest";
-import { HeatMapGraph } from "./ui/HeatMap";
-import SleepingCat from "./cat";
-import { useStore } from "./Providers/fetchAPI";
-import Skeleton_Fragment from "./skeleton-components"
-import { Search } from "lucide-react";
-import UsernamePopup from "../hooks/username-popup";
-import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
   UserInfo,
   Submissions,
@@ -47,6 +45,7 @@ import {
   getUpcomingContests,
   processHeatMapData,
 } from "../lib/utils";
+import { CompetitiveProgrammingQuotes } from "./CP-Quotes";
 
 ChartJS.register(
   CategoryScale,
@@ -58,16 +57,17 @@ ChartJS.register(
 );
 
 
-
 export function CodeforcesVisualizerComponent() {
 
-  const { username, setUsername, Attempted, setAttempted } = useUsernameStore() as {
+  const { username, setUsername, setAttempted, UsernamePopupisopen } = useUsernameStore() as {
     username: string;
     setUsername: (username: string) => void;
     Attempted: string[];
     setAttempted: (attempted: string[]) => void;
+    UsernamePopupisopen: boolean;
   };
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const { toast } = useToast()
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setquestions] = useState(0);
   const [total_Solved, setTotalSolved] = useState(0);
@@ -115,6 +115,7 @@ export function CodeforcesVisualizerComponent() {
     fetchData: (username: string) => void;
   };
 
+
   const [isloading, setisloading] = useState(true);
 
   // Save username to the database
@@ -128,6 +129,13 @@ export function CodeforcesVisualizerComponent() {
 
   // If API data is changed, parse the data
   useEffect(() => {
+    if (userInfoData === 'Username is not Valid') {
+      toast({
+        variant: "destructive",
+        title: "Username is not Valid",
+        description: "Please enter a valid Codeforces username.",
+      })
+    }
     if (userInfoData && allSubmissionsData && allRating && contestData) {
       parseData();
     }
@@ -178,7 +186,7 @@ export function CodeforcesVisualizerComponent() {
       setAttempted(Array.from(uniqueProblems));
       setBarGraphData(ratingFreq);
       setLineGraphData(ratingArr);
-      setUserInfo(userInfoData.result[0]);
+      setUserInfo(userInfoData.result[0]); // ---------------------------------------------------------------------------------------
       setSubmissions(allSubmissionsData.result.slice(0, 10));
       setquestions(allSubmissionsData.result.length);
       setUpcomingContests(upcomingContests);
@@ -187,6 +195,8 @@ export function CodeforcesVisualizerComponent() {
       console.error("Error fetching data:", error);
     }
   };
+
+
 
   const userData = {
     handle: userInfo?.handle || "USER",
@@ -212,17 +222,18 @@ export function CodeforcesVisualizerComponent() {
     averageAcceptedProblemRating: averageAcceptedProblemRating,
   };
 
- 
+
   const problemStats = {
     total: questions,
     solved: total_Solved,
     attempted: mySet.size,
   };
 
+
   return (
     <div>
       {/* Nav Bar  */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 pb-4 flex gap-2 ">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg px-6 pt-4 pb-4 flex gap-2 ">
         <h1 className="text-xl flex-1 font-semibold sm:text-3xl">Codeforces Visualizer</h1>
         <div className="flex sm:flex-row">
           {isWideScreen && (
@@ -247,11 +258,21 @@ export function CodeforcesVisualizerComponent() {
       </div>
 
       <div className="mx-2 p-4 pt-0 space-y-6">
-        {isloading && <Skeleton_Fragment />}
+        {isloading && (
+          <div className="relative">
+            {!UsernamePopupisopen && (
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-lg z-10">
+                <CompetitiveProgrammingQuotes />
+              </div>
+            )
+            }
+            <Skeleton_Fragment />
+          </div>
+        )}
         {!isloading && (
           <>
             <div className="relative">
-              <div className="absolute  left-15 right-5  ">
+              <div className="absolute  left-15 right-5   ">
                 <SleepingCat />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -2,9 +2,17 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import axios from "axios";
 import { prisma } from "@/lib/prisma";
+import client from "@/lib/redis";
 
-// Rate limiting object (basic)
-const lastRunTime: { [key: string]: number } = {};
+// Initialize Redis for rate limiting
+const redis = client;
+
+interface Contest {
+  event: string;
+  host: string;
+  href: string;
+  start: string;
+}
 
 export async function GET() {
   return await handleEmailRequest("GET");
@@ -16,61 +24,90 @@ export async function POST() {
 
 async function handleEmailRequest(method: string) {
   const now = Date.now();
-  const timeSinceLastRun = now - (lastRunTime[method] || 0);
+  const lastRunKey = `email_trigger:lastRun:${method}`;
+  const lastRunTime = (await redis.get(lastRunKey)) || "0";
+  const timeSinceLastRun = now - parseInt(lastRunTime);
 
   // Prevent running more than once per minute
   if (timeSinceLastRun < 60000) {
-    // 60000ms = 1 minute
     return NextResponse.json(
       {
         error: "Rate limit exceeded",
         message: "Please wait at least 1 minute between requests",
-        nextValidTime: new Date(lastRunTime[method] + 60000).toISOString(),
+        nextValidTime: new Date(parseInt(lastRunTime) + 60000).toISOString(),
       },
       { status: 429 }
     );
   }
 
-  lastRunTime[method] = now;
+  await redis.set(lastRunKey, now.toString(), { EX: 60 }); // Set TTL of 60 seconds
 
   return await sendEmail();
 }
 
 async function sendEmail() {
-  // Getting all subscribers
+  // Fetch all subscribers
   const All_subscribers = await prisma.subscriber
     .findMany()
-    .then((subscribers) => {
-      return subscribers.map((subscriber) => subscriber.email);
-    });
+    .then((subscribers) => subscribers.map((subscriber) => subscriber.email));
 
   const startTime = Date.now();
 
   try {
     // Validate environment variables
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      throw new Error("Missing email credentials in environment variables");
+    if (
+      !process.env.EMAIL_USER ||
+      !process.env.EMAIL_PASS ||
+      !process.env.NEXT_PUBLIC_CLIST_API_KEY
+    ) {
+      throw new Error("Missing required environment variables");
     }
 
     // Fetch upcoming contests
-    const contestResponse = await axios.get(
-      "https://codeforces.com/api/contest.list?gym=false"
-    );
-    const contestData = contestResponse.data;
+    const contestResponse = await axios
+      .get(
+        `https://clist.by:443/api/v4/contest/?upcoming=true&username=Casper&api_key=${process.env.NEXT_PUBLIC_CLIST_API_KEY}&limit=100&offset=100`
+      )
+      .then((res) => res.data);
+
+    if (
+      !contestResponse ||
+      !contestResponse.objects ||
+      !Array.isArray(contestResponse.objects)
+    ) {
+      throw new Error("Invalid contest API response format");
+    }
+
+    // Filter and parse contests
+    const ParseContestData = contestResponse.objects
+      .filter((contest: Contest): boolean =>
+        ["codeforces.com", "codechef.com", "atcoder.jp"].includes(contest.host)
+      )
+      .map((contest: Contest): { name: string; start: Date; href: string } => ({
+        name: contest.event,
+        start: new Date(contest.start),
+        href: contest.href,
+      }))
+      .sort(
+        (a: { start: Date }, b: { start: Date }): number =>
+          a.start.getTime() - b.start.getTime()
+      );
+
+    const contestData = ParseContestData;
 
     // Check for contests starting within the next 20 minutes
-    const now = Math.floor(Date.now() / 1000);
-    const upcomingContests = contestData.result.filter((contest: any) => {
-      return (
-        contest.phase === "BEFORE" &&
-        contest.startTimeSeconds > now &&
-        contest.startTimeSeconds <= now + 1200
-      );
-    });
+    const now = new Date();
+    const upcomingContests = contestData.filter(
+      (contest: { start: Date }) =>
+        contest.start.getTime() - now.getTime() <= 6 * 60 * 60 * 1000 && // Within the next 6 hours
+        contest.start.getTime() - now.getTime() > 0 // Exclude past contests
+    );
 
     if (upcomingContests.length === 0) {
-      console.log("No contests starting within the next 20 minutes.");
-      return NextResponse.json({ success: true, message: "No contests starting soon." }, { status: 200 });
+      return NextResponse.json(
+        { success: true, message: "No contests starting soon." },
+        { status: 200 }
+      );
     }
 
     // Create transporter
@@ -85,32 +122,30 @@ async function sendEmail() {
       },
     });
 
-    // Verify connection
-    try {
-      await transporter.verify();
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`SMTP verification failed: ${error.message}`);
-      } else {
-        throw new Error("SMTP verification failed: Unknown error");
-      }
-    }
+    // Verify SMTP connection
+    await transporter.verify();
 
-    // Prepare email content with timestamp
+    // Prepare email content
     const timestamp = new Date().toISOString();
     const contestDetails = upcomingContests
-      .map((contest: any) => {
-        return `<li>${contest.name} - ${new Date(
-          contest.startTimeSeconds * 1000
-        ).toLocaleString()}</li>`;
-      })
+      .map(
+        (contest: Contest) =>
+          `<li><a href="${contest.href}" target="_blank">${
+            contest.host + " - " + contest.event
+          }</a> - ${contest.start.toLocaleString()}</li>`
+      )
       .join("");
 
     const emailContent = {
       from: '"CF Stats" <cfstats9@gmail.com>',
-      to: "",
+      bcc: All_subscribers.join(","),
       subject: `Upcoming Contests - ${timestamp}`,
-      text: `The following contests are starting within the next few minutes:\n${contestDetails}`,
+      text: `The following contests are starting soon:\n${upcomingContests
+        .map(
+          (contest: { name: string; start: Date }) =>
+            `${contest.name} - ${contest.start.toLocaleString()}`
+        )
+        .join("\n")}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h2>Upcoming Contests</h2>
@@ -125,20 +160,17 @@ async function sendEmail() {
     };
 
     // Send email
-    let info = { messageId: "N/A" };
-    for (const subscriber of All_subscribers) {
-      emailContent.to = subscriber;
-      info = await transporter.sendMail(emailContent);
-      
+    const chunkSize = 50; // Adjust based on your SMTP server limits
+    for (let i = 0; i < All_subscribers.length; i += chunkSize) {
+      const chunk = All_subscribers.slice(i, i + chunkSize);
+      await transporter.sendMail({ ...emailContent, bcc: chunk.join(",") });
     }
 
     const duration = Date.now() - startTime;
-    
-
     return NextResponse.json(
       {
         success: true,
-        messageId: info.messageId,
+        message: "Emails sent successfully",
         timestamp: timestamp,
         duration: `${duration}ms`,
       },
@@ -146,12 +178,21 @@ async function sendEmail() {
     );
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error(`[${new Date().toISOString()}] Error sending email:`, error);
-
+    if (error instanceof Error) {
+      console.error(
+        `[${new Date().toISOString()}] Error sending email:`,
+        error.stack || error
+      );
+    } else {
+      console.error(
+        `[${new Date().toISOString()}] Error sending email:`,
+        error
+      );
+    }
     return NextResponse.json(
       {
         success: false,
-        error: (error as Error).message,
+        error: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date().toISOString(),
         duration: `${duration}ms`,
       },
