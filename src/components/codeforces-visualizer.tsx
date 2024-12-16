@@ -231,7 +231,7 @@ export function CodeforcesVisualizerComponent() {
     <div>
       {/* Nav Bar  */}
       <div className="sticky top-0 z-50 shadow-sm bg-background/80 backdrop-blur-lg px-6 flex justify-between gap-2 ">
-        <h1 className="text-xl  border-r border-neutral-400 font-semibold sm:text-3xl py-6 pr-4 bord">Codeforces Visualizer</h1>
+        <h1 className="text-xl  border-r border-neutral-600 font-semibold sm:text-3xl py-6 pr-4 bord">Codeforces Visualizer</h1>
         <div className="flex sm:flex-row gap-4">
           {isWideScreen && (
             <>
@@ -274,8 +274,8 @@ export function CodeforcesVisualizerComponent() {
               <div className="absolute left-15 right-5">
                 <SleepingCat />
               </div>
-              <div className="flex flex-col border-y border-neutral-400 md:flex-row">
-                <CardContent className="flex-1 p-0 border-r border-neutral-400">
+              <div className="flex flex-col border-y border-neutral-600 md:flex-row">
+                <CardContent className="flex-1 p-0 border-r border-neutral-600">
                   <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
                 </CardContent>
                 <CardContent className="flex-1 p-0 ">
@@ -288,7 +288,7 @@ export function CodeforcesVisualizerComponent() {
             <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
             {/* Graphs  */}
-            <div className="flex flex-col border-y  border-neutral-400 md:flex-row">
+            <div className="flex flex-col border-y  border-neutral-600 md:flex-row">
               <CardContent className="flex-1 p-0 ">
                 <ChartLineBar data={barGraphData} />
               </CardContent>
@@ -313,13 +313,13 @@ export function CodeforcesVisualizerComponent() {
 const TextEffect = () => {
   return (
     <div className="w-full flex flex-row justify-center items-center text-center">
-      <Link href="/problems" className="w-full text-3xl border-r border-neutral-400">
+      <Link href="/problems" className="w-full text-3xl border-r border-neutral-600">
         <h1 className="text1 justify-content-center py-4">
           View All Problems
           <span className="span1">View All Problems</span>
         </h1>
       </Link>
-      <Link href="/rating_change" className="w-full text-3xl border-r border-neutral-400">
+      <Link href="/rating_change" className="w-full text-3xl border-r border-neutral-600">
         <h1 className="text1 py-4">
           Rating Changes
           <span className="span1">Rating Changes</span>
