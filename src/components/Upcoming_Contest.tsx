@@ -132,15 +132,21 @@ export const Upcoming_Contest = ({
   const ParseContestData = (UpcomingContestData: UpcomingContestData) => {
     if (!UpcomingContestData) return;
 
+    const newContestData = new Set();
+
     UpcomingContestData.objects.forEach((contest: Contest) => {
-      if (contest.host === "codeforces.com" || contest.host === "codechef.com" || contest.host === "atcoder.jp") {
+      if (
+        contest.host === "codeforces.com" ||
+        contest.host === "codechef.com" ||
+        contest.host === "atcoder.jp"
+      ) {
         let x = {
           platform: contest.host,
           name: contest.event,
           start: new Date(contest.start),
-          href: contest.href
+          href: contest.href,
         };
-        ContestData.add(x);
+        newContestData.add(x);
       }
     });
 
@@ -149,25 +155,22 @@ export const Upcoming_Contest = ({
       let x = {
         platform: "codeforces.com",
         name: contest.name,
-        // start: contest.startTimeSeconds,
         start: new Date(contest.startTimeSeconds * 1000).toISOString(),
-        href: `codeforces.com/contests/${contest.id}`
+        href: `codeforces.com/contests/${contest.id}`,
       };
-      ContestData.add(x);
+      newContestData.add(x);
     });
+
+    setContests(Array.from(newContestData).sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime()));
   };
 
-  useEffect(() => {
-    setContests(Array.from(ContestData).sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime()));
-  }, [])
-
-
-
-
 
   useEffect(() => {
-    ParseContestData(UpcomingContestData);
-  }, [UpcomingContestData]);
+    if (UpcomingContestData && codforcesContestData) {
+      ParseContestData(UpcomingContestData);
+    }
+  }, [UpcomingContestData, codforcesContestData]);
+
 
 
   const isToday = (dateString: string) => {
