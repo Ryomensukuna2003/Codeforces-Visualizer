@@ -126,7 +126,7 @@ export function CodeforcesUserCard({
             </Card>
           </div>
         </CardContent>
-      </Card>
-    </div>
+      </Card >
+    </div >
   );
 }

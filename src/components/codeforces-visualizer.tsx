@@ -230,8 +230,11 @@ export function CodeforcesVisualizerComponent() {
   return (
     <div>
       {/* Nav Bar  */}
-      <div className="sticky top-0 z-50 shadow-sm bg-background/80 backdrop-blur-lg px-6 flex justify-between gap-2 ">
-        <h1 className="text-xl  border-r border-neutral-600 font-semibold sm:text-3xl py-6 pr-4 bord">Codeforces Visualizer</h1>
+      <div className="sticky w-full top-0 z-50 shadow-sm bg-background/80 backdrop-blur-lg  flex justify-between ">
+        <h1 className="text1 text-3xl justify-content-center p-6 border-r border-neutral-600">
+          Codeforces Visualizer
+          <span className="span1 w-full justify-center text-center">Codeforces Visualizer</span>
+        </h1>
         <div className="flex sm:flex-row gap-4">
           {isWideScreen && (
             <>
@@ -244,13 +247,13 @@ export function CodeforcesVisualizerComponent() {
                   onChange={(e) => setUsername(e.target.value)}
                 />
                 <Button
-                  className="rounded-none sm:rounded-none  my-6"
+                  className="rounded-none sm:rounded-none my-6"
                   onClick={() => fetchData(username)}
                 >
                   Search
                 </Button>
               </div>
-              <ModeToggle className="my-6" />
+              <ModeToggle className="my-6 " />
             </>
           )}
         </div>

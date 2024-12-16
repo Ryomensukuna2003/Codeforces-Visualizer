@@ -13,32 +13,32 @@ const RecentSubmissions = ({ submissions }: { submissions: Submissions[] }) => {
         <ul className="space-y-2">
           {submissions?.length > 0 ? (
             submissions.map((submission) => (
-                <li
+              <li
                 key={submission.id}
                 className="flex flex-col sm:flex-row justify-between items-center 
                        p-2 bg-muted/50 sm:bg-transparent rounded-md transition-colors 
                        space-y-1 sm:space-y-0"
-                >
+              >
                 <span className="text-sm md:text-base truncate max-w-full">
                   {submission.problem.name}
                 </span>
                 <div className="flex items-center space-x-2">
                   <Badge
-                  variant={
-                    submission.verdict === "OK" ? "default" : "destructive"
-                  }
-                  className="text-xs md:text-sm"
+                    variant={
+                      submission.verdict === "OK" ? "default" : "destructive"
+                    }
+                    className="text-xs md:text-sm"
                   >
-                  {submission.verdict}
+                    {submission.verdict}
                   </Badge>
-                  <Badge 
-                  variant="outline" 
-                  className="text-xs font-thin  md:text-sm "
+                  <Badge
+                    variant="outline"
+                    className="text-xs font-thin  md:text-sm "
                   >
-                  {submission.programmingLanguage}
+                    {submission.programmingLanguage}
                   </Badge>
                 </div>
-                </li>
+              </li>
             ))
           ) : (
             <li className="text-muted-foreground text-center py-4">
