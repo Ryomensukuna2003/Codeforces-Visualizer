@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      clipPath: {
+        polygon: "polygon(0 50%, 100% 50%, 100% 50%, 0 50%)",
+      },
       keyframes: {
         "caret-blink": {
           "0%,70%,100%": { opacity: "1" },
@@ -82,6 +85,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("tailwind-clip-path")],
 };
 export default config;

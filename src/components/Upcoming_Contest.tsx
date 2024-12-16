@@ -25,7 +25,7 @@ export const Upcoming_Contest = ({
 }: {
   upcomingContest: UpcomingContestType[]
 }) => {
-  const { UpcomingContestData } = useStore() as { UpcomingContestData: any };
+  const { UpcomingContestData, codforcesContestData } = useStore() as { UpcomingContestData: any, codforcesContestData: any };
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
@@ -34,6 +34,7 @@ export const Upcoming_Contest = ({
   const [Contests, setContests] = useState<any>([]);
   const [allContests, setAllContests] = useState<any>([]);
   const [fetching, setFetching] = useState(false);
+  const [ContestData, setContestData] = useState(() => new Set());
 
   const generate_OTP = async (email: string) => {
     try {
@@ -116,40 +117,56 @@ export const Upcoming_Contest = ({
     [key: string]: any;
   }
 
+  interface CodeforcesContest {
+    host: string,
+    name: string,
+    href: string,
+    start: string,
+    [key: string]: any;
+  }
+
   interface UpcomingContestData {
     objects: Contest[];
   }
 
   const ParseContestData = (UpcomingContestData: UpcomingContestData) => {
     if (!UpcomingContestData) return;
-    const filteredContests = UpcomingContestData.objects.filter((contest: Contest) =>
-      contest.host === "codeforces.com" || contest.host === "codechef.com" || contest.host === "atcoder.jp"
-    ).map((contest: Contest) => ({
-      platform: contest.host,
-      name: contest.event,
-      start: new Date(contest.start),
-      href: contest.href
-    }));
-    setContests(filteredContests.sort((a, b) => a.start.getTime() - b.start.getTime()));
+
+    UpcomingContestData.objects.forEach((contest: Contest) => {
+      if (contest.host === "codeforces.com" || contest.host === "codechef.com" || contest.host === "atcoder.jp") {
+        let x = {
+          platform: contest.host,
+          name: contest.event,
+          start: new Date(contest.start),
+          href: contest.href
+        };
+        ContestData.add(x);
+      }
+    });
+
+    codforcesContestData.result.forEach((contest: CodeforcesContest) => {
+      if (contest.phase !== "BEFORE") return;
+      let x = {
+        platform: "codeforces.com",
+        name: contest.name,
+        // start: contest.startTimeSeconds,
+        start: new Date(contest.startTimeSeconds * 1000).toISOString(),
+        href: `codeforces.com/contests/${contest.id}`
+      };
+      ContestData.add(x);
+    });
   };
 
-  const ParseAllContestData = (UpcomingContestData: UpcomingContestData) => {
-    if (!UpcomingContestData) return;
-    const filteredContests = UpcomingContestData.objects.map((contest: Contest) => ({
-      platform: contest.host,
-      name: contest.event,
-      start: new Date(contest.start),
-      href: contest.href
-    }));
-    setAllContests(filteredContests.sort((a, b) => a.start.getTime() - b.start.getTime()));
-  }
+  useEffect(() => {
+    setContests(Array.from(ContestData).sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime()));
+  }, [UpcomingContestData, codforcesContestData])
+
+
+
+
 
   useEffect(() => {
-    upcomingContest.map((contest: UpcomingContestType) => {
-      console.log("UpcomingContestData->> " + contest.name);
-    })
     ParseContestData(UpcomingContestData);
-    ParseAllContestData(UpcomingContestData);
   }, [UpcomingContestData]);
 
 
@@ -163,9 +180,8 @@ export const Upcoming_Contest = ({
     );
   };
 
-
   return (
-    <Card>
+    <Card className="border-0 px-6">
       <CardHeader>
         <CardTitle>Upcoming Contests</CardTitle>
       </CardHeader>
@@ -178,7 +194,7 @@ export const Upcoming_Contest = ({
           Get notified for Upcoming contest
         </Button>
 
-        <ContestSheet contests={allContests} />
+        <ContestSheet contests={Contests} />
       </CardContent>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2" aria-describedby="notification-dialog-description">
@@ -283,13 +299,7 @@ export const Upcoming_Contest = ({
                   >
                     {isContestToday
                       ? "Today"
-                      : contest.start.toLocaleString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        year: "numeric",
-                        month: "numeric",
-                        day: "numeric",
-                      })}
+                      : new Date(contest.start).toLocaleString()}
                   </Badge>
                 </li>
               );

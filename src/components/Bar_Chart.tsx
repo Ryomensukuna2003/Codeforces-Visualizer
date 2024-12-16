@@ -39,7 +39,7 @@ export function ChartLineBar({ data }: ChartLineBarProps) {
   const max_Submissions= data.reduce((max, p) => p.count > max ? p.count : max, data[0].count);
 
   return (
-    <Card>
+    <Card className="border-none">
       <CardHeader>
         <CardTitle>Problems Rating</CardTitle>
         <CardDescription>Rating of various problems.</CardDescription>

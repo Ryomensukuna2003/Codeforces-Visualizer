@@ -79,9 +79,9 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
 
 
   return (
-    <Card>
+    <Card className="border-0 py-6">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 ">
           <CardTitle>Submissions Heatmap</CardTitle>
           <CardDescription>
             Total submissions for the selected time range
@@ -91,7 +91,7 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
           <span className="text-sm text-muted-foreground">Total Submissions</span>
           <span className="text-lg font-bold">{total.toLocaleString()}</span>
         </div>
-        <div className="relative z-30 flex flex-col justify-center gap-1 rounded-tr-xl border-t px-6 py-4 text-left bg-muted/50 border-r sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+        <div className="relative z-30 flex flex-col justify-center gap-1  border-t px-6 py-4 text-left bg-muted/50 border-r sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
           <span className="text-sm text-muted-foreground">Max Submissions</span>
           <span className="text-lg font-bold">{max_submissions.toLocaleString()}</span>
         </div>

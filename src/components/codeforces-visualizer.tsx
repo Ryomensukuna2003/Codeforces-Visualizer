@@ -19,6 +19,8 @@ import { ImprovementSuggestion } from "./ImprovementSuggestion";
 import { Upcoming_Contest } from "./Upcoming_Contest";
 import { HeatMapGraph } from "./ui/HeatMap";
 import { useStore } from "./Providers/fetchAPI";
+import { List, TrendingUp, FileText } from "lucide-react"
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -233,31 +235,33 @@ export function CodeforcesVisualizerComponent() {
   return (
     <div>
       {/* Nav Bar  */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg px-6 pt-4 pb-4 flex gap-2 ">
-        <h1 className="text-xl flex-1 font-semibold sm:text-3xl">Codeforces Visualizer</h1>
-        <div className="flex sm:flex-row">
+      <div className="sticky top-0 z-50 shadow-sm bg-background/80 backdrop-blur-lg px-6 flex justify-between gap-2 ">
+        <h1 className="text-xl  border-r border-neutral-600 font-semibold sm:text-3xl py-6 pr-4 bord">Codeforces Visualizer</h1>
+        <div className="flex sm:flex-row gap-4">
           {isWideScreen && (
             <>
-              <Input
-                type="text"
-                placeholder="Enter Codeforces username"
-                className="rounded-t-lg sm:rounded-l-lg sm:rounded-t-none"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <Button
-                className="rounded-b-lg sm:rounded-r-lg sm:rounded-b-none"
-                onClick={() => fetchData(username)}
-              >
-                Search
-              </Button>
+              <div className="flex">
+                <Input
+                  type="text"
+                  placeholder="Enter Codeforces username"
+                  className="rounded-none my-6"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                <Button
+                  className="rounded-none sm:rounded-none  my-6"
+                  onClick={() => fetchData(username)}
+                >
+                  Search
+                </Button>
+              </div>
+              <ModeToggle className="my-6" />
             </>
           )}
         </div>
-        <ModeToggle />
       </div>
 
-      <div className="mx-2 p-4 pt-0 space-y-6">
+      <div className=" pt-0">
         {isloading && (
           <div className="relative">
             {!UsernamePopupisopen && (
@@ -272,46 +276,92 @@ export function CodeforcesVisualizerComponent() {
         {!isloading && (
           <>
             <div className="relative">
-              <div className="absolute  left-15 right-5   ">
+              <div className="absolute left-15 right-5">
                 <SleepingCat />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* User Card  */}
-                <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
-                <Upcoming_Contest upcomingContest={upcomingContests || []} />
+              <div className="flex flex-col border-y border-neutral-600 md:flex-row">
+                <CardContent className="flex-1 p-0 border-r border-neutral-600">
+                  <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+                </CardContent>
+                <CardContent className="flex-1 p-0 ">
+                  <Upcoming_Contest upcomingContest={upcomingContests || []} />
+                </CardContent>
+
               </div>
             </div>
-            {/* Improvement Suggestion  */}
+
             <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
             {/* Graphs  */}
-            <div className="flex flex-col md:flex-row gap-4">
-              <CardContent className="flex-1 p-0">
+            <div className="flex flex-col border-y  border-neutral-600 md:flex-row">
+              <CardContent className="flex-1 p-0 ">
                 <ChartLineBar data={barGraphData} />
               </CardContent>
               <CardContent className="flex-1 p-0">
                 <ChartLineLinear data={LineGraphData} />
               </CardContent>
             </div>
-            <div className="mt-4">
-              <HeatMapGraph data={HeatMap} />
-            </div>
+
+            <HeatMapGraph data={HeatMap} />
+
             <RecentSubmissions submissions={submissions || []} />
             {/* Buttons  */}
-            <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-              <Link href="/problems">
-                <Button className="rounded-md w-full sm:w-auto">View All Problems</Button>
-              </Link>
-              <Link href="/rating_change">
-                <Button className="rounded-md w-full sm:w-auto">Rating Changes</Button>
-              </Link>
-              <Link href="/submissions">
-                <Button className="rounded-md w-full sm:w-auto">View All Submissions</Button>
-              </Link>
-            </div>
+            {/* <div className="grid grid-cols-3 h-24">
+              <div className="border-r border-neutral-600 ">
+                <Link href="/problems">
+                  <Button className="w-full h-full flex items-center justify-center">
+                    <List name="list" className="mr-2" />
+                    View All Problems
+                  </Button>
+                </Link>
+              </div>
+              <div className="border-r border-neutral-600 ">
+                <Link href="/rating_change">
+                  <Button className="w-full h-full flex items-center justify-center">
+                    <TrendingUp name="trending-up" className="mr-2" />
+                    Rating Changes
+                  </Button>
+                </Link>
+              </div>
+              <div className="border-r">
+                <Link href="/submissions">
+                  <Button className="w-full h-full flex items-center justify-center">
+                    <FileText name="file-text" className="mr-2" />
+                    View All Submissions
+                  </Button>
+                </Link>
+              </div>
+            </div> */}
+
+            {/* <TextEffect /> */}
           </>
         )}
       </div>
     </div>
   );
 }
+
+
+// const TextEffect = () => {
+//   return (
+//     <div className="container1">
+//       <Link href="/problems">
+//         <h1 className="text">
+//           View All Problems<span>View All Problems</span>
+//         </h1>
+//       </Link>
+//       <Link href="/rating_change">
+//         <h1 className="text">
+//           Rating Changes<span>Rating Changes</span>
+//         </h1>
+//       </Link>
+//       <Link href="/submissions">
+//         <h1 className="text">
+//           View All Submissions<span>View All Submissions</span>
+//         </h1>
+//       </Link>
+//     </div>
+//   );
+// };
+
+// export default TextEffect;

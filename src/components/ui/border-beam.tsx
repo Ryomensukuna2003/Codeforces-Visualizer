@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 interface BorderBeamProps {
   className?: string;
@@ -14,15 +15,17 @@ interface BorderBeamProps {
 
 export const BorderBeam = ({
   className,
-  size = 300,
+  size = 200,
   duration = 15,
   anchor = 90,
   borderWidth = 2,
-  colorFrom = "white",
-  colorTo = "#18181B",
+  colorFrom,
+  colorTo,
   delay = 0,
-  theme = "light",
+  theme,
 }: BorderBeamProps) => {
+  const { theme: currentTheme } = useTheme();
+
   const lightThemeColors = {
     colorFrom: "white",
     colorTo: "#18181B",
@@ -33,7 +36,7 @@ export const BorderBeam = ({
     colorTo: "white",
   };
 
-  const themeColors = theme === "light" ? lightThemeColors : darkThemeColors;
+  const themeColors = theme === "light" || (theme === undefined && currentTheme === "light") ? lightThemeColors : darkThemeColors;
 
   return (
     <div
@@ -43,8 +46,8 @@ export const BorderBeam = ({
           "--duration": duration,
           "--anchor": anchor,
           "--border-width": borderWidth,
-          "--color-from": themeColors.colorFrom,
-          "--color-to": themeColors.colorTo,
+          "--color-from": colorFrom || themeColors.colorFrom,
+          "--color-to": colorTo || themeColors.colorTo,
           "--delay": `-${delay}s`,
         } as React.CSSProperties
       }

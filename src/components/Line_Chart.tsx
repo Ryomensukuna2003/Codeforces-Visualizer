@@ -37,7 +37,7 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
   const current_Rating = data[data.length - 1].rating;
 
   return (
-    <Card>
+    <Card className="border-0 border-l" >
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>Line Chart - Linear</CardTitle>
@@ -47,7 +47,7 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
           <span className="text-sm text-muted-foreground">Current Rating</span>
           <span className="text-lg font-bold">{current_Rating}</span>
         </div>
-        <div className="relative z-30 flex flex-col justify-center gap-1 rounded-tr-xl border-t px-6 py-4 text-left bg-muted/50 border-r sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+        <div className="relative z-30 flex flex-col justify-center gap-1  border-t px-6 py-4 text-left bg-muted/50 border-r sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
           <span className="text-sm text-muted-foreground">Max Rating</span>
           <span className="text-lg font-bold">{max_Rating}</span>
         </div>

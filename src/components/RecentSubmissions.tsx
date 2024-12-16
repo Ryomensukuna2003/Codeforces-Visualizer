@@ -5,7 +5,7 @@ import { Submissions } from "@/app/types"
 
 const RecentSubmissions = ({ submissions }: { submissions: Submissions[] }) => {
   return (
-    <Card className="w-full max-w-full">
+    <Card className="w-full max-w-full border-0 border-y px-6">
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Recent Submissions</CardTitle>
       </CardHeader>

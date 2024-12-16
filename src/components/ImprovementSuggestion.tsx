@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
-import { BorderBeam } from "@/components/ui/border-beam";
 import MarkdownFade from "./ui/markdownFade";
 import { ImprovementSuggestionProps } from "@/app/types";
 
@@ -44,9 +43,8 @@ export function ImprovementSuggestion({
   };
 
   return (
-    <div className="relative w-full h-full rounded-xl">
-      <BorderBeam />
-      <Card className="mt-6">
+    <div className="relative w-full h-full rounded-xl  py-6 ">
+      <Card className=" border-none px-6 ">
         <CardHeader>
           <CardTitle>Hey, wanna know what you're missing? 😉</CardTitle>
           <p className="text-base text-muted-foreground">
@@ -55,10 +53,10 @@ export function ImprovementSuggestion({
         </CardHeader>
         <CardContent>
           {suggestion ? (
-            <div className="space-y-4">
+            <div className="">
               <MarkdownFade
                 content={suggestion}
-                className="text-base text-muted-foreground"
+                className="text-base text-muted-foreground mb-2"
               />
               <Button onClick={() => setSuggestion(null)}>
                 Get Another Suggestion
