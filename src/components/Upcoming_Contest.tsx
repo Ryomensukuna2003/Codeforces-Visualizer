@@ -159,7 +159,7 @@ export const Upcoming_Contest = ({
 
   useEffect(() => {
     setContests(Array.from(ContestData).sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime()));
-  }, [UpcomingContestData, codforcesContestData])
+  }, [])
 
 
 
