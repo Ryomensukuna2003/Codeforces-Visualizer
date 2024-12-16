@@ -34,7 +34,7 @@ export const useStore = create(
         set({ userInfoData, allSubmissionsData, allRating, contestData, UpcomingContestData, codforcesContestData, isLoading: false });
       } catch (error) {
         console.error("Failed to fetch data:", error);
-        set({ isLoading: false });
+        set({ isLoading: false, userInfoData: "Username is not Valid" });
       }
     },
   }))

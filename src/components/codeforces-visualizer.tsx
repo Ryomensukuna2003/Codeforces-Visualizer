@@ -19,7 +19,6 @@ import { ImprovementSuggestion } from "./ImprovementSuggestion";
 import { Upcoming_Contest } from "./Upcoming_Contest";
 import { HeatMapGraph } from "./ui/HeatMap";
 import { useStore } from "./Providers/fetchAPI";
-import { List, TrendingUp, FileText } from "lucide-react"
 
 import {
   Chart as ChartJS,
@@ -99,12 +98,8 @@ export function CodeforcesVisualizerComponent() {
     const handleResize = () => {
       setIsWideScreen(window.innerWidth > 768);
     };
-
-    // Set initial value and add event listener
     handleResize();
     window.addEventListener("resize", handleResize);
-
-    // Cleanup event listener
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -188,7 +183,7 @@ export function CodeforcesVisualizerComponent() {
       setAttempted(Array.from(uniqueProblems));
       setBarGraphData(ratingFreq);
       setLineGraphData(ratingArr);
-      setUserInfo(userInfoData.result[0]); // ---------------------------------------------------------------------------------------
+      setUserInfo(userInfoData.result[0]);
       setSubmissions(allSubmissionsData.result.slice(0, 10));
       setquestions(allSubmissionsData.result.length);
       setUpcomingContests(upcomingContests);
@@ -236,7 +231,7 @@ export function CodeforcesVisualizerComponent() {
     <div>
       {/* Nav Bar  */}
       <div className="sticky top-0 z-50 shadow-sm bg-background/80 backdrop-blur-lg px-6 flex justify-between gap-2 ">
-        <h1 className="text-xl  border-r border-neutral-600 font-semibold sm:text-3xl py-6 pr-4 bord">Codeforces Visualizer</h1>
+        <h1 className="text-xl  border-r border-neutral-400 font-semibold sm:text-3xl py-6 pr-4 bord">Codeforces Visualizer</h1>
         <div className="flex sm:flex-row gap-4">
           {isWideScreen && (
             <>
@@ -279,8 +274,8 @@ export function CodeforcesVisualizerComponent() {
               <div className="absolute left-15 right-5">
                 <SleepingCat />
               </div>
-              <div className="flex flex-col border-y border-neutral-600 md:flex-row">
-                <CardContent className="flex-1 p-0 border-r border-neutral-600">
+              <div className="flex flex-col border-y border-neutral-400 md:flex-row">
+                <CardContent className="flex-1 p-0 border-r border-neutral-400">
                   <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
                 </CardContent>
                 <CardContent className="flex-1 p-0 ">
@@ -293,7 +288,7 @@ export function CodeforcesVisualizerComponent() {
             <ImprovementSuggestion userData={userData} problemStats={problemStats} />
 
             {/* Graphs  */}
-            <div className="flex flex-col border-y  border-neutral-600 md:flex-row">
+            <div className="flex flex-col border-y  border-neutral-400 md:flex-row">
               <CardContent className="flex-1 p-0 ">
                 <ChartLineBar data={barGraphData} />
               </CardContent>
@@ -305,35 +300,8 @@ export function CodeforcesVisualizerComponent() {
             <HeatMapGraph data={HeatMap} />
 
             <RecentSubmissions submissions={submissions || []} />
-            {/* Buttons  */}
-            {/* <div className="grid grid-cols-3 h-24">
-              <div className="border-r border-neutral-600 ">
-                <Link href="/problems">
-                  <Button className="w-full h-full flex items-center justify-center">
-                    <List name="list" className="mr-2" />
-                    View All Problems
-                  </Button>
-                </Link>
-              </div>
-              <div className="border-r border-neutral-600 ">
-                <Link href="/rating_change">
-                  <Button className="w-full h-full flex items-center justify-center">
-                    <TrendingUp name="trending-up" className="mr-2" />
-                    Rating Changes
-                  </Button>
-                </Link>
-              </div>
-              <div className="border-r">
-                <Link href="/submissions">
-                  <Button className="w-full h-full flex items-center justify-center">
-                    <FileText name="file-text" className="mr-2" />
-                    View All Submissions
-                  </Button>
-                </Link>
-              </div>
-            </div> */}
 
-            {/* <TextEffect /> */}
+            <TextEffect />
           </>
         )}
       </div>
@@ -342,26 +310,29 @@ export function CodeforcesVisualizerComponent() {
 }
 
 
-// const TextEffect = () => {
-//   return (
-//     <div className="container1">
-//       <Link href="/problems">
-//         <h1 className="text">
-//           View All Problems<span>View All Problems</span>
-//         </h1>
-//       </Link>
-//       <Link href="/rating_change">
-//         <h1 className="text">
-//           Rating Changes<span>Rating Changes</span>
-//         </h1>
-//       </Link>
-//       <Link href="/submissions">
-//         <h1 className="text">
-//           View All Submissions<span>View All Submissions</span>
-//         </h1>
-//       </Link>
-//     </div>
-//   );
-// };
+const TextEffect = () => {
+  return (
+    <div className="w-full flex flex-row justify-center items-center text-center">
+      <Link href="/problems" className="w-full text-3xl border-r border-neutral-400">
+        <h1 className="text1 justify-content-center py-4">
+          View All Problems
+          <span className="span1">View All Problems</span>
+        </h1>
+      </Link>
+      <Link href="/rating_change" className="w-full text-3xl border-r border-neutral-400">
+        <h1 className="text1 py-4">
+          Rating Changes
+          <span className="span1">Rating Changes</span>
+        </h1>
+      </Link>
+      <Link href="/submissions" className="w-full text-3xl">
+        <h1 className="text1 py-4">
+          View All Submissions
+          <span className="span1">View All Submissions</span>
+        </h1>
+      </Link>
+    </div>
+  );
+};
 
-// export default TextEffect;
+export default TextEffect;
