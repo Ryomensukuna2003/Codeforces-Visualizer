@@ -230,8 +230,8 @@ export function CodeforcesVisualizerComponent() {
   return (
     <div>
       {/* Nav Bar  */}
-      <div className="sticky w-full top-0 z-50 shadow-sm bg-background/80 backdrop-blur-lg  flex justify-between ">
-        <h1 className="text1 text-3xl justify-content-center p-6 border-r border-neutral-600">
+      <div className="sticky w-full top-0 z-50 shadow-sm bg-background/80 backdrop-blur-lg border-b-2 border-neutral-600  flex justify-between ">
+        <h1 className="text1 text-3xl justify-content-center p-6 border-r-2 border-neutral-600">
           Codeforces Visualizer
           <span className="span1 w-full justify-center text-center">Codeforces Visualizer</span>
         </h1>
@@ -277,7 +277,7 @@ export function CodeforcesVisualizerComponent() {
               <div className="absolute left-15 right-5">
                 <SleepingCat />
               </div>
-              <div className="flex flex-col border-y border-neutral-600 md:flex-row">
+              <div className="flex flex-col border-b border-neutral-600 md:flex-row">
                 <CardContent className="flex-1 p-0 border-r border-neutral-600">
                   <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
                 </CardContent>
