@@ -253,7 +253,7 @@ export function CodeforcesVisualizerComponent() {
                   Search
                 </Button>
               </div>
-              <ModeToggle className="my-6 " />
+              <ModeToggle className="my-6 mr-4 rounded-none" />
             </>
           )}
         </div>
@@ -304,7 +304,7 @@ export function CodeforcesVisualizerComponent() {
 
             <RecentSubmissions submissions={submissions || []} />
 
-            <TextEffect />
+            {<TextEffect />}
           </>
         )}
       </div>
@@ -315,20 +315,20 @@ export function CodeforcesVisualizerComponent() {
 
 const TextEffect = () => {
   return (
-    <div className="w-full flex flex-row justify-center items-center text-center">
-      <Link href="/problems" className="w-full text-3xl border-r border-neutral-600">
+    <div className="w-full flex flex-col md:flex-row justify-center items-center text-center">
+      <Link href="/problems" className="w-full text-xl md:w-1/3 md:text-3xl border-b md:border-b-0 md:border-r border-neutral-600">
         <h1 className="text1 justify-content-center py-4">
           View All Problems
           <span className="span1">View All Problems</span>
         </h1>
       </Link>
-      <Link href="/rating_change" className="w-full text-3xl border-r border-neutral-600">
+      <Link href="/rating_change" className="w-full text-xl md:w-1/3 md:text-3xl border-b md:border-b-0 md:border-r border-neutral-600">
         <h1 className="text1 py-4">
           Rating Changes
           <span className="span1">Rating Changes</span>
         </h1>
       </Link>
-      <Link href="/submissions" className="w-full text-3xl">
+      <Link href="/submissions" className="w-full text-xl md:w-1/3 md:text-3xl">
         <h1 className="text1 py-4">
           View All Submissions
           <span className="span1">View All Submissions</span>
