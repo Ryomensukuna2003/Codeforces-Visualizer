@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      textShadow: {
+        solid: '2px 2px 0px rgba(0, 0, 0, 1)', // Solid black shadow
+      },
       clipPath: {
         polygon: "polygon(0 50%, 100% 50%, 100% 50%, 0 50%)",
       },
@@ -85,6 +88,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("tailwind-clip-path")],
+  plugins: [require("tailwindcss-animate"), require("tailwind-clip-path") , require('tailwindcss-textshadow')],
 };
 export default config;

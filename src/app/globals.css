@@ -80,6 +80,7 @@
   }
 }
 
+
 .text1 {
   display: flex;
   color: rgba(var(--foreground), 0.2);
@@ -88,7 +89,6 @@
   background-clip: text;
   background-size: 0%;
   transition: background-size cubic-bezier(.1, .5, .5, 1) 0.5s;
-  border-bottom: 1px solid #2F2B28;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -101,8 +101,8 @@
   height: 100%;
   background-color: hsl(var(--foreground));
   color: hsl(var(--background));
-  clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%);
-  transform-origin: center;
+  clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  transform-origin: top;
   transition: all cubic-bezier(.1, .5, .5, 1) 0.4s;
   display: flex;
   flex-direction: column;
@@ -116,3 +116,8 @@
 .text1:hover {
   background-size: 100%;
 }
+
+
+
+
+
