@@ -6,7 +6,34 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// utils.ts
+
+
+export function processSingleHeatMapData(allSubmissionsData: any): { date: string; desktop: number }[] {
+  let HeatMapData= allSubmissionsData.result.map((submission:any) => {
+    return {
+      x: submission.creationTimeSeconds,
+      y: submission.problem.rating,
+      };
+  });
+  const groupedByDate = HeatMapData.reduce((acc: any, curr: any) => {
+    const date = new Date(curr.x * 1000).toISOString().split('T')[0];
+    if (!acc[date]) {
+      acc[date] = 0;
+    }
+    acc[date]++;
+    return acc;
+  }, {});
+
+  const groupedHeatMapData = Object.keys(groupedByDate).map((date) => {
+    return {
+      date: date,
+      desktop: groupedByDate[date],
+    };
+  });
+  return groupedHeatMapData;
+}
+
+
 export const processRatings = (
   allRating: any,
   setBestRatingChange: Function,

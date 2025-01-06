@@ -41,7 +41,7 @@ import {
   processRatingGraph,
   processRatingFreqGraph,
   getUpcomingContests,
-  processHeatMapData,
+  processSingleHeatMapData
 } from "../lib/utils";
 import { CompetitiveProgrammingQuotes } from "./CP-Quotes";
 
@@ -144,9 +144,9 @@ export function CodeforcesVisualizerComponent() {
       let ratingArr: Rating[] = [];
       let ratingFreq: ProblemRatingDistribution[] = [];
 
-      processHeatMapData(allSubmissionsData);
+      processSingleHeatMapData(allSubmissionsData);
       setcontestsParticipated(allRating.result.length);
-      const heatMapData = processHeatMapData(allSubmissionsData);
+      const heatMapData = processSingleHeatMapData(allSubmissionsData);
       setHeatMap(heatMapData);
       // for userData
       processRatings(
@@ -226,7 +226,7 @@ export function CodeforcesVisualizerComponent() {
 
   return (
     <div className="border-neutral-600">
-      <NavBar/>
+      <NavBar />
 
       <div className=" pt-0">
         {isloading && (

@@ -62,7 +62,7 @@ export default function EnhancedUserComparison() {
     if (UserData1?.RatingChangeData && UserData2?.RatingChangeData) {
       const RatingChange = CompareRatingChange(UserData1?.RatingChangeData, UserData2?.RatingChangeData, user1, user2);
       setLineGraphData(RatingChange);
-      console.log("RatingChange Data-> "+LineGraphData)
+      console.log("RatingChange Data-> " + LineGraphData)
     }
   }, [UserData1, UserData2]);
 
@@ -126,90 +126,76 @@ export default function EnhancedUserComparison() {
         </Card>
 
 
+        {user1 && user2 && (
+          <div>
+            <div className="grid md:grid-cols-2 border-none">
+              {[UserData1, UserData2].map((user, index) => (
+                <Card key={user?.handle || index} className="overflow-hidden border-0 border-b border-l border-neutral-600">
+                  <CardHeader className="bg-card">
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-32 w-32">
+                        <AvatarImage
+                          src={user?.avatar}
+                          alt={user?.handle}
+                          className="object-cover h-full w-full"
+                        />
+                        <AvatarFallback>{user?.handle[0]}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-2xl">{user?.handle}</CardTitle>
+                        <CardDescription className={`text-lg font-semibold `} style={{ color: getRankColor(user?.rank || "") }}>
+                          {user?.rank}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold">{user?.rating}</div>
+                        <div className="text-sm text-gray-500">Current Rating</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold">{user?.maxRating}</div>
+                        <div className="text-sm text-gray-500">Max Rating</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold">{user?.problemSolved}</div>
+                        <div className="text-sm text-gray-500">Problems Solved</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold">{user?.contestsParticipated}</div>
+                        <div className="text-sm text-gray-500">Contests</div>
+                      </div>
+                    </div>
 
-        {/* Basic Comparision */}
-        <div className="grid md:grid-cols-2 border-none">
-          {[UserData1, UserData2].map((user, index) => (
-            <Card key={index} className="overflow-hidden border-0 border-b border-l border-neutral-600">
-              <CardHeader className="bg-card">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-32 w-32">
-                    <AvatarImage
-                      src={user?.avatar}
-                      alt={user?.handle}
-                      className="object-cover h-full w-full"
-                    />
-                    <AvatarFallback>{user?.handle[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-2xl">{user?.handle}</CardTitle>
-                    <CardDescription className={`text-lg font-semibold `} style={{ color: getRankColor(user?.rank || "") }}>
-                      {user?.rank}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">{user?.rating}</div>
-                    <div className="text-sm text-gray-500">Current Rating</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">{user?.maxRating}</div>
-                    <div className="text-sm text-gray-500">Max Rating</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">{user?.problemSolved}</div>
-                    <div className="text-sm text-gray-500">Problems Solved</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">{user?.contestsParticipated}</div>
-                    <div className="text-sm text-gray-500">Contests</div>
-                  </div>
-                </div>
-                <Separator className="my-6" />
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <Trophy className="w-5 h-5 mr-2" />
-                    <span className="font-medium mr-2">Contributions:</span>
-                    <span>{user?.contribution}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="w-5 h-5 mr-2" />
-                    <span className="font-medium mr-2">Friends:</span>
-                    <span>{user?.friendOfCount}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <SubmissionHeatmap data={HeatMapData} id1={user1} id2={user2} />
-
-        {/* Bar Graph */}
-
-        <div className='flex'>
-          <div className='flex-1'>
-            {BarGraphData ? (
-              <MultipleBarChart chartData={BarGraphData} user1={user1} user2={user2} />
-            ) : (
-              <p className="text-center mt-6">Loading chart data...</p>
-            )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <SubmissionHeatmap data={HeatMapData} id1={user1} id2={user2} />
+            <div className='flex'>
+              <div className='flex-1'>
+                {BarGraphData ? (
+                  <MultipleBarChart chartData={BarGraphData} user1={user1} user2={user2} />
+                ) : (
+                  <p className="text-center mt-6">Loading chart data...</p>
+                )}
+              </div>
+              <div className='flex-1'>
+                {LineGraphData ? (
+                  <MultipleLineChart chartData={LineGraphData} user1={user1} user2={user2} />
+                ) : (
+                  <p className="text-center mt-6">Loading line graph data...</p>
+                )}
+              </div>
+            </div>
           </div>
-          <div className='flex-1'>
-            {LineGraphData ? (
-              <MultipleLineChart chartData={LineGraphData} user1={user1} user2={user2} />
-            ) : (
-              <p className="text-center mt-6">Loading line graph data...</p>
-            )}
-          </div>
-        </div>
-
-
-
+        )}
       </div>
+
+
+
     </div>
   )
 }

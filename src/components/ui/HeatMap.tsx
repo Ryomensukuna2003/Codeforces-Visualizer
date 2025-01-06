@@ -25,7 +25,7 @@ import {
 const chartConfig = {
   submissions: {
     label: "Submissions",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(var(--foreground))",
   }
 } satisfies ChartConfig
 
@@ -79,7 +79,7 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
 
 
   return (
-    <Card className="border-0 py-6">
+    <Card className="border-0 ">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 ">
           <CardTitle>Submissions Heatmap</CardTitle>
@@ -135,8 +135,8 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
             accessibilityLayer
             data={filteredData}
             margin={{
-              left: 12,
-              right: 12,
+              left: 0,
+              right: 0,
             }}
           >
             <CartesianGrid vertical={false} />

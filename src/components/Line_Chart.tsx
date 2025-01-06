@@ -29,7 +29,7 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
   const chartConfig = {
     desktop: {
       label: "Rating",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--foreground))",
     },
   } satisfies ChartConfig;
 
