@@ -62,7 +62,8 @@ export function ChartLineBar({ data }: ChartLineBarProps) {
               <YAxis domain={[0, Math.ceil(max_Submissions / 50) * 50]} />
               <ChartTooltip
                 cursor={true}
-                content={<ChartTooltipContent />}
+                content={<ChartTooltipContent  />}
+                
               />
             <Bar dataKey="count" type="natural"
               fill="var(--color-desktop)"

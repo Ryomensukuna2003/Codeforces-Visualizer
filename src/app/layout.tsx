@@ -35,7 +35,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <UsernamePopup />
+          {/* <UsernamePopup /> */}
           {children}
 
           <SpeedInsights />
