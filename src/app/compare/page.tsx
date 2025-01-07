@@ -4,7 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import {  ArrowRightLeft } from 'lucide-react'
+import { ArrowRightLeft } from 'lucide-react'
+import { useToast } from "@/hooks/use-toast"
 
 import { NavBar } from '@/components/ui/NavBar';
 import { FetchUserData, CompareRatingFrequencies, CompareHeatMapData, CompareRatingChange } from '@/lib/utils';
@@ -16,25 +17,44 @@ import { SubmissionHeatmap } from '@/components/MultipleHeatMap/submission-heatm
 
 
 export default function EnhancedUserComparison() {
-  const [user1, setUser1] = useState<any | null>(null);
-  const [user2, setUser2] = useState<any | null>(null);
+  const { toast } = useToast()
+
+  const [user1, setUser1] = useState<any | null>("");
+  const [user2, setUser2] = useState<any | null>("");
 
   const [UserData1, setUserData1] = useState<any | null>(null);
   const [UserData2, setUserData2] = useState<any | null>(null);
   const [BarGraphData, setBarGraphData] = useState<any | null>(null);
   const [HeatMapData, setHeatMapData] = useState<any | null>(null);
   const [LineGraphData, setLineGraphData] = useState<any | null>(null);
+  const [isfetching, setisfetching] = useState<boolean>(false);
+  const [isfetched, setisfetched] = useState<boolean>(false);
 
 
   const compareUsers = async () => {
     if (user1 !== "" && user2 !== "") {
+      setisfetching(true);
       const { userInfoData: userInfoData1, allSubmissionsData: allSubmissionsData1, allRating: allRating1 } = await FetchUserData(user1);
       const { userInfoData: userInfoData2, allSubmissionsData: allSubmissionsData2, allRating: allRating2 } = await FetchUserData(user2);
-
+      if (userInfoData1.status === 'failed' || userInfoData2.status === 'failed') {
+        toast({
+          variant: "destructive",
+          title: userInfoData1.status === 'failed' ? userInfoData1.message : userInfoData2.message,
+          description: "Nigga check the spelling atleast",
+        })
+        return;
+      }
       setUserData1(ParseData(userInfoData1, allSubmissionsData1, allRating1, user1));
       setUserData2(ParseData(userInfoData2, allSubmissionsData2, allRating2, user2));
+      setisfetching(false);
+      setisfetched(true);
     }
     else {
+      toast({
+        variant: "destructive",
+        title: "Set both users",
+        description: "How i will compare 2 ID's if you give me only one man/women.",
+      })
       console.log("Set both users");
     }
   }
@@ -84,48 +104,56 @@ export default function EnhancedUserComparison() {
   };
 
   return (
-    <div>
+    <div className="bg-card">
       <NavBar />
 
       {/* Content Starts Here */}
-      <div className="flex-row w-full">
-        <Card className="w-full px-6 py-6 border-0 border-b border-neutral-600">
-          <CardHeader>
-            <CardTitle>Compare Codeforces Users</CardTitle>
-            <CardDescription>Enter two Codeforces IDs to compare their performance</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4 items-end">
-              <div className="flex-1">
-                <label htmlFor="user1" className="block text-sm font-medium text-gray-700 mb-1">
-                  User 1
-                </label>
-                <Input
-                  id="user1"
-                  placeholder="Enter Codeforces ID"
-                  value={user1}
-                  onChange={(e) => setUser1(e.target.value)}
-                />
-              </div>
-              <ArrowRightLeft className="hidden sm:block" />
-              <div className="flex-1">
-                <label htmlFor="user2" className="block text-sm font-medium text-gray-700 mb-1">
-                  User 2
-                </label>
-                <Input
-                  id="user2"
-                  placeholder="Enter Codeforces ID"
-                  value={user2}
-                  onChange={(e) => setUser2(e.target.value)}
-                />
-              </div>
-              <Button onClick={compareUsers}>Compare</Button>
+      <div className="flex-row bg-card w-full">
+
+        <div className='flex-col w-full h-46'>
+          {/* 1st div */}
+          <div className='grid grid-cols-3 border-b border-neutral-600 justify-center items-center'>
+            <h1 className="text-center text-3xl justify-content-center p-6 border-r border-neutral-600">
+              Compare ID's
+            </h1>
+          </div>
+          {/* 2nd div */}
+          <div className='flex text-center text-3xl justify-content-center border-b border-neutral-600 border-r'>
+            <div className="flex-1 text-center text-3xl justify-content-center  border-r border-neutral-600">
+              <Input
+              id="user1"
+              placeholder="First Username"
+              value={user1}
+              onChange={(e) => setUser1(e.target.value)}
+              className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
+              />
             </div>
-          </CardContent>
-        </Card>
+            <div className='flex justify-center items-center h-20 w-20'>
+              <ArrowRightLeft className="w-8 h-8" />
+            </div>
+            <div className="flex-1 text-center text-3xl justify-content-center border-l border-neutral-600">
+              <Input
+                id="user2"
+                placeholder="Second Username"
+                value={user2}
+                onChange={(e) => setUser2(e.target.value)}
+                className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
+              />
+            </div>
+          </div>
+          {/* 3rd div */}
+          <div className='grid grid-cols-3 justify-center items-center border-b border-neutral-600'>
+            <div className='col-start-3 text-center text-3xl justify-content-center border-r border-b border-neutral-600 '>
+              {isfetching ? (
+                <Button disabled className=' text-center text-3xl p-6 w-full h-full'>Fetching...</Button>
+              ) : (
+                <Button onClick={compareUsers} className=' text-center text-3xl p-6  w-full h-full'>Compare</Button>
+              )}
+            </div>
+          </div>
+        </div>
 
-
-        {user1 && user2 && (
+        {isfetched && (
           <div>
             <div className="grid md:grid-cols-2 border-none">
               {[UserData1, UserData2].map((user, index) => (
@@ -141,8 +169,8 @@ export default function EnhancedUserComparison() {
                         <AvatarFallback>{user?.handle[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-2xl">{user?.handle}</CardTitle>
-                        <CardDescription className={`text-lg font-semibold `} style={{ color: getRankColor(user?.rank || "") }}>
+                        <CardTitle className="text-2xl" style={{ color: 'var(--text-color-light)' }}>{user?.handle}</CardTitle>
+                        <CardDescription className={`text-lg font-semibold`} style={{ color: getRankColor(user?.rank || "") }}>
                           {user?.rank}
                         </CardDescription>
                       </div>
@@ -151,23 +179,22 @@ export default function EnhancedUserComparison() {
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       <div className="text-center">
-                        <div className="text-3xl font-bold">{user?.rating}</div>
-                        <div className="text-sm text-gray-500">Current Rating</div>
+                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.rating}</div>
+                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Current Rating</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold">{user?.maxRating}</div>
-                        <div className="text-sm text-gray-500">Max Rating</div>
+                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.maxRating}</div>
+                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Max Rating</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold">{user?.problemSolved}</div>
-                        <div className="text-sm text-gray-500">Problems Solved</div>
+                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.problemSolved}</div>
+                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Problems Solved</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold">{user?.contestsParticipated}</div>
-                        <div className="text-sm text-gray-500">Contests</div>
+                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.contestsParticipated}</div>
+                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Contests</div>
                       </div>
                     </div>
-
                   </CardContent>
                 </Card>
               ))}
@@ -178,23 +205,20 @@ export default function EnhancedUserComparison() {
                 {BarGraphData ? (
                   <MultipleBarChart chartData={BarGraphData} user1={user1} user2={user2} />
                 ) : (
-                  <p className="text-center mt-6">Loading chart data...</p>
+                  <p className="text-center mt-6" style={{ color: 'var(--text-color-light)' }}>Loading chart data...</p>
                 )}
               </div>
               <div className='flex-1'>
                 {LineGraphData ? (
                   <MultipleLineChart chartData={LineGraphData} user1={user1} user2={user2} />
                 ) : (
-                  <p className="text-center mt-6">Loading line graph data...</p>
+                  <p className="text-center mt-6" style={{ color: 'var(--text-color-light)' }}>Loading line graph data...</p>
                 )}
               </div>
             </div>
           </div>
         )}
       </div>
-
-
-
     </div>
   )
 }

@@ -6,8 +6,6 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -66,7 +64,7 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  hideLabeltickCount={22}
+                  // hideLabeltickCount={22}
                   indicator="line"
                   formatter={(value, name) => (
                     <div className="flex min-w-[130px] items-center text-xs text-muted-foreground">

@@ -23,19 +23,12 @@ export const NavBar = () => {
         return () => window.removeEventListener("resize", handleResize);
       }, []);
 
-    const { username, setUsername, setAttempted, UsernamePopupisopen } = useUsernameStore() as unknown as {
+    const { username, setUsername } = useUsernameStore() as unknown as {
         username: string;
         setUsername: (username: string) => void;
-        Attempted: string[];
-        setAttempted: (attempted: string[]) => void;
-        UsernamePopupisopen: boolean;
     };
       // Importing raw fetched data
-      const { userInfoData, allSubmissionsData, allRating, contestData, fetchData } = useStore() as unknown as {
-        userInfoData: any;
-        allSubmissionsData: any;
-        allRating: any;
-        contestData: any;
+      const {  fetchData } = useStore() as unknown as {
         fetchData: (username: string) => void;
       };
 

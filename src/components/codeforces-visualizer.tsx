@@ -225,7 +225,7 @@ export function CodeforcesVisualizerComponent() {
 
 
   return (
-    <div className="border-neutral-600">
+    <div className="border-neutral-600 bg-card">
       <NavBar />
 
       <div className=" pt-0">

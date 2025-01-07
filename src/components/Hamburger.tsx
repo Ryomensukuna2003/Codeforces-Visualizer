@@ -43,7 +43,7 @@ const Extra = () => {
         {/* Trigger Button */}
         <Button
           variant="ghost"
-          className="p-0 h-20 w-20 rounded-none hover:bg-neutral-100 dark:hover:bg-neutral-600 border-neutral-600"
+          className="p-0 h-20 w-20 rounded-none hover:bg-card  border-neutral-600"
           onClick={togglePanel}
         >
           {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -57,10 +57,10 @@ const Extra = () => {
               animate="open"
               exit="closed"
               variants={panelVariants}
-              className="fixed top-0 left-0 w-full h-full bg-background z-50" // Use global variable for background
+              className="fixed top-0 left-0 w-full h-full bg-card z-50" // Use global variable for background
             >
               <div className="relative h-full">
-                <nav className="sticky w-full top-0 z-50 bg-background border-b border-neutral-600">
+                <nav className="sticky w-full top-0 z-50 bg-card border-b border-neutral-600">
                   <div className="flex justify-between items-center h-20">
                     {/* Left section */}
                     <div className="flex items-center">

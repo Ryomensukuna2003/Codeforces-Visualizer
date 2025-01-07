@@ -191,29 +191,37 @@ export function processHeatMapData(
 }
 
 export const FetchUserData = async (handle: string) => {
-  const [userInfoData, allSubmissionsData, allRating] = await Promise.all([
-    axios
-      .get(`https://codeforces.com/api/user.info?handles=${handle}`)
-      .then((res) => res.data),
-    axios
-      .get(`https://codeforces.com/api/user.status?handle=${handle}&from=1`)
-      .then((res) => res.data),
-    axios
-      .get(`https://codeforces.com/api/user.rating?handle=${handle}`)
-      .then((res) => res.data),
-  ]);
-  if (userInfoData.status === "FAILED") {
+  try {
+    const [userInfoData, allSubmissionsData, allRating] = await Promise.all([
+      axios
+        .get(`https://codeforces.com/api/user.info?handles=${handle}`)
+        .then((res) => res.data),
+      axios
+        .get(`https://codeforces.com/api/user.status?handle=${handle}&from=1`)
+        .then((res) => res.data),
+      axios
+        .get(`https://codeforces.com/api/user.rating?handle=${handle}`)
+        .then((res) => res.data),
+    ]);
+    if (userInfoData.status === "FAILED") {
+      return {
+        userInfoData: { status: 'failed', message: `${handle} is not Valid` },
+        allSubmissionsData: null,
+        allRating: null,
+      };
+    }
     return {
-      userInfoData: `${handle} is not Valid`,
+      userInfoData: userInfoData.result[0],
+      allSubmissionsData,
+      allRating,
+    };
+  } catch (error) {
+    return {
+      userInfoData: { status: 'failed', message: (error as Error).message },
       allSubmissionsData: null,
       allRating: null,
     };
   }
-  return {
-    userInfoData: userInfoData.result[0],
-    allSubmissionsData,
-    allRating,
-  };
 };
 
 export const CompareHeatMapData = (

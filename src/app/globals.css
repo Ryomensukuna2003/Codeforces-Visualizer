@@ -35,6 +35,10 @@
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
     --card-border: 222.2 84% 4.9%;
+    --text-color-light: hsl(var(--foreground));
+    --background-color-light: hsl(var(--background));
+    --text-color-dark: hsl(var(--foreground));
+    --background-color-dark: hsl(var(--background));
   }
 
   .dark {
@@ -42,7 +46,7 @@
     --id2-color: 0 0% 35%; /* Near Black */
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
+    --card: 0 0% 0%;
     --popup: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
@@ -61,6 +65,8 @@
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
     --card-border: 210 40% 98%;
+    --text-color-dark: hsl(var(--foreground));
+    --background-color-dark: hsl(var(--background));
   }
 }
 
