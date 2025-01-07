@@ -31,11 +31,11 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
   const chartConfig: ChartConfig = {
     [user1]: {
       label: user1,
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--id1-color))",
     },
     [user2]: {
       label: user2,
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--id2-color))",
     },
   }
 
@@ -62,11 +62,11 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
               tickMargin={8}
               tickFormatter={(value) => String(value).slice(0, 10)}
             />
-            <YAxis className="pl-5" tickCount={22} scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
+            <YAxis className="pl-5"  scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  hideLabel
+                  hideLabeltickCount={22}
                   indicator="line"
                   formatter={(value, name) => (
                     <div className="flex min-w-[130px] items-center text-xs text-muted-foreground">
@@ -79,21 +79,24 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
                   )}
                 />
               } cursor={true}
+              
               defaultIndex={1}
             />
             <Line
               dataKey={user1}
               type="monotone"
-              stroke="hsl(var(--chart-1))"
+              
+              stroke="hsl(var(--id1-color))"
               strokeWidth={2}
-              dot={false}
+              dot={true}
             />
             <Line
               dataKey={user2}
+              
               type="monotone"
-              stroke="hsl(var(--chart-2))"
+              stroke="hsl(var(--id2-color))"
               strokeWidth={2}
-              dot={false}
+              dot={true}
             />
             <ChartLegend content={<ChartLegendContent />} />
           </LineChart>

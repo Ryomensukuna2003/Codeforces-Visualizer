@@ -8,6 +8,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetDescription
 } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -25,6 +26,7 @@ export default function ContestSheet({ contests }: { contests: any[] }) {
       <SheetContent side="right" className="w-full sm:w-[540px]">
         <SheetHeader>
           <SheetTitle className='pt-4'>Upcoming Programming Contests</SheetTitle>
+          <SheetDescription />
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-120px)] mt-6 pr-4">
           <div className="space-y-4 ">

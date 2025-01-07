@@ -30,11 +30,11 @@ export function MultipleBarChart({ user1, user2, chartData }: MultipleBarChartPr
   const chartConfig: ChartConfig = {
     [user1]: {
       label: user1,
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--id1-color))",
     },
     [user2]: {
       label: user2,
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--id2-color))",
     },
   }
 
@@ -55,8 +55,8 @@ export function MultipleBarChart({ user1, user2, chartData }: MultipleBarChartPr
               tickFormatter={(value) => String(value).slice(0, 4)}
             />
             <YAxis />
-            <Bar dataKey={user1} name={user1} fill="hsl(var(--chart-1))" radius={4} />
-            <Bar dataKey={user2} name={user2} fill="hsl(var(--chart-2))" radius={4} />
+            <Bar dataKey={user1} name={user1} fill="hsl(var(--id1-color))" radius={4} />
+            <Bar dataKey={user2} name={user2} fill="hsl(var(--id2-color))" radius={4} />
             <ChartTooltip
               content={
                 <ChartTooltipContent

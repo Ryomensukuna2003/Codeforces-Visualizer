@@ -7,7 +7,7 @@ export const ParseData = (
     username: string
 ) => {
     let RatingFrequency: Map<number, number> = new Map();
-    let RatingChangeData:Map<string,number> = new Map();
+    let RatingChangeData: Map<string, number> = new Map();
 
     // Problem Solved of Rating Processing
     allSubmissionsData.result.forEach((submission: any) => {
@@ -22,14 +22,14 @@ export const ParseData = (
 
 
 
-    allRating.result.forEach((contest:any)=>{
+    allRating.result.forEach((contest: any) => {
         const ratingUpdateTimeISO = new Date(contest.ratingUpdateTimeSeconds * 1000).toISOString();
-        RatingChangeData.set(ratingUpdateTimeISO,contest.newRating);
+        RatingChangeData.set(ratingUpdateTimeISO, contest.newRating);
     })
 
     // HeatMapData Processing
-    let HeatMapData = processHeatMapData(allSubmissionsData,username);
-    
+    let HeatMapData = processHeatMapData(allSubmissionsData, username);
+
     const userData = {
         handle: userInfoData.handle,
         rating: userInfoData.rating,
@@ -42,7 +42,7 @@ export const ParseData = (
         contestsParticipated: allRating.result.length,
         RatingFrequency: RatingFrequency,
         HeatMapData: HeatMapData,
-        RatingChangeData:RatingChangeData
+        RatingChangeData: RatingChangeData
     };
     return userData;
 };

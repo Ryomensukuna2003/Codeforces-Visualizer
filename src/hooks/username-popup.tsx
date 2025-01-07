@@ -8,7 +8,6 @@ import { FloatingLabelInput } from '@/components/ui/floating-label-input';
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 import { DialogTitle } from '@radix-ui/react-dialog';
 
-
 export default function UsernamePopup() {
   const [temp, setTemp] = useState('');
   const { username, setUsername, setUsernamePopupisopen } = useUsernameStore() as { username: string; setUsername: (username: string) => void; setUsernamePopupisopen: (isOpen: boolean) => void; };

@@ -4,8 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { Trophy, Users, ArrowRightLeft } from 'lucide-react'
+import {  ArrowRightLeft } from 'lucide-react'
 
 import { NavBar } from '@/components/ui/NavBar';
 import { FetchUserData, CompareRatingFrequencies, CompareHeatMapData, CompareRatingChange } from '@/lib/utils';

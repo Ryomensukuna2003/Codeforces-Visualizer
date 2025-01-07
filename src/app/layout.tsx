@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 };
 
 const local = localFont({
-  src: '/Fonts/JetBrainsMono-Medium.woff2',
-  display: 'swap',
+  src: "/Fonts/JetBrainsMono-Medium.woff2",
+  display: "swap",
 })
 
 

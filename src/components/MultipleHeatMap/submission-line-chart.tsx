@@ -20,11 +20,11 @@ export function SubmissionLineChart({ data, id1, id2 }: SubmissionLineChartProps
   const chartConfig = {
     id1: {
       label: `${id1}`,
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--id1-color))",
     },
     id2: {
       label: `${id2}`,
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--id2-color))",
     },
   }
 
@@ -47,7 +47,7 @@ export function SubmissionLineChart({ data, id1, id2 }: SubmissionLineChartProps
                 width={r}
                 height={r}
                 fill="hsl(var(--background))"
-                stroke="hsl(var(--chart-1))"
+                stroke="hsl(var(--id1-color))"
               />
             )
           }} dataKey={id1} strokeWidth={2} stroke={chartConfig.id1.color} name={`${chartConfig.id1.label} `} />
@@ -61,7 +61,7 @@ export function SubmissionLineChart({ data, id1, id2 }: SubmissionLineChartProps
                 width={r}
                 height={r}
                 fill="hsl(var(--background))"
-                stroke="hsl(var(--chart-2))"
+                stroke="hsl(var(--id2-color))"
               />
             )
           }} type="monotone" dataKey={id2} strokeWidth={2} stroke={chartConfig.id2.color} name={`${chartConfig.id2.label}`} />
@@ -70,5 +70,3 @@ export function SubmissionLineChart({ data, id1, id2 }: SubmissionLineChartProps
     </ChartContainer>
   )
 }
-
-

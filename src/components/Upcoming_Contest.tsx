@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog"
 import { UpcomingContest as UpcomingContestType } from "@/app/types"
 import Link from "next/link"
 import { Bell, Mail, ArrowRight } from "lucide-react"
@@ -201,8 +201,8 @@ export const Upcoming_Contest = ({
       </CardContent>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2" aria-describedby="notification-dialog-description">
+          <DialogDescription />
           <DialogTitle className="hidden">Welcome to Codeforces Visualizer</DialogTitle>
-
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center">
               <Bell className="mr-2 h-6 w-6 text-primary" />

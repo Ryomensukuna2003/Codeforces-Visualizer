@@ -10,6 +10,8 @@
 
 @layer base {
   :root {
+    --id1-color: 0 0% 65%; /* Neutral Gray */
+    --id2-color: 0 0% 0%;  /* Black */
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -31,17 +33,13 @@
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
     --card-border: 222.2 84% 4.9%;
   }
 
   .dark {
-    --chart-1: 220 70% 50%;
+    --id1-color: 0 0% 85%; /* Light Neutral Gray for better contrast */
+    --id2-color: 0 0% 35%; /* Near Black */
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -62,10 +60,6 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
     --card-border: 210 40% 98%;
   }
 }
