@@ -27,7 +27,7 @@ export const useStore = create(
           axios.get(`https://codeforces.com/api/user.status?handle=${username}&from=1`).then((res) => res.data),
           axios.get(`https://codeforces.com/api/user.rating?handle=${username}`).then((res) => res.data),
           axios.get("https://codeforces.com/api/contest.list?gym=false").then((res) => res.data),
-          axios.get(`https://clist.by/api/v4/contest/?format=json&upcoming=true&username=Casper&api_key=${process.env.NEXT_PUBLIC_CLIST_API_KEY}&limit=100&offset=100`).then((res) => res.data),
+          axios.get(`https://clist.by/api/v4/contest/?format=json&upcoming=true&username=Casper&api_key=${process.env.NEXT_PUBLIC_CLIST_API_KEY}&limit=100`).then((res) => res.data),
           axios.get('https://codeforces.com/api/contest.list?gym=false').then((res) => res.data)
         ]);
         // Update the store state
