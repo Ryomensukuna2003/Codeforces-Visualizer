@@ -2,7 +2,7 @@ name: Contest Reminder Email Scheduler
 
 on:
   schedule:
-    - cron: "0 */3 * * *" # Runs every 3 hours
+    - cron: "*/20 * * * *" # Runs every 20 minutes
   workflow_dispatch: # Allows manual trigger
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
           echo "HTTP Status: $http_code"
           echo "Response: $body"
 
-          if [ "$http_code" != "200" ]; then
+          if [ "$http_code" != "200" ] && [ "$http_code" != "429" ]; then
             echo "::error::API call failed with status $http_code"
             exit 1
           fi
@@ -37,8 +37,8 @@ jobs:
         if: steps.email-trigger.outcome == 'failure'
         run: |
           echo "Email API call failed at $TIMESTAMP"
-          # Retry after 30 seconds
-          sleep 30
+          # Retry after 61 seconds to avoid rate limit
+          sleep 61
           echo "Retrying API call..."
           curl -X POST \
             -H "Content-Type: application/json" \

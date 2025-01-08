@@ -2,6 +2,7 @@
 
 import { TrendingUp } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { GitCommitVertical } from "lucide-react"
 
 import {
   Card,
@@ -17,6 +18,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
+import { useEffect } from "react"
 
 interface MultipleLineChartProps {
   user1: string;
@@ -26,6 +28,13 @@ interface MultipleLineChartProps {
 
 
 export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChartProps) {
+  if (!chartData || chartData.length === 0) return null;
+
+  useEffect(() => {
+    console.log("Line Chart Data->  ", chartData)
+  }, [chartData])
+
+
   const chartConfig: ChartConfig = {
     [user1]: {
       label: user1,
@@ -60,7 +69,7 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
               tickMargin={8}
               tickFormatter={(value) => String(value).slice(0, 10)}
             />
-            <YAxis className="pl-5"  scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
+            <YAxis className="pl-5" scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
             <ChartTooltip
               content={
                 <ChartTooltipContent
@@ -77,24 +86,54 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
                   )}
                 />
               } cursor={true}
-              
+
               defaultIndex={1}
             />
             <Line
               dataKey={user1}
               type="monotone"
-              
+
               stroke="hsl(var(--id1-color))"
               strokeWidth={2}
-              dot={true}
+              dot={false}
+              activeDot={(props: any) => {
+                const { cx, cy, payload } = props;
+                const r = 24;
+                return (
+                  <GitCommitVertical
+                    key={payload.month}
+                    x={cx - r / 2}
+                    y={cy - r / 2}
+                    width={r}
+                    height={r}
+                    fill="hsl(var(--background))"
+                    stroke="hsl(var(--id2-color))"
+                  />
+                );
+              }}
             />
             <Line
               dataKey={user2}
-              
+
               type="monotone"
               stroke="hsl(var(--id2-color))"
               strokeWidth={2}
-              dot={true}
+              dot={false}
+              activeDot={(props: any) => {
+                const { cx, cy, payload } = props;
+                const r = 24;
+                return (
+                  <GitCommitVertical
+                    key={payload.month}
+                    x={cx - r / 2}
+                    y={cy - r / 2}
+                    width={r}
+                    height={r}
+                    fill="hsl(var(--background))"
+                    stroke="hsl(var(--id2-color))"
+                  />
+                );
+              }}
             />
             <ChartLegend content={<ChartLegendContent />} />
           </LineChart>

@@ -10,7 +10,7 @@ import { UpcomingContest as UpcomingContestType } from "@/app/types"
 import Link from "next/link"
 import { Bell, Mail, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useStore } from "./Providers/fetchAPI";
+import { useStore } from "./Providers/fetchAPI"
 import ContestSheet from "./contest-sheet"
 import {
   InputOTP,
@@ -19,24 +19,44 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 
+interface Contest {
+  platform: string;
+  name: string;
+  start: string | Date;
+  href: string;
+  id?: string;
+}
+
+interface CodeforcesContest {
+  id: string;
+  name: string;
+  phase: string;
+  startTimeSeconds: number;
+}
 
 export const Upcoming_Contest = ({
   upcomingContest,
 }: {
   upcomingContest: UpcomingContestType[]
 }) => {
-  const { UpcomingContestData, codforcesContestData } = useStore() as { UpcomingContestData: any, codforcesContestData: any };
+  const { UpcomingContestData, codforcesContestData } = useStore() as {
+    UpcomingContestData: { objects: Contest[] },
+    codforcesContestData: { result: CodeforcesContest[] }
+  };
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
   const [isOtpSent, setIsOtpSent] = useState(false)
   const { toast } = useToast()
-  const [Contests, setContests] = useState<any>([]);
-  const [allContests, setAllContests] = useState<any>([]);
+  const [contests, setContests] = useState<Contest[]>([]);
   const [fetching, setFetching] = useState(false);
-  const [ContestData, setContestData] = useState(() => new Set());
 
   const generate_OTP = async (email: string) => {
+    if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return "Invalid email address";
+    }
+
     try {
       const response = await fetch("/api/generate_OTP", {
         method: "POST",
@@ -45,20 +65,28 @@ export const Upcoming_Contest = ({
         },
         body: JSON.stringify({ email }),
       });
+
+      const data = await response.json();
+
       if (response.status === 400) {
         return "Email already registered";
       }
       if (response.ok) {
+        setIsOtpSent(true);
         return "OTP sent successfully";
-      } else {
-        return "Failed to send OTP";
       }
+      return "Failed to send OTP";
     } catch (error) {
+      console.error("OTP Generation error:", error);
       return "OTP Generation error";
     }
   }
 
   const verify_otp = async (email: string, otp: string) => {
+    if (!otp || otp.length !== 6) {
+      return "Invalid OTP";
+    }
+
     try {
       const response = await fetch("/api/verify_OTP", {
         method: "POST",
@@ -67,6 +95,7 @@ export const Upcoming_Contest = ({
         },
         body: JSON.stringify({ email, otp }),
       });
+
       if (response.ok) {
         await fetch("/api/add_subscriber", {
           method: "POST",
@@ -74,106 +103,95 @@ export const Upcoming_Contest = ({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email }),
-        }
-        )
+        });
         return "OTP verified successfully";
-      } else {
-        console.error("Failed to verify OTP");
-        return "Failed to verify OTP";
       }
+      return "Invalid OTP, please try again";
     } catch (error) {
       console.error("Failed to verify OTP:", error);
+      return "Verification failed, please try again";
     }
   }
 
   const handleSendOtp = async () => {
     const toast_title = await generate_OTP(email);
-    setIsOtpSent(true)
+    if (toast_title === "Email already registered") {
+      setIsModalOpen(false);
+    }
     toast({
+      variant: toast_title === "OTP sent successfully" ? "default" : "destructive",
       title: toast_title,
-      description: toast_title === 'Email already registered' ? "Bitch ass nigga." : "Please check your email for the OTP.",
+      description: toast_title === "OTP sent successfully"
+        ? "Please check your email for the OTP."
+        : "Please try again with a valid email address.",
     })
   }
 
   const handleVerifyOtp = async () => {
     setFetching(true);
-    const toast_title = await verify_otp(email, otp);
-    setFetching(false);
-    setIsModalOpen(false)
-    setIsOtpSent(false)
-    setEmail("")
-    setOtp("")
-    toast({
-      title: toast_title,
-      description: toast_title === "OTP verified successfully" ? "You will now receive notifications for upcoming contests." : "Please try again.",
-    })
+    try {
+      const toast_title = await verify_otp(email, otp);
+      if (toast_title === "OTP verified successfully") {
+        setIsModalOpen(false);
+        setIsOtpSent(false);
+        setEmail("");
+        setOtp("");
+      }
+      toast({
+        variant: toast_title === "OTP verified successfully" ? "default" : "destructive",
+        title: toast_title,
+        description: toast_title === "OTP verified successfully"
+          ? "You will now receive notifications for upcoming contests."
+          : "Please try again with the correct OTP.",
+      });
+    } finally {
+      setFetching(false);
+    }
   }
 
-  interface Contest {
-    host: string;
-    event: string;
-    start: string;
-    href: string;
-    [key: string]: any;
-  }
+  const parseContestData = () => {
+    if (!UpcomingContestData?.objects || !codforcesContestData?.result) return;
 
-  interface CodeforcesContest {
-    host: string,
-    name: string,
-    href: string,
-    start: string,
-    [key: string]: any;
-  }
+    const contestSet = new Set<Contest>();
+    const validHosts = ["codeforces.com", "codechef.com", "atcoder.jp"];
 
-  interface UpcomingContestData {
-    objects: Contest[];
-  }
-
-  const ParseContestData = (UpcomingContestData: UpcomingContestData) => {
-    if (!UpcomingContestData) return;
-
-    const newContestData = new Set();
-
-    UpcomingContestData.objects.forEach((contest: Contest) => {
-      if (
-        contest.host === "codeforces.com" ||
-        contest.host === "codechef.com" ||
-        contest.host === "atcoder.jp"
-      ) {
-        let x = {
-          platform: contest.host,
-          name: contest.event,
+    // Process contests from UpcomingContestData
+    UpcomingContestData.objects
+      .filter(contest => validHosts.includes(contest.host)) // Changed from contest.platform to contest.host
+      .forEach(contest => {
+        contestSet.add({
+          platform: contest.host, // Changed to use host instead of platform
+          name: contest.event,    // Changed from name to event
           start: new Date(contest.start),
           href: contest.href,
-        };
-        newContestData.add(x);
-      }
-    });
+        });
+      });
 
-    codforcesContestData.result.forEach((contest: CodeforcesContest) => {
-      if (contest.phase !== "BEFORE") return;
-      let x = {
-        platform: "codeforces.com",
-        name: contest.name,
-        start: new Date(contest.startTimeSeconds * 1000).toISOString(),
-        href: `codeforces.com/contests/${contest.id}`,
-      };
-      newContestData.add(x);
-    });
+    // Process Codeforces contests
+    codforcesContestData.result
+      .filter(contest => contest.phase === "BEFORE")
+      .forEach(contest => {
+        contestSet.add({
+          platform: "codeforces.com",
+          name: contest.name,
+          start: new Date(contest.startTimeSeconds * 1000),
+          href: `https://codeforces.com/contests/${contest.id}`,
+          id: contest.id
+        });
+      });
 
-    setContests(Array.from(newContestData).sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime()));
+    const sortedContests = Array.from(contestSet)
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+    setContests(sortedContests);
   };
-
-
   useEffect(() => {
     if (UpcomingContestData && codforcesContestData) {
-      ParseContestData(UpcomingContestData);
+      parseContestData();
     }
   }, [UpcomingContestData, codforcesContestData]);
 
-
-
-  const isToday = (dateString: string) => {
+  const isToday = (dateString: string | Date) => {
     const specificDate = new Date(dateString);
     const today = new Date();
     return (
@@ -197,12 +215,10 @@ export const Upcoming_Contest = ({
           Get notified for Upcoming contest
         </Button>
 
-        <ContestSheet contests={Contests} />
+        <ContestSheet contests={contests} />
       </CardContent>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2" aria-describedby="notification-dialog-description">
-          <DialogDescription />
-          <DialogTitle className="hidden">Welcome to Codeforces Visualizer</DialogTitle>
+        <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center">
               <Bell className="mr-2 h-6 w-6 text-primary" />
@@ -221,11 +237,11 @@ export const Upcoming_Contest = ({
               >
                 <div className="grid gap-4 py-4">
                   <div className="flex flex-col sm:flex-row items-center gap-4">
-
                     <div className="flex-1 relative w-full">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                       <Input
                         id="email"
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-12 rounded w-full"
@@ -245,7 +261,12 @@ export const Upcoming_Contest = ({
               >
                 <div className="grid gap-4 py-4">
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <InputOTP maxLength={6} className="pl-12" value={otp} onChange={(otp) => setOtp(otp)}>
+                    <InputOTP
+                      maxLength={6}
+                      value={otp}
+                      onChange={(value) => setOtp(value)}
+                      className="pl-12"
+                    >
                       <InputOTPGroup>
                         <InputOTPSlot index={0} />
                         <InputOTPSlot index={1} />
@@ -268,9 +289,9 @@ export const Upcoming_Contest = ({
             <Button
               onClick={!isOtpSent ? handleSendOtp : handleVerifyOtp}
               className="w-full sm:w-auto rounded"
-              disabled={fetching}
+              disabled={fetching || (!isOtpSent && !email) || (isOtpSent && otp.length !== 6)}
             >
-              {!isOtpSent ? "Send OTP" : fetching ? "Verifying" : "Verify OTP"}
+              {!isOtpSent ? "Send OTP" : fetching ? "Verifying..." : "Verify OTP"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </DialogFooter>
@@ -278,14 +299,14 @@ export const Upcoming_Contest = ({
       </Dialog>
 
       <CardContent>
-        {upcomingContest && upcomingContest.length > 0 ? (
+        {contests.length > 0 ? (
           <ul className="space-y-3">
-            {Contests.slice(0, 6).map((contest: any, index: number) => {
+            {contests.slice(0, 6).map((contest, index) => {
               const isContestToday = isToday(contest.start);
               return (
                 <li
-                  key={contest.id || index}
-                  className="flex items-center justify-between border-l-4 border-primary/20 pl-4  hover:bg-muted/50 transition-colors rounded"
+                  key={contest.id || `${contest.platform}-${index}`}
+                  className="flex items-center justify-between border-l-4 border-primary/20 pl-4 hover:bg-muted/50 transition-colors rounded"
                 >
                   <Link
                     href={contest.href}

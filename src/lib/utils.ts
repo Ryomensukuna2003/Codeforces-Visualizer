@@ -161,97 +161,30 @@ export const getUpcomingContests = (contestData: any, now: number) => {
     .slice(0, 5);
 };
 
-export function processHeatMapData(
-  allSubmissionsData: any,
-  username: string
-): { date: string; [key: string]: number | string }[] {
-  let HeatMapData = allSubmissionsData.result.map((submission: any) => {
-    return {
-      x: submission.creationTimeSeconds,
-      y: submission.problem.rating,
-    };
-  });
-  const groupedByDate = HeatMapData.reduce((acc: any, curr: any) => {
-    const date = new Date(curr.x * 1000).toISOString().split("T")[0];
-    if (!acc[date]) {
-      acc[date] = 0;
-    }
-    acc[date]++;
-    return acc;
-  }, {});
-
-  const groupedHeatMapData = Object.keys(groupedByDate).map((date) => {
-    return {
-      date: date,
-      [username]: groupedByDate[date],
-    };
-  });
-  groupedHeatMapData.sort((a, b) => (a.date > b.date ? 1 : -1));
-  return groupedHeatMapData;
-}
-
 export const FetchUserData = async (handle: string) => {
-  try {
-    const [userInfoData, allSubmissionsData, allRating] = await Promise.all([
-      axios
-        .get(`https://codeforces.com/api/user.info?handles=${handle}`)
-        .then((res) => res.data),
-      axios
-        .get(`https://codeforces.com/api/user.status?handle=${handle}&from=1`)
-        .then((res) => res.data),
-      axios
-        .get(`https://codeforces.com/api/user.rating?handle=${handle}`)
-        .then((res) => res.data),
-    ]);
-    if (userInfoData.status === "FAILED") {
-      return {
-        userInfoData: { status: 'failed', message: `${handle} is not Valid` },
-        allSubmissionsData: null,
-        allRating: null,
-      };
-    }
+  const [userInfoData, allSubmissionsData, allRating] = await Promise.all([
+    axios
+      .get(`https://codeforces.com/api/user.info?handles=${handle}`)
+      .then((res) => res.data),
+    axios
+      .get(`https://codeforces.com/api/user.status?handle=${handle}&from=1`)
+      .then((res) => res.data),
+    axios
+      .get(`https://codeforces.com/api/user.rating?handle=${handle}`)
+      .then((res) => res.data),
+  ]);
+  if (userInfoData.status === "FAILED") {
     return {
-      userInfoData: userInfoData.result[0],
-      allSubmissionsData,
-      allRating,
-    };
-  } catch (error) {
-    return {
-      userInfoData: { status: 'failed', message: (error as Error).message },
+      userInfoData: `${handle} is not Valid`,
       allSubmissionsData: null,
       allRating: null,
     };
   }
-};
-
-export const CompareHeatMapData = (
-  user1HeatMapData: { date: string; [key: string]: number | string }[],
-  user2HeatMapData: { date: string; [key: string]: number | string }[],
-  user1: string,
-  user2: string
-) => {
-  const allDates = new Set<string>();
-
-  // Collect all unique dates from both users
-  user1HeatMapData.forEach((data) => allDates.add(data.date));
-  user2HeatMapData.forEach((data) => allDates.add(data.date));
-
-  const result: { date: string; [key: string]: number | string }[] = [];
-
-  // Iterate over all unique dates and create the array dynamically
-  allDates.forEach((date) => {
-    const user1Solved = user1HeatMapData.find((data) => data.date === date);
-    const user2Solved = user2HeatMapData.find((data) => data.date === date);
-    if (user1Solved && user2Solved) {
-      result.push({
-        date: date.toString(),
-        [user1]: user1Solved[user1],
-        [user2]: user2Solved[user2],
-      });
-    }
-  });
-
-  return result;
+  return {
+    userInfoData: userInfoData.result[0],
+    allSubmissionsData,
+    allRating,
+  };
 };
 
 export const CompareRatingFrequencies = (
@@ -281,6 +214,7 @@ export const CompareRatingFrequencies = (
   return result;
 };
 
+// Compare Rating Change Utils Start ------------------------------------------
 export const CompareRatingChange = (
   user1RatingChangeData: Map<number, number>,
   user2RatingChangeData: Map<number, number>,
@@ -288,28 +222,102 @@ export const CompareRatingChange = (
   user2: string
 ): { date: number; [key: string]: number }[] => {
   const allDates = new Set<number>();
+  const result: { date: number; [key: string]: number }[] = [];
 
-  // // Collect all unique dates from both users
+  // Collect all unique dates from both users
   user1RatingChangeData.forEach((_, date) => allDates.add(date));
   user2RatingChangeData.forEach((_, date) => allDates.add(date));
 
-  const result: { date: number; [key: string]: number }[] = [];
+  // Sort all dates in ascending order
+  const sortedDates = Array.from(allDates).sort((a, b) => a - b);
 
-  // // Iterate over all unique dates and create the array dynamically
-  allDates.forEach((date) => {
-    const user1Data = user1RatingChangeData.get(date);
-    const user2Data = user2RatingChangeData.get(date);
-    if (user1Data !== undefined && user2Data !== undefined) {
-      result.push({
-        date,
-        [user1]: user1Data,
-        [user2]: user2Data,
-      });
+  // Initialize cumulative ratings for both users
+  let user1Rating = 0;
+  let user2Rating = 0;
+
+  // Iterate over all sorted dates and compute cumulative ratings
+  sortedDates.forEach((date) => {
+    if (user1RatingChangeData.has(date)) {
+      user1Rating = user1RatingChangeData.get(date)!;
     }
-  });
+    if (user2RatingChangeData.has(date)) {
+      user2Rating = user2RatingChangeData.get(date)!;
+    }
 
-  // // Sort the result by date
-  result.sort((a, b) => (a.date > b.date ? 1 : -1));
+    result.push({
+      date,
+      [user1]: user1Rating,
+      [user2]: user2Rating,
+    });
+  });
 
   return result;
 };
+
+// Compare Rating Change Utils End ------------------------------------------
+
+// Compare HeatMapData Utils Start ------------------------------------------
+
+export function processHeatMapData(allSubmissionsData: any, username: string) {
+  if (allSubmissionsData?.result) {
+    // Group submissions by date
+    const groupedByDate = allSubmissionsData.result.reduce(
+      (acc: Record<string, number>, submission: any) => {
+        const date = new Date(submission.creationTimeSeconds * 1000)
+          .toISOString()
+          .split("T")[0];
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
+
+    // Map grouped data to the final structure
+    const ExtractedHeatMapData = Object.keys(groupedByDate).map((date) => ({
+      date: date,
+      [username]: groupedByDate[date],
+    }));
+
+    // Sort by date in ascending order
+    ExtractedHeatMapData.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    return ExtractedHeatMapData;
+  }
+
+  console.dir("No result in allSubmissionsData, returning empty array");
+  return [];
+}
+
+export const CompareHeatMapData = (
+  user1HeatMapData: { date: string; [key: string]: number | string }[],
+  user2HeatMapData: { date: string; [key: string]: number | string }[],
+  user1: string,
+  user2: string
+) => {
+  const allDates = new Set<string>();
+  // Collect all unique dates from both users
+  user1HeatMapData.forEach((data) => allDates.add(data.date));
+  user2HeatMapData.forEach((data) => allDates.add(data.date));
+
+  const result: { date: string; [key: string]: number | string }[] = [];
+
+  // Iterate over all unique dates and create the array dynamically
+  allDates.forEach((date) => {
+    const user1Solved = user1HeatMapData.find((data) => data.date === date);
+    const user2Solved = user2HeatMapData.find((data) => data.date === date);
+
+    // If either user has data for this date, include it
+    if (user1Solved || user2Solved) {
+      result.push({
+        date: date.toString(),
+        [user1]: user1Solved ? user1Solved[user1] || 0 : 0,
+        [user2]: user2Solved ? user2Solved[user2] || 0 : 0,
+      });
+    }
+  });
+  result.sort((a, b) => (a.date > b.date ? 1 : -1));
+  return result;
+};
+
+// Compare HeatMapData Utils End ------------------------------------------

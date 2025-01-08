@@ -46,14 +46,14 @@ async function handleEmailRequest(method: string) {
 }
 
 async function sendEmail() {
-  // Fetch all subscribers
-  const All_subscribers = await prisma.subscriber
-    .findMany()
-    .then((subscribers) => subscribers.map((subscriber) => subscriber.email));
-
   const startTime = Date.now();
 
   try {
+    // Fetch all subscribers
+    const All_subscribers = await prisma.subscriber
+      .findMany()
+      .then((subscribers) => subscribers.map((subscriber) => subscriber.email));
+
     // Validate environment variables
     if (
       !process.env.EMAIL_USER ||
@@ -66,7 +66,7 @@ async function sendEmail() {
     // Fetch upcoming contests
     const contestResponse = await axios
       .get(
-        `https://clist.by:443/api/v4/contest/?upcoming=true&username=Casper&api_key=${process.env.NEXT_PUBLIC_CLIST_API_KEY}&limit=100&offset=100`
+        `https://clist.by:443/api/v4/contest/?upcoming=true&username=Casper&api_key=${process.env.NEXT_PUBLIC_CLIST_API_KEY}&limit=100&offset=0`
       )
       .then((res) => res.data);
 
@@ -79,29 +79,41 @@ async function sendEmail() {
     }
 
     // Filter and parse contests
-    const ParseContestData = contestResponse.objects
+    interface ContestResponse {
+      objects: Contest[];
+    }
+
+    interface ContestData {
+      name: string;
+      start: Date;
+      href: string;
+      host: string;
+    }
+
+    const contestData: ContestData[] = contestResponse.objects
       .filter((contest: Contest): boolean =>
         ["codeforces.com", "codechef.com", "atcoder.jp"].includes(contest.host)
       )
-      .map((contest: Contest): { name: string; start: Date; href: string } => ({
-        name: contest.event,
-        start: new Date(contest.start),
-        href: contest.href,
-      }))
+      .map(
+        (contest: Contest): ContestData => ({
+          name: contest.event,
+          start: new Date(contest.start),
+          href: contest.href,
+          host: contest.host,
+        })
+      )
       .sort(
-        (a: { start: Date }, b: { start: Date }): number =>
+        (a: ContestData, b: ContestData): number =>
           a.start.getTime() - b.start.getTime()
       );
 
-    const contestData = ParseContestData;
-
     // Check for contests starting within the next 20 minutes
     const now = new Date();
-    const upcomingContests = contestData.filter(
-      (contest: { start: Date }) =>
-        contest.start.getTime() - now.getTime() <= 6 * 60 * 60 * 1000 && // Within the next 6 hours
-        contest.start.getTime() - now.getTime() > 0 // Exclude past contests
-    );
+    const TWENTY_MINUTES = 20 * 60 * 1000;
+    const upcomingContests = contestData.filter((contest) => {
+      const timeUntilStart = contest.start.getTime() - now.getTime();
+      return timeUntilStart <= TWENTY_MINUTES && timeUntilStart > 0;
+    });
 
     if (upcomingContests.length === 0) {
       return NextResponse.json(
@@ -129,9 +141,9 @@ async function sendEmail() {
     const timestamp = new Date().toISOString();
     const contestDetails = upcomingContests
       .map(
-        (contest: Contest) =>
+        (contest) =>
           `<li><a href="${contest.href}" target="_blank">${
-            contest.host + " - " + contest.event
+            contest.host + " - " + contest.name
           }</a> - ${contest.start.toLocaleString()}</li>`
       )
       .join("");
@@ -140,10 +152,12 @@ async function sendEmail() {
       from: '"CF Stats" <cfstats9@gmail.com>',
       bcc: All_subscribers.join(","),
       subject: `Upcoming Contests - ${timestamp}`,
-      text: `The following contests are starting soon:\n${upcomingContests
+      text: `The following contests are starting within the next 20 minutes:\n${upcomingContests
         .map(
-          (contest: { name: string; start: Date }) =>
-            `${contest.name} - ${contest.start.toLocaleString()}`
+          (contest) =>
+            `${contest.host} - ${
+              contest.name
+            } - ${contest.start.toLocaleString()}`
         )
         .join("\n")}`,
       html: `
@@ -159,8 +173,8 @@ async function sendEmail() {
       `,
     };
 
-    // Send email
-    const chunkSize = 50; // Adjust based on your SMTP server limits
+    // Send email in chunks to avoid SMTP limits
+    const chunkSize = 50;
     for (let i = 0; i < All_subscribers.length; i += chunkSize) {
       const chunk = All_subscribers.slice(i, i + chunkSize);
       await transporter.sendMail({ ...emailContent, bcc: chunk.join(",") });
@@ -173,22 +187,17 @@ async function sendEmail() {
         message: "Emails sent successfully",
         timestamp: timestamp,
         duration: `${duration}ms`,
+        contestCount: upcomingContests.length,
       },
       { status: 200 }
     );
   } catch (error) {
     const duration = Date.now() - startTime;
-    if (error instanceof Error) {
-      console.error(
-        `[${new Date().toISOString()}] Error sending email:`,
-        error.stack || error
-      );
-    } else {
-      console.error(
-        `[${new Date().toISOString()}] Error sending email:`,
-        error
-      );
-    }
+    console.error(
+      `[${new Date().toISOString()}] Error sending email:`,
+      error instanceof Error ? error.stack || error : error
+    );
+
     return NextResponse.json(
       {
         success: false,

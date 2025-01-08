@@ -19,8 +19,8 @@ import { SubmissionHeatmap } from '@/components/MultipleHeatMap/submission-heatm
 export default function EnhancedUserComparison() {
   const { toast } = useToast()
 
-  const [user1, setUser1] = useState<any | null>("");
-  const [user2, setUser2] = useState<any | null>("");
+  const [user1, setUser1] = useState<string>("");
+  const [user2, setUser2] = useState<string>("");
 
   const [UserData1, setUserData1] = useState<any | null>(null);
   const [UserData2, setUserData2] = useState<any | null>(null);
@@ -30,33 +30,46 @@ export default function EnhancedUserComparison() {
   const [isfetching, setisfetching] = useState<boolean>(false);
   const [isfetched, setisfetched] = useState<boolean>(false);
 
-
   const compareUsers = async () => {
-    if (user1 !== "" && user2 !== "") {
+    if (user1 === "" || user2 === "") {
+      toast({
+        variant: "destructive",
+        title: "Set both users",
+        description: "Please provide both usernames for comparison.",
+      })
+    }
+    else if (user1 === user2) {
+      toast({
+        variant: "default",
+        title: "Chut Chalaki 😏",
+        description: "Don't even try",
+      })
+    }
+    else {
       setisfetching(true);
+      // Fetch from API
       const { userInfoData: userInfoData1, allSubmissionsData: allSubmissionsData1, allRating: allRating1 } = await FetchUserData(user1);
       const { userInfoData: userInfoData2, allSubmissionsData: allSubmissionsData2, allRating: allRating2 } = await FetchUserData(user2);
+
+      // Check for errors
       if (userInfoData1.status === 'failed' || userInfoData2.status === 'failed') {
         toast({
           variant: "destructive",
           title: userInfoData1.status === 'failed' ? userInfoData1.message : userInfoData2.message,
-          description: "Nigga check the spelling atleast",
+          description: "Please check the spelling of the usernames.",
         })
+        setisfetching(false);
         return;
       }
+
+      // Extract Info from Raw API data
       setUserData1(ParseData(userInfoData1, allSubmissionsData1, allRating1, user1));
       setUserData2(ParseData(userInfoData2, allSubmissionsData2, allRating2, user2));
+
       setisfetching(false);
       setisfetched(true);
     }
-    else {
-      toast({
-        variant: "destructive",
-        title: "Set both users",
-        description: "How i will compare 2 ID's if you give me only one man/women.",
-      })
-      console.log("Set both users");
-    }
+
   }
 
   useEffect(() => {
@@ -77,13 +90,14 @@ export default function EnhancedUserComparison() {
       setHeatMapData(HeatMapData);
     }
 
+
     // Grouping Rating Change Data
     if (UserData1?.RatingChangeData && UserData2?.RatingChangeData) {
       const RatingChange = CompareRatingChange(UserData1?.RatingChangeData, UserData2?.RatingChangeData, user1, user2);
       setLineGraphData(RatingChange);
-      console.log("RatingChange Data-> " + LineGraphData)
     }
   }, [UserData1, UserData2]);
+
 
 
   const getRankColor = (rank: string) => {
@@ -121,11 +135,11 @@ export default function EnhancedUserComparison() {
           <div className='flex text-center text-3xl justify-content-center border-b border-neutral-600 border-r'>
             <div className="flex-1 text-center text-3xl justify-content-center  border-r border-neutral-600">
               <Input
-              id="user1"
-              placeholder="First Username"
-              value={user1}
-              onChange={(e) => setUser1(e.target.value)}
-              className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
+                id="user1"
+                placeholder="First Username"
+                value={user1}
+                onChange={(e) => setUser1(e.target.value)}
+                className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
               />
             </div>
             <div className='flex justify-center items-center h-20 w-20'>
