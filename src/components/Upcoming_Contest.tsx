@@ -22,9 +22,9 @@ import {
 interface Contest {
   platform: string;
   name: string;
-  start: string | Date;
+  start: Date;
   href: string;
-  id?: string;
+  id?: string;  // id is optional for non-Codeforces contests
 }
 
 interface CodeforcesContest {
@@ -32,6 +32,25 @@ interface CodeforcesContest {
   name: string;
   phase: string;
   startTimeSeconds: number;
+}
+
+interface CodeforcesContestDataType {
+  result: Array<{
+    id: number;
+    name: string;
+    phase: string;
+    startTimeSeconds: number; // Start time in seconds
+  }>;
+}
+
+interface UpcomingContestDataType {
+  objects: Array<{
+    host: string;  // The host for the contest
+    event: string; // The name of the event
+    start: string; // The start time as a string
+    href: string;  // The URL of the contest
+    [key: string]: any; // Optional additional properties
+  }>;
 }
 
 export const Upcoming_Contest = ({
@@ -66,7 +85,7 @@ export const Upcoming_Contest = ({
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
+      await response.json();
 
       if (response.status === 400) {
         return "Email already registered";
@@ -157,34 +176,37 @@ export const Upcoming_Contest = ({
 
     // Process contests from UpcomingContestData
     UpcomingContestData.objects
-      .filter(contest => validHosts.includes(contest.host)) // Changed from contest.platform to contest.host
-      .forEach(contest => {
+      .filter((contest) => validHosts.includes(contest.host)) // Filter by 'host' property
+      .forEach((contest) => {
         contestSet.add({
-          platform: contest.host, // Changed to use host instead of platform
-          name: contest.event,    // Changed from name to event
-          start: new Date(contest.start),
-          href: contest.href,
+          platform: contest.host, // Correctly using 'host'
+          name: contest.event,    // Use 'event' for the contest name
+          start: new Date(contest.start), // Convert the 'start' string to Date
+          href: contest.href,      // Add the contest URL
         });
       });
 
     // Process Codeforces contests
     codforcesContestData.result
-      .filter(contest => contest.phase === "BEFORE")
-      .forEach(contest => {
+      .filter((contest) => contest.phase === "BEFORE")
+      .forEach((contest) => {
         contestSet.add({
           platform: "codeforces.com",
           name: contest.name,
-          start: new Date(contest.startTimeSeconds * 1000),
-          href: `https://codeforces.com/contests/${contest.id}`,
-          id: contest.id
+          start: new Date(contest.startTimeSeconds * 1000), // Convert to Date
+          href: `https://codeforces.com/contest/${contest.id}`, // Correct URL
+          id: contest.id,
         });
       });
 
-    const sortedContests = Array.from(contestSet)
-      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+    // Sort contests by start date
+    const sortedContests = Array.from(contestSet).sort(
+      (a, b) => a.start.getTime() - b.start.getTime()
+    );
 
-    setContests(sortedContests);
+    setContests(sortedContests); // Assuming setContests is a function to update state
   };
+
   useEffect(() => {
     if (UpcomingContestData && codforcesContestData) {
       parseContestData();
