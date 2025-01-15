@@ -39,56 +39,57 @@ export default function ProblemsPage() {
   const contestsPerPage = 100;
 
   useEffect(() => {
+    const fetchProblems = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(
+          "https://codeforces.com/api/problemset.problems"
+        );
+        const data = await response.json();
+        if (data.status === "OK") {
+          const combinedArray: CombinedData[] = [];
+          data.result.problems.forEach((problem: Problem) => {
+            const stats = data.result.problemStatistics.find(
+              (stat: ProblemStatistics) =>
+                stat.contestId === problem.contestId &&
+                stat.index === problem.index
+            );
+
+            if (stats) {
+              combinedArray.push({
+                contestId: problem.contestId,
+                index: problem.index,
+                name: problem.name,
+                type: problem.type,
+                rating: problem.rating,
+                tags: problem.tags,
+                solvedCount: stats.solvedCount,
+              });
+            }
+          });
+          setProblems(combinedArray);
+          const filtered = data.result.problems.filter(
+            (problem: Problem) =>
+              problem.rating >= initialRating && problem.rating <= endingFilter
+          );
+          setFilteredProblems(filtered);
+          updateDisplayedProblems(filtered, 1);
+        } else {
+          throw new Error("Failed to fetch problems");
+        }
+      } catch (err) {
+        setError(
+          "An error occurred while fetching problems. Please try again later."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchProblems();
   }, [username]);
 
-  const fetchProblems = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        "https://codeforces.com/api/problemset.problems"
-      );
-      const data = await response.json();
-      if (data.status === "OK") {
-        const combinedArray: CombinedData[] = [];
-        data.result.problems.forEach((problem: Problem) => {
-          const stats = data.result.problemStatistics.find(
-            (stat: ProblemStatistics) =>
-              stat.contestId === problem.contestId &&
-              stat.index === problem.index
-          );
 
-          if (stats) {
-            combinedArray.push({
-              contestId: problem.contestId,
-              index: problem.index,
-              name: problem.name,
-              type: problem.type,
-              rating: problem.rating,
-              tags: problem.tags,
-              solvedCount: stats.solvedCount,
-            });
-          }
-        });
-        setProblems(combinedArray);
-        const filtered = data.result.problems.filter(
-          (problem: Problem) =>
-            problem.rating >= initialRating && problem.rating <= endingFilter
-        );
-        setFilteredProblems(filtered);
-        updateDisplayedProblems(filtered, 1);
-      } else {
-        throw new Error("Failed to fetch problems");
-      }
-    } catch (err) {
-      setError(
-        "An error occurred while fetching problems. Please try again later."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const updateDisplayedProblems = (problems: Problem[], page: number) => {
     const from = (page - 1) * contestsPerPage;

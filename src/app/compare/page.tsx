@@ -13,7 +13,20 @@ import { ParseData } from '@/lib/ParseData';
 import { MultipleBarChart } from '@/components/MulitpleBarChart';
 import { MultipleLineChart } from '@/components/MultipleLineChart';
 import { SubmissionHeatmap } from '@/components/MultipleHeatMap/submission-heatmap';
+import { Loader2 } from "lucide-react";
+import { ShinyButton } from '@/components/ui/shiny-button';
+import { TextShimmer } from '@/components/ui/text-shimmer';
 
+interface CodeforcesResponse {
+  status: 'OK' | 'FAILED';
+  message?: string;
+  result?: any;
+}
+interface UserData {
+  userInfoData: any | string | null;
+  allSubmissionsData: any | null;
+  allRating: any | null;
+}
 
 
 export default function EnhancedUserComparison() {
@@ -33,44 +46,41 @@ export default function EnhancedUserComparison() {
   const compareUsers = async () => {
     if (user1 === "" || user2 === "") {
       toast({
-        variant: "destructive",
-        title: "Set both users",
-        description: "Please provide both usernames for comparison.",
-      })
+        description: "Please enter both usernames."
+      });
+      return;
     }
-    else if (user1 === user2) {
-      toast({
-        variant: "default",
-        title: "Chut Chalaki 😏",
-        description: "Don't even try",
-      })
-    }
-    else {
-      setisfetching(true);
-      // Fetch from API
-      const { userInfoData: userInfoData1, allSubmissionsData: allSubmissionsData1, allRating: allRating1 } = await FetchUserData(user1);
-      const { userInfoData: userInfoData2, allSubmissionsData: allSubmissionsData2, allRating: allRating2 } = await FetchUserData(user2);
 
-      // Check for errors
-      if (userInfoData1.status === 'failed' || userInfoData2.status === 'failed') {
-        toast({
-          variant: "destructive",
-          title: userInfoData1.status === 'failed' ? userInfoData1.message : userInfoData2.message,
-          description: "Please check the spelling of the usernames.",
-        })
+    if (user1 === user2) {
+      toast({
+        description: "Please enter different usernames."
+      });
+      return;
+    }
+
+    setisfetching(true);
+    try {
+      const [userData1, userData2] = await Promise.all([
+        FetchUserData(user1),
+        FetchUserData(user2)
+      ]);
+
+      // Check if we got the data successfully
+      if (!userData1.userInfoData || !userData2.userInfoData) {
         setisfetching(false);
-        return;
+        return; // FetchUserData already showed relevant toast
       }
 
-      // Extract Info from Raw API data
-      setUserData1(ParseData(userInfoData1, allSubmissionsData1, allRating1, user1));
-      setUserData2(ParseData(userInfoData2, allSubmissionsData2, allRating2, user2));
-
-      setisfetching(false);
+      // Process successful data
+      setUserData1(ParseData(userData1.userInfoData, userData1.allSubmissionsData, userData1.allRating, user1));
+      setUserData2(ParseData(userData2.userInfoData, userData2.allSubmissionsData, userData2.allRating, user2));
       setisfetched(true);
-    }
 
-  }
+    } finally {
+      setisfetching(false);
+    }
+  };
+
 
   useEffect(() => {
     // Grouping both users rating frequency
@@ -96,7 +106,7 @@ export default function EnhancedUserComparison() {
       const RatingChange = CompareRatingChange(UserData1?.RatingChangeData, UserData2?.RatingChangeData, user1, user2);
       setLineGraphData(RatingChange);
     }
-  }, [UserData1, UserData2]);
+  }, [UserData1, UserData2, user1, user2]);
 
 
 
@@ -128,7 +138,7 @@ export default function EnhancedUserComparison() {
           {/* 1st div */}
           <div className='grid grid-cols-3 border-b border-neutral-600 justify-center items-center'>
             <h1 className="text-center text-3xl justify-content-center p-6 border-r border-neutral-600">
-              Compare ID's
+              Compare ID&apos;s
             </h1>
           </div>
           {/* 2nd div */}
@@ -139,7 +149,7 @@ export default function EnhancedUserComparison() {
                 placeholder="First Username"
                 value={user1}
                 onChange={(e) => setUser1(e.target.value)}
-                className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
+                className="bg-card text-foreground w-full h-full text-center text-lg hover:border-b-4"
               />
             </div>
             <div className='flex justify-center items-center h-20 w-20'>
@@ -151,7 +161,7 @@ export default function EnhancedUserComparison() {
                 placeholder="Second Username"
                 value={user2}
                 onChange={(e) => setUser2(e.target.value)}
-                className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
+                className="bg-card text-foreground w-full h-full text-lg text-center hover:border-b-4"
               />
             </div>
           </div>
@@ -159,9 +169,12 @@ export default function EnhancedUserComparison() {
           <div className='grid grid-cols-3 justify-center items-center border-b border-neutral-600'>
             <div className='col-start-3 text-center text-3xl justify-content-center border-r border-b border-neutral-600 '>
               {isfetching ? (
-                <Button disabled className=' text-center text-3xl p-6 w-full h-full'>Fetching...</Button>
+                <ShinyButton disabled className='text-center rounded-none text-3xl p-6 gap-4 w-full h-full'>
+                  <TextShimmer className="animate-pulse">Fetching...</TextShimmer>
+                </ShinyButton>
               ) : (
-                <Button onClick={compareUsers} className=' text-center text-3xl p-6  w-full h-full'>Compare</Button>
+                <ShinyButton onClick={compareUsers} className='text-center rounded-none text-3xl p-6 gap-4 w-full h-full'>Compare
+                </ShinyButton>
               )}
             </div>
           </div>

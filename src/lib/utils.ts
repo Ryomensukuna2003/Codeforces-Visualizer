@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { toast } from "@/hooks/use-toast";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -161,30 +162,60 @@ export const getUpcomingContests = (contestData: any, now: number) => {
     .slice(0, 5);
 };
 
-export const FetchUserData = async (handle: string) => {
-  const [userInfoData, allSubmissionsData, allRating] = await Promise.all([
-    axios
-      .get(`https://codeforces.com/api/user.info?handles=${handle}`)
-      .then((res) => res.data),
-    axios
-      .get(`https://codeforces.com/api/user.status?handle=${handle}&from=1`)
-      .then((res) => res.data),
-    axios
-      .get(`https://codeforces.com/api/user.rating?handle=${handle}`)
-      .then((res) => res.data),
-  ]);
-  if (userInfoData.status === "FAILED") {
+interface CodeforcesResponse {
+  status: "OK" | "FAILED";
+  message?: string;
+  result?: any;
+}
+
+interface UserData {
+  userInfoData: any | string | null;
+  allSubmissionsData: any | null;
+  allRating: any | null;
+}
+
+export const FetchUserData = async (handle: string): Promise<UserData> => {
+  try {
+    const [userInfoResponse, submissionsResponse, ratingResponse] = await Promise.all([
+      axios.get<CodeforcesResponse>(`https://codeforces.com/api/user.info?handles=${handle}`),
+      axios.get<CodeforcesResponse>(`https://codeforces.com/api/user.status?handle=${handle}&from=1`),
+      axios.get<CodeforcesResponse>(`https://codeforces.com/api/user.rating?handle=${handle}`)
+    ]);
+
+    // If successful, return the data
     return {
-      userInfoData: `${handle} is not Valid`,
+      userInfoData: userInfoResponse.data.result[0],
+      allSubmissionsData: submissionsResponse.data,
+      allRating: ratingResponse.data,
+    };
+
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 400) {
+        toast({
+          description: `User "${handle}" not found. Please check the spelling.`
+        });
+      } else if (error.code === 'ECONNABORTED') {
+        toast({
+          description: "Request timed out. Please try again."
+        });
+      } else if (!navigator.onLine) {
+        toast({
+          description: "Please check your internet connection."
+        });
+      } else {
+        toast({
+          description: "Failed to fetch user data. Please try again."
+        });
+      }
+    }
+
+    return {
+      userInfoData: null,
       allSubmissionsData: null,
       allRating: null,
     };
   }
-  return {
-    userInfoData: userInfoData.result[0],
-    allSubmissionsData,
-    allRating,
-  };
 };
 
 export const CompareRatingFrequencies = (
