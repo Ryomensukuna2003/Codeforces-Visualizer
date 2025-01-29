@@ -118,11 +118,11 @@ export default function EnhancedUserComparison() {
   };
 
   return (
-    <div className="bg-card">
+    <div className="bg-black">
       <NavBar />
 
       {/* Content Starts Here */}
-      <div className="flex-row bg-card w-full">
+      <div className="flex-row h-screen bg-card w-full">
 
         <div className='flex-col w-full h-46'>
           {/* 1st div */}

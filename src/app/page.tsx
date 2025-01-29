@@ -2,7 +2,7 @@
 import { CodeforcesVisualizerComponent } from "../components/codeforces-visualizer";
 export default function Home() {
   return (
-    <div className="">
+    <div >
       <CodeforcesVisualizerComponent />
     </div>
   );
