@@ -31,6 +31,13 @@ export default function EnhancedUserComparison() {
   const [isfetched, setisfetched] = useState<boolean>(false);
 
   const compareUsers = async () => {
+    setUserData1(null);
+    setUserData2(null);
+    setBarGraphData(null);
+    setHeatMapData(null);
+    setLineGraphData(null);
+    setisfetched(false);
+
     if (user1 === "" || user2 === "") {
       toast({
         variant: "destructive",
@@ -139,7 +146,7 @@ export default function EnhancedUserComparison() {
                 placeholder="First Username"
                 value={user1}
                 onChange={(e) => setUser1(e.target.value)}
-                className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
+                className="bg-card text-foreground w-full h-full text-center hover:border-card"
               />
             </div>
             <div className='flex justify-center items-center h-20 w-20'>

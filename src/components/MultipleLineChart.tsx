@@ -18,7 +18,6 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import { useEffect } from "react"
 
 interface MultipleLineChartProps {
   user1: string;
@@ -29,11 +28,6 @@ interface MultipleLineChartProps {
 
 export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChartProps) {
   if (!chartData || chartData.length === 0) return null;
-
-  useEffect(() => {
-    console.log("Line Chart Data->  ", chartData)
-  }, [chartData])
-
 
   const chartConfig: ChartConfig = {
     [user1]: {
