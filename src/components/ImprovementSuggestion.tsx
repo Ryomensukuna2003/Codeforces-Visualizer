@@ -16,11 +16,22 @@ export function ImprovementSuggestion({
   const { username } = useUsernameStore() as { username: string };
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUsername, setCurrentUsername] = useState<string>(username);
+
+  // Clear suggestion and update currentUsername when username changes
   useEffect(() => {
     setSuggestion(null);
+    setCurrentUsername(username);
   }, [username]);
 
   const getSuggestion = async () => {
+    // Verify that the current username matches the one in the store
+    // This prevents using old data with a new username
+    if (currentUsername !== username) {
+      console.log("Username changed, cancelling suggestion request");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await fetch("/api/getsuggestion", {
@@ -28,17 +39,28 @@ export function ImprovementSuggestion({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userData, problemStats }),
+        body: JSON.stringify({
+          userData: { ...userData, handle: username }, // Ensure correct username is used
+          problemStats,
+        }),
       });
       const data = await response.json();
-      setSuggestion(data.suggestion);
+
+      // Check again before setting state to avoid race conditions
+      if (currentUsername === username) {
+        setSuggestion(data.suggestion);
+      }
     } catch (error) {
       console.error("Error fetching suggestion:", error);
-      setSuggestion(
-        "Sorry, we couldn't generate a suggestion at this time. Please try again later."
-      );
+      if (currentUsername === username) {
+        setSuggestion(
+          "Sorry, we couldn't generate a suggestion at this time. Please try again later."
+        );
+      }
     } finally {
-      setIsLoading(false);
+      if (currentUsername === username) {
+        setIsLoading(false);
+      }
     }
   };
 

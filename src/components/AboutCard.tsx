@@ -58,7 +58,8 @@ export function CodeforcesUserCard({
       <Card className="border-0 px-6">
         <CardContent className="p-4">
           <div className="flex items-center space-x-4 mb-4">
-            <Avatar className="h-32 w-32">
+            <Avatar className="h-32 w-32 overflow-hidden  aspect-square">
+
               <AvatarImage
                 src={userInfo.avatar}
                 alt={userInfo.handle}

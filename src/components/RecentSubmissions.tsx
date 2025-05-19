@@ -29,7 +29,9 @@ const RecentSubmissions = ({ submissions }: { submissions: Submissions[] }) => {
                     }
                     className="text-xs md:text-sm"
                   >
-                    {submission.verdict}
+                    {submission.verdict === "OK"
+                      ? "ACCEPTED"
+                      : submission.verdict}
                   </Badge>
                   <Badge
                     variant="outline"
@@ -48,7 +50,7 @@ const RecentSubmissions = ({ submissions }: { submissions: Submissions[] }) => {
         </ul>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default RecentSubmissions
