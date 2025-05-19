@@ -37,7 +37,7 @@ interface ChartLineBarProps {
 
 export function ChartLineBar({ data }: ChartLineBarProps) {
 
-  const max_Submissions= data.reduce((max, p) => p.count > max ? p.count : max, data[0].count);
+  const max_Submissions= data.reduce((max, p) => p.count > max ? p.count : max, data[0]?.count);
 
   return (
     <Card className="border-none">

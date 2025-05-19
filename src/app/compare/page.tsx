@@ -48,9 +48,9 @@ export default function EnhancedUserComparison() {
     else if (user1 === user2) {
       toast({
         variant: "default",
-        title: "Chut Chalaki 😏",
-        description: "Don't even try",
-      })
+        title: "Testing eh... 😏",
+        description: "Usernames are same, please provide different usernames.",
+      });
     }
     else {
       setisfetching(true);

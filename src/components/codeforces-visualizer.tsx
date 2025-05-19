@@ -4,8 +4,8 @@ import axios from "axios";
 import ChartLineLinear from "./Line_Chart";
 import RecentSubmissions from "./RecentSubmissions";
 import SleepingCat from "./cat";
-import Skeleton_Fragment from "./skeleton-components"
-import { useToast } from "@/hooks/use-toast"
+import Skeleton_Fragment from "./skeleton-components";
+import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { CardContent } from "@/components/ui/card";
 import { ChartLineBar } from "./Bar_Chart";
@@ -41,7 +41,7 @@ import {
   processRatingGraph,
   processRatingFreqGraph,
   getUpcomingContests,
-  processSingleHeatMapData
+  processSingleHeatMapData,
 } from "../lib/utils";
 import { CompetitiveProgrammingQuotes } from "./CP-Quotes";
 
@@ -54,18 +54,18 @@ ChartJS.register(
   Legend
 );
 
-
 export function CodeforcesVisualizerComponent() {
-
-  const { username, setUsername, setAttempted, UsernamePopupisopen } = useUsernameStore() as unknown as {
-    username: string;
-    setUsername: (username: string) => void;
-    Attempted: string[];
-    setAttempted: (attempted: string[]) => void;
-    UsernamePopupisopen: boolean;
-  };
+  const { username, setUsername, setAttempted, UsernamePopupisopen } =
+    useUsernameStore() as unknown as {
+      username: string;
+      setUsername: (username: string) => void;
+      Attempted: string[];
+      setAttempted: (attempted: string[]) => void;
+      UsernamePopupisopen: boolean;
+    };
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const { toast } = useToast()
+  const [unratedUser, setUnratedUser] = useState<boolean>(false);
+  const { toast } = useToast();
   const [submissions, setSubmissions] = useState<Submissions[] | null>(null);
   const [questions, setquestions] = useState(0);
   const [total_Solved, setTotalSolved] = useState(0);
@@ -101,14 +101,19 @@ export function CodeforcesVisualizerComponent() {
   }, []);
 
   // Importing raw fetched data
-  const { userInfoData, allSubmissionsData, allRating, contestData, fetchData } = useStore() as unknown as {
+  const {
+    userInfoData,
+    allSubmissionsData,
+    allRating,
+    contestData,
+    fetchData,
+  } = useStore() as unknown as {
     userInfoData: any;
     allSubmissionsData: any;
     allRating: any;
     contestData: any;
     fetchData: (username: string) => void;
   };
-
 
   const [isloading, setisloading] = useState(true);
 
@@ -123,22 +128,39 @@ export function CodeforcesVisualizerComponent() {
 
   // If API data is changed, parse the data
   useEffect(() => {
-    if (userInfoData === 'Username is not Valid') {
+    if (userInfoData === "Username is not Valid") {
       toast({
         variant: "destructive",
         title: "Username is not Valid",
         description: "Please enter a valid Codeforces username.",
-      })
+      });
     }
-    if (userInfoData && allSubmissionsData && allRating && contestData) {
+    if (unratedUser) {
+      toast({
+        variant: "default",
+        title: "User is Unrated",
+        description: "Try giving some contests homie",
+      });
+    }
+    if (
+      userInfoData &&
+      allSubmissionsData &&
+      allRating &&
+      contestData &&
+      !unratedUser
+    ) {
       parseData();
     }
-  }, [userInfoData, allSubmissionsData, allRating, contestData])
-
+  }, [userInfoData, allSubmissionsData, allRating, contestData]);
 
   const parseData = async () => {
     try {
       await handleSaveUsername();
+      if (userInfo?.rating === undefined) {
+        setUnratedUser(true);
+        console.log(userInfo?.rating);
+        console.log("User is unrated");
+      }
       const uniqueProblems = new Set<string>();
       const ratingFreqMap = new Map<number, number>();
       let ratingArr: Rating[] = [];
@@ -190,8 +212,6 @@ export function CodeforcesVisualizerComponent() {
     }
   };
 
-
-
   const userData = {
     handle: userInfo?.handle || "USER",
     rating: userInfo?.rating ?? 0,
@@ -216,13 +236,20 @@ export function CodeforcesVisualizerComponent() {
     averageAcceptedProblemRating: averageAcceptedProblemRating,
   };
 
-
   const problemStats = {
     total: questions,
     solved: total_Solved,
     attempted: mySet.size,
   };
 
+  useEffect(() => {
+    if (userInfo?.rating === undefined) {
+      console.log("helo");
+      setUnratedUser(true);
+    } else {
+      console.log("rated");
+    }
+  }, [userInfo]);
 
   return (
     <div className="border-neutral-600 bg-card">
@@ -235,9 +262,18 @@ export function CodeforcesVisualizerComponent() {
               <div className="absolute inset-0 bg-background/80 backdrop-blur-lg z-10">
                 <CompetitiveProgrammingQuotes />
               </div>
-            )
-            }
+            )}
             <Skeleton_Fragment />
+          </div>
+        )}
+        {!isloading && unratedUser && (
+          <div className="flex flex-col items-center justify-center w-full h-full">
+            <h1 className="text-2xl font-bold text-center text-white">
+              User is Unrated
+            </h1>
+            <p className="text-lg text-center text-muted-foreground">
+              Please try again later.
+            </p>
           </div>
         )}
         {!isloading && (
@@ -248,16 +284,21 @@ export function CodeforcesVisualizerComponent() {
               </div>
               <div className="flex flex-col border-b border-neutral-600 md:flex-row">
                 <CardContent className="flex-1 p-0 border-r border-neutral-600">
-                  <CodeforcesUserCard userInfo={userData} problemStats={problemStats} />
+                  <CodeforcesUserCard
+                    userInfo={userData}
+                    problemStats={problemStats}
+                  />
                 </CardContent>
                 <CardContent className="flex-1 p-0 ">
                   <Upcoming_Contest upcomingContest={upcomingContests || []} />
                 </CardContent>
-
               </div>
             </div>
 
-            <ImprovementSuggestion userData={userData} problemStats={problemStats} />
+            <ImprovementSuggestion
+              userData={userData}
+              problemStats={problemStats}
+            />
 
             {/* Graphs  */}
             <div className="flex flex-col border-y  border-neutral-600 md:flex-row">
