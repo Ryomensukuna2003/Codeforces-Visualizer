@@ -15,17 +15,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { Rating } from "@/types/contests";
 
-interface DataPoint {
-  contestName: string;
-  rating: number;
-}
-
-interface ChartLineLinearProps {
-  data: DataPoint[];
-}
-
-export default function ChartLineLinear({ data }: ChartLineLinearProps) {
+export default function ChartLineLinear({ data }: { data: Rating[] }) {
   const chartConfig = {
     desktop: {
       label: "Rating",
@@ -33,11 +25,13 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
     },
   } satisfies ChartConfig;
 
-  const max_Rating = data.map((item) => item.rating).reduce((a, b) => Math.max(a, b));
+  const max_Rating = data
+    .map((item) => item.rating)
+    .reduce((a, b) => Math.max(a, b));
   const current_Rating = data[data.length - 1].rating;
 
   return (
-    <Card className="border-0 border-l" >
+    <Card className="border-0 border-l">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>Line Chart - Linear</CardTitle>
@@ -56,7 +50,12 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
         <ChartContainer config={chartConfig} className="w-full overflow-x-auto">
           <LineChart width={656} height={369} data={data}>
             <CartesianGrid vertical={false} />
-            <YAxis className="pl-5" tickCount={22} scale={"linear"} ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]} />
+            <YAxis
+              className="pl-5"
+              tickCount={22}
+              scale={"linear"}
+              ticks={[1200, 1400, 1600, 1900, 2100, 2300, 2400, 2600, 3000]}
+            />
             <XAxis
               dataKey="contestName"
               tickLine={false}
@@ -85,9 +84,10 @@ export default function ChartLineLinear({ data }: ChartLineLinearProps) {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Showing rating changes over contests <TrendingUp className="h-4 w-4" />
+          Showing rating changes over contests{" "}
+          <TrendingUp className="h-4 w-4" />
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

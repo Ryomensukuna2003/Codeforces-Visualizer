@@ -26,6 +26,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+
 import {
   UserInfo,
   Submissions,
@@ -33,7 +34,8 @@ import {
   ProblemRatingDistribution,
   UpcomingContest,
   TagStatistics,
-} from "../app/types";
+} from "../types";
+
 import {
   processRatings,
   processBarGraphData,

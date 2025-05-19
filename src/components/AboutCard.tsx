@@ -3,27 +3,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {  Code2, Trophy, Users } from 'lucide-react'
 import { Badge } from "@/components/ui/badge";
-
-interface UserInfo {
-  handle: string;
-  rating?: number;
-  maxRating?: number;
-  rank?: string;
-  contribution?: number;
-  friendOfCount?: number;
-  avatar?: string;
-}
-
-interface ProblemStats {
-  total: number;
-  solved: number;
-  attempted: number;
-}
-
-interface CodeforcesUserCardProps {
-  userInfo: UserInfo;
-  problemStats: ProblemStats;
-}
+import { CodeforcesUserData, AboutUser } from "@/types/user";
+import { ProblemStats } from "@/types/problems";
+import { CodeforcesUserCardProps } from "@/types/props";
 const SleepingCatStyles = `
   @keyframes sleepingCat {
     0%, 50% { background-position: -64px 0; }

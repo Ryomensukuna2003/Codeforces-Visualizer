@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 import MarkdownFade from "./ui/markdownFade";
-import { ImprovementSuggestionProps } from "@/app/types";
+import { ImprovementSuggestionProps } from "@/types/props";
 
 
 export function ImprovementSuggestion({

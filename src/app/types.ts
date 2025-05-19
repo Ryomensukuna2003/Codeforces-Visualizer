@@ -25,6 +25,7 @@ export interface Submissions {
   verdict: string;
   programmingLanguage: string;
 }
+
 export interface Rating {
   contestName: string;
   rating: number;
@@ -48,6 +49,9 @@ export interface TagStatistics {
   tag: string;
   count: number;
 }
+
+
+
 
 export interface AboutUser {
   handle: string;

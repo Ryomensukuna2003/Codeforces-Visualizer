@@ -6,7 +6,7 @@ import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog"
-import { UpcomingContest as UpcomingContestType } from "@/app/types"
+import { UpcomingContest as UpcomingContestType } from "@/types/contests";
 import Link from "next/link"
 import { Bell, Mail, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"

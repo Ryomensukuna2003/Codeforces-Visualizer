@@ -116,7 +116,7 @@ export default function SubmissionsPage() {
                       }
                     >
                       {submission.verdict === "OK"
-                        ? "Accepted"
+                        ? "ACCEPTED"
                         : submission.verdict}
                     </Badge>
                   </TableCell>

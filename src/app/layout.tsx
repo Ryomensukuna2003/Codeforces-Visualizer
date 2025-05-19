@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 };
 
 const local = localFont({
-  src: "/Fonts/JetBrainsMono-Medium.woff2",
+  src: "/Fonts/JetBrainsMono-Variable.woff2",
   display: "swap",
-})
+});
 
 
 export default function RootLayout({

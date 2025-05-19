@@ -1,9 +1,10 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Badge } from "./ui/badge"
-import { Submissions } from "@/app/types"
+import { Submissions } from "@/types/problems";
+import { RecentSubmissionsProps } from "@/types/props";
 
-const RecentSubmissions = ({ submissions }: { submissions: Submissions[] }) => {
+const RecentSubmissions = ({ submissions }: RecentSubmissionsProps) => {
   return (
     <Card className="w-full max-w-full border-0 border-y px-6">
       <CardHeader>
@@ -35,7 +36,7 @@ const RecentSubmissions = ({ submissions }: { submissions: Submissions[] }) => {
                   </Badge>
                   <Badge
                     variant="outline"
-                    className="text-xs font-thin  md:text-sm "
+                    className="text-xs  md:text-sm "
                   >
                     {submission.programmingLanguage}
                   </Badge>
@@ -51,6 +52,6 @@ const RecentSubmissions = ({ submissions }: { submissions: Submissions[] }) => {
       </CardContent>
     </Card>
   );
-}
+};
 
 export default RecentSubmissions

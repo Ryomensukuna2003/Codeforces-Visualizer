@@ -17,22 +17,17 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { ProblemRatingDistribution } from "@/types/problems";
 
 const chartConfig = {
   desktop: {
     label: "Desktop",
     color: "hsl(var(--foreground))",
-
   },
 } satisfies ChartConfig;
 
-interface DataPoint {
-  rating: number;
-  count: number;
-}
-
 interface ChartLineBarProps {
-  data: DataPoint[];
+  data: ProblemRatingDistribution[];
 }
 
 export function ChartLineBar({ data }: ChartLineBarProps) {
