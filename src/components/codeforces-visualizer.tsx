@@ -135,32 +135,30 @@ export function CodeforcesVisualizerComponent() {
         description: "Please enter a valid Codeforces username.",
       });
     }
-    if (unratedUser) {
-      toast({
-        variant: "default",
-        title: "User is Unrated",
-        description: "Try giving some contests homie",
-      });
-    }
-    if (
-      userInfoData &&
-      allSubmissionsData &&
-      allRating &&
-      contestData &&
-      !unratedUser
-    ) {
-      parseData();
+    
+    if (userInfoData && allSubmissionsData && allRating && contestData) {
+      if (
+        userInfoData.result &&
+        userInfoData.result[0] &&
+        userInfoData.result[0].rating === undefined
+      ) {
+        setUnratedUser(true);
+        toast({
+          variant: "default",
+          title: "User is Unrated",
+          description: "Try giving some contests homie",
+        });
+      } else {
+        setUnratedUser(false);
+        parseData();
+      }
     }
   }, [userInfoData, allSubmissionsData, allRating, contestData]);
 
   const parseData = async () => {
     try {
       await handleSaveUsername();
-      if (userInfo?.rating === undefined) {
-        setUnratedUser(true);
-        console.log(userInfo?.rating);
-        console.log("User is unrated");
-      }
+
       const uniqueProblems = new Set<string>();
       const ratingFreqMap = new Map<number, number>();
       let ratingArr: Rating[] = [];
@@ -242,15 +240,6 @@ export function CodeforcesVisualizerComponent() {
     attempted: mySet.size,
   };
 
-  useEffect(() => {
-    if (userInfo?.rating === undefined) {
-      console.log("helo");
-      setUnratedUser(true);
-    } else {
-      console.log("rated");
-    }
-  }, [userInfo]);
-
   return (
     <div className="border-neutral-600 bg-card">
       <NavBar />
@@ -272,11 +261,11 @@ export function CodeforcesVisualizerComponent() {
               User is Unrated
             </h1>
             <p className="text-lg text-center text-muted-foreground">
-              Please try again later.
+              This user hasn't participated in any rated contests yet.
             </p>
           </div>
         )}
-        {!isloading && (
+        {!isloading && !unratedUser && (
           <>
             <div className="relative">
               <div className="absolute left-15 right-5">
