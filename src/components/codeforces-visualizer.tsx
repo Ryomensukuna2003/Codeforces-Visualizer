@@ -256,7 +256,7 @@ export function CodeforcesVisualizerComponent() {
           </div>
         )}
         {!isloading && unratedUser && (
-          <div className="flex flex-col items-center justify-center w-full h-full">
+          <div className="flex flex-col items-center justify-center w-screen h-screen">
             <h1 className="text-2xl font-bold text-center text-white">
               User is Unrated
             </h1>
