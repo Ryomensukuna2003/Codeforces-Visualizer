@@ -36,7 +36,7 @@ export default function SubmissionsPage() {
   const fetchAPI = async () => {
     try {
       const response = await axios.get(
-        `https://codeforces.com/api/user.status?handle=${username}&from=${currentPage}&count=${100}`
+        `https://codeforces.com/api/user.status?handle=${username}&from=${currentPage}`
       );
       const SubmissionJson = response.data;
       if (SubmissionJson.result.length < 100) setFinalPage(true);

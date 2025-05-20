@@ -8,10 +8,14 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from 'next/font/local'
 
 export const metadata: Metadata = {
-  title: "CF-Visualizer",
-  description: "A tool for visualizing Codeforces contest data",
+  title: "CF-Stats - A Codeforces statistics visualization tool",
+  description:
+    "A user-friendly tool for analyzing and visualizing Codeforces contest data",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.ico",
+  },
+  verification: {
+    google: "qqiosd1PhFJnXvIP8guwSFHSm1FQ5eodB3jrkqbZ71A",
   },
 };
 
