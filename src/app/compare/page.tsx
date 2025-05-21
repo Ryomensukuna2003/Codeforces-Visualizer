@@ -129,27 +129,26 @@ export default function EnhancedUserComparison() {
       <NavBar />
 
       {/* Content Starts Here */}
-      <div className="flex-row h-screen bg-card w-full">
-
-        <div className='flex-col w-full h-46'>
+      <div className="flex-row h-[calc(100vh-5rem)] bg-card w-full">
+        <div className="flex-col w-full h-46">
           {/* 1st div */}
-          <div className='grid grid-cols-3 border-b border-neutral-600 justify-center items-center'>
+          <div className="grid grid-cols-3 border-b border-neutral-600 justify-center items-center">
             <h1 className="text-center text-3xl justify-content-center p-6 border-r border-neutral-600">
               Compare ID's
             </h1>
           </div>
           {/* 2nd div */}
-          <div className='flex text-center text-3xl justify-content-center border-b border-neutral-600 border-r'>
-            <div className="flex-1 text-center text-3xl justify-content-center  border-r border-neutral-600">
+          <div className="flex text-center text-3xl justify-content-center border-b border-neutral-600 border-r">
+            <div className="flex-1 text-center justify-content-center  border-r border-neutral-600">
               <Input
                 id="user1"
                 placeholder="First Username"
                 value={user1}
                 onChange={(e) => setUser1(e.target.value)}
-                className="bg-card text-foreground w-full h-full text-center hover:border-card"
+                className="bg-card text-base text-foreground w-full h-full text-center hover:border-card"
               />
             </div>
-            <div className='flex justify-center items-center h-20 w-20'>
+            <div className="flex justify-center items-center h-20 w-20">
               <ArrowRightLeft className="w-8 h-8" />
             </div>
             <div className="flex-1 text-center text-3xl justify-content-center border-l border-neutral-600">
@@ -158,17 +157,27 @@ export default function EnhancedUserComparison() {
                 placeholder="Second Username"
                 value={user2}
                 onChange={(e) => setUser2(e.target.value)}
-                className="bg-card text-foreground w-full h-full text-center hover:border-b-4"
+                className="bg-card text-base text-foreground w-full h-full text-center hover:border-b-4"
               />
             </div>
           </div>
           {/* 3rd div */}
-          <div className='grid grid-cols-3 justify-center items-center border-b border-neutral-600'>
-            <div className='col-start-3 text-center text-3xl justify-content-center border-r border-b border-neutral-600 '>
+          <div className="grid grid-cols-3 justify-center items-center border-b border-neutral-600">
+            <div className="col-start-3 text-center text-3xl justify-content-center border-r border-b border-neutral-600 ">
               {isfetching ? (
-                <Button disabled className=' text-center text-3xl p-6 w-full h-full'>Fetching...</Button>
+                <Button
+                  disabled
+                  className=" text-center text-3xl p-6 w-full h-full"
+                >
+                  Fetching...
+                </Button>
               ) : (
-                <Button onClick={compareUsers} className=' text-center text-3xl p-6  w-full h-full'>Compare</Button>
+                <Button
+                  onClick={compareUsers}
+                  className=" text-center text-3xl p-6  w-full h-full"
+                >
+                  Compare
+                </Button>
               )}
             </div>
           </div>
@@ -178,7 +187,10 @@ export default function EnhancedUserComparison() {
           <div>
             <div className="grid md:grid-cols-2 border-none">
               {[UserData1, UserData2].map((user, index) => (
-                <Card key={user?.handle || index} className="overflow-hidden border-0 border-b border-l border-neutral-600">
+                <Card
+                  key={user?.handle || index}
+                  className="overflow-hidden border-0 border-b border-l border-neutral-600"
+                >
                   <CardHeader className="bg-card">
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-32 w-32">
@@ -190,8 +202,16 @@ export default function EnhancedUserComparison() {
                         <AvatarFallback>{user?.handle[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-2xl" style={{ color: 'var(--text-color-light)' }}>{user?.handle}</CardTitle>
-                        <CardDescription className={`text-lg font-semibold`} style={{ color: getRankColor(user?.rank || "") }}>
+                        <CardTitle
+                          className="text-2xl"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          {user?.handle}
+                        </CardTitle>
+                        <CardDescription
+                          className={`text-lg font-semibold`}
+                          style={{ color: getRankColor(user?.rank || "") }}
+                        >
                           {user?.rank}
                         </CardDescription>
                       </div>
@@ -200,20 +220,60 @@ export default function EnhancedUserComparison() {
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       <div className="text-center">
-                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.rating}</div>
-                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Current Rating</div>
+                        <div
+                          className="text-3xl font-bold"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          {user?.rating}
+                        </div>
+                        <div
+                          className="text-sm"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          Current Rating
+                        </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.maxRating}</div>
-                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Max Rating</div>
+                        <div
+                          className="text-3xl font-bold"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          {user?.maxRating}
+                        </div>
+                        <div
+                          className="text-sm"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          Max Rating
+                        </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.problemSolved}</div>
-                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Problems Solved</div>
+                        <div
+                          className="text-3xl font-bold"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          {user?.problemSolved}
+                        </div>
+                        <div
+                          className="text-sm"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          Problems Solved
+                        </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold" style={{ color: 'var(--text-color-light)' }}>{user?.contestsParticipated}</div>
-                        <div className="text-sm" style={{ color: 'var(--text-color-light)' }}>Contests</div>
+                        <div
+                          className="text-3xl font-bold"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          {user?.contestsParticipated}
+                        </div>
+                        <div
+                          className="text-sm"
+                          style={{ color: "var(--text-color-light)" }}
+                        >
+                          Contests
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -221,19 +281,37 @@ export default function EnhancedUserComparison() {
               ))}
             </div>
             <SubmissionHeatmap data={HeatMapData} id1={user1} id2={user2} />
-            <div className='flex'>
-              <div className='flex-1'>
+            <div className="flex">
+              <div className="flex-1">
                 {BarGraphData ? (
-                  <MultipleBarChart chartData={BarGraphData} user1={user1} user2={user2} />
+                  <MultipleBarChart
+                    chartData={BarGraphData}
+                    user1={user1}
+                    user2={user2}
+                  />
                 ) : (
-                  <p className="text-center mt-6" style={{ color: 'var(--text-color-light)' }}>Loading chart data...</p>
+                  <p
+                    className="text-center mt-6"
+                    style={{ color: "var(--text-color-light)" }}
+                  >
+                    Loading chart data...
+                  </p>
                 )}
               </div>
-              <div className='flex-1'>
+              <div className="flex-1">
                 {LineGraphData ? (
-                  <MultipleLineChart chartData={LineGraphData} user1={user1} user2={user2} />
+                  <MultipleLineChart
+                    chartData={LineGraphData}
+                    user1={user1}
+                    user2={user2}
+                  />
                 ) : (
-                  <p className="text-center mt-6" style={{ color: 'var(--text-color-light)' }}>Loading line graph data...</p>
+                  <p
+                    className="text-center mt-6"
+                    style={{ color: "var(--text-color-light)" }}
+                  >
+                    Loading line graph data...
+                  </p>
                 )}
               </div>
             </div>
@@ -241,5 +319,5 @@ export default function EnhancedUserComparison() {
         )}
       </div>
     </div>
-  )
+  );
 }

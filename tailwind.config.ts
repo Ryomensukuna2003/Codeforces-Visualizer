@@ -32,11 +32,6 @@ const config: Config = {
   					backgroundPosition: '-64px -32px'
   				}
   			},
-  			'border-beam': {
-  				'100%': {
-  					'offset-distance': '100%'
-  				}
-  			}
   		},
   		animation: {
   			'caret-blink': 'caret-blink 1.25s ease-out infinite',

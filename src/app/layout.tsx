@@ -5,7 +5,7 @@ import UsernamePopup from "../hooks/username-popup";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import localFont from 'next/font/local'
+import localFont from "next/font/local";
 
 export const metadata: Metadata = {
   title: "CF-Stats - A Codeforces statistics visualization tool",
@@ -24,14 +24,17 @@ const local = localFont({
   display: "swap",
 });
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${local.className} h-full w-screen`} suppressHydrationWarning={true}>
+    <html
+      lang="en"
+      className={`${local.className} h-full w-screen`}
+      suppressHydrationWarning={true}
+    >
       <body className="h-full w-screen" suppressHydrationWarning={true}>
         <ThemeProvider
           attribute="class"

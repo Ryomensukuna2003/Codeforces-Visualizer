@@ -270,9 +270,6 @@ export function CodeforcesVisualizerComponent() {
         {!isloading && !unratedUser && (
           <>
             <div className="relative">
-              <div className="absolute left-15 right-5">
-                <SleepingCat />
-              </div>
               <div className="flex flex-col border-b border-neutral-600 md:flex-row">
                 <CardContent className="flex-1 p-0 border-r border-neutral-600">
                   <CodeforcesUserCard

@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 import MarkdownFade from "./ui/markdownFade";
 import { ImprovementSuggestionProps } from "@/types/props";
+import SleepingCat from "./cat";
 
 
 export function ImprovementSuggestion({
@@ -96,6 +97,11 @@ export function ImprovementSuggestion({
               )}
             </Button>
           )}
+        {!suggestion && !isLoading && (
+          <div className="absolute  right-6 bottom-0 z-10">
+            <SleepingCat />
+          </div>
+        )}
         </CardContent>
       </Card>
     </div>

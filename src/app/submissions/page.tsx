@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,74 +12,53 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+import { useUsernameStore } from "@/components/Providers/contextProvider";
+import { useStore } from "@/components/Providers/fetchAPI";
 
 import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { SubmissionsType } from '../types'
-
+import { SubmissionsType } from "@/types/problems";
+import NavBar_sm from "@/components/ui/NavBar-sm";
 
 export default function SubmissionsPage() {
   const { username } = useUsernameStore() as {
     username: string;
   };
-  const [allsubmissions, setallSubmissions] = useState<SubmissionsType[] | null>(
-    null
-  );
+  const { allSubmissionsData } = useStore() as any;
   const [currentPage, setCurrentPage] = useState(1);
-  const [finalPage, setFinalPage] = useState(false);
-  useEffect(() => {
-    fetchAPI();
-  }, [currentPage]);
+  const itemsPerPage = 100;
 
-  const fetchAPI = async () => {
-    try {
-      const response = await axios.get(
-        `https://codeforces.com/api/user.status?handle=${username}&from=${currentPage}`
-      );
-      const SubmissionJson = response.data;
-      if (SubmissionJson.result.length < 100) setFinalPage(true);
-      let AllSubmissions: SubmissionsType[] = [];
-      SubmissionJson.result?.forEach((element: SubmissionsType) => {
-        let obj1 = {
-          verdict: element.verdict,
-          problem: element.problem.name,
-          programmingLanguage: element.programmingLanguage,
-          timeConsumedMillis: element.timeConsumedMillis,
-          memoryConsumedBytes: element.memoryConsumedBytes,
-          contestId: element.contestId,
-          id: element.id,
-        };
-        AllSubmissions.push(obj1);
-      });
-      setallSubmissions(AllSubmissions);
-    } catch (error) {
-      console.log("Fucked up man -> ", error);
+  // Get the current page's submissions
+  const getCurrentPageSubmissions = () => {
+    if (
+      !allSubmissionsData ||
+      !allSubmissionsData.result ||
+      !Array.isArray(allSubmissionsData.result)
+    ) {
+      return [];
     }
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return allSubmissionsData.result.slice(startIndex, endIndex);
   };
-  // Mock data - replace with actual API calls
-  const submissions = allsubmissions || [];
+
+  const submissions = getCurrentPageSubmissions();
+  const totalSubmissions = allSubmissionsData?.result?.length || 0;
+  const finalPage =
+    !allSubmissionsData || currentPage * itemsPerPage >= totalSubmissions;
 
   const goToNextPage = () => {
-    setCurrentPage(currentPage + 100);
+    setCurrentPage(currentPage + 1);
   };
 
   const goToPreviousPage = () => {
-    setCurrentPage(currentPage - 99);
+    setCurrentPage(currentPage - 1);
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6 ">
-     <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 flex gap-2 ">
-        <h1 className="text-3xl flex-1 font-bold">Submissions</h1>
-        <Link className="mr-3" href="/">
-          <Button className="rounded" variant="outline">
-            Back to Dashboard
-          </Button>
-        </Link>
-        <ModeToggle />
-      </div>
-
+    <div className="container mx-auto">
+      <NavBar_sm Title="Submissions" />
       <Card>
         <CardHeader className="font-2xl">
           <CardTitle>Recent Submissions </CardTitle>
@@ -97,15 +75,15 @@ export default function SubmissionsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submissions.map((submission) => (
+              {submissions.map((submission: any) => (
                 <TableRow key={submission.id}>
                   <TableCell>
                     <Link
-                      href={`https://codeforces.com/contest/${submission.contestId}/submission/${submission.id}`}
+                      href={`https://codeforces.com/contest/${submission.problem.contestId}/submission/${submission.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {submission.problem}
+                      {submission.problem.name}
                     </Link>
                   </TableCell>
                   <TableCell>
@@ -121,9 +99,14 @@ export default function SubmissionsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>{submission.programmingLanguage}</TableCell>
-                  <TableCell>{submission.timeConsumedMillis} ms</TableCell>
                   <TableCell>
-                    {(submission.memoryConsumedBytes / 1024).toFixed(2)} KB
+                    {submission.timeConsumedMillis || "—"} ms
+                  </TableCell>
+                  <TableCell>
+                    {submission.memoryConsumedBytes
+                      ? (submission.memoryConsumedBytes / 1024).toFixed(2) +
+                        " KB"
+                      : "—"}
                   </TableCell>
                 </TableRow>
               ))}

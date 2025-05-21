@@ -35,7 +35,7 @@ export function SubmissionLineChart({ data, id1, id2 }: SubmissionLineChartProps
         <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis />
+          <YAxis/>
           <ChartTooltip content={<ChartTooltipContent indicator="line" className="w-[150px]" />} />
           <Legend />
           <Line type="monotone" dot={false}

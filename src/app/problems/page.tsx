@@ -20,7 +20,7 @@ import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Problem, ProblemStatistics, CombinedData } from '../types'
-
+import NavBar_sm from "@/components/ui/NavBar-sm";
 
 export default function ProblemsPage() {
   const [problems, setProblems] = useState<CombinedData[]>([]);
@@ -133,16 +133,8 @@ export default function ProblemsPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6 ">
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 flex gap-2 ">
-        <h1 className="text-3xl flex-1 font-bold">Codeforces Problem</h1>
-        <Link className="mr-3" href="/">
-          <Button className="rounded" variant="outline">
-            Back to Dashboard
-          </Button>
-        </Link>
-        <ModeToggle />
-      </div>
+    <div className="container mx-auto">
+      <NavBar_sm Title="Problems" />
       <Card>
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
@@ -225,7 +217,7 @@ export default function ProblemsPage() {
                         checked={Attempted.includes(
                           `${problem.name}|${problem.rating}`
                         )}
-                      // onCheckedChange={field.onChange}
+                        // onCheckedChange={field.onChange}
                       />
                     </TableCell>
                   </TableRow>

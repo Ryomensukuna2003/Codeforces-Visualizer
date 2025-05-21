@@ -172,18 +172,6 @@ export const Upcoming_Contest = ({
         });
       });
 
-    // // Process Codeforces contests
-    // codforcesContestData.result
-    //   .filter((contest) => contest.phase === "BEFORE")
-    //   .forEach((contest) => {
-    //     contestSet.add({
-    //       platform: "codeforces.com",
-    //       name: contest.name,
-    //       start: new Date(contest.startTimeSeconds * 1000), // Convert to Date
-    //       href: `https://codeforces.com/contest/${contest.id}`, // Correct URL
-    //       id: contest.id,
-    //     });
-    //   });
 
     // Sort contests by start date
     const sortedContests = Array.from(contestSet).sort(
@@ -214,12 +202,12 @@ export const Upcoming_Contest = ({
       <CardHeader>
         <CardTitle>Upcoming Contests</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row gap-4 flex-wrap">
+      <CardContent className="flex flex-col sm:flex-row flex-wrap">
         <Button
           onClick={() => setIsModalOpen(true)}
           className="w-full sm:w-auto flex-1"
         >
-          <Bell className="mr-2 h-4 w-4" />
+          <Bell className="h-4 w-4" />
           Get notified for Upcoming contest
         </Button>
 
@@ -229,7 +217,7 @@ export const Upcoming_Contest = ({
         <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center">
-              <Bell className="mr-2 h-6 w-6 text-primary" />
+              <Bell className="h-6 w-6 text-primary" />
               Get Notified
             </DialogTitle>
           </DialogHeader>
@@ -297,9 +285,17 @@ export const Upcoming_Contest = ({
             <Button
               onClick={!isOtpSent ? handleSendOtp : handleVerifyOtp}
               className="w-full sm:w-auto rounded"
-              disabled={fetching || (!isOtpSent && !email) || (isOtpSent && otp.length !== 6)}
+              disabled={
+                fetching ||
+                (!isOtpSent && !email) ||
+                (isOtpSent && otp.length !== 6)
+              }
             >
-              {!isOtpSent ? "Send OTP" : fetching ? "Verifying..." : "Verify OTP"}
+              {!isOtpSent
+                ? "Send OTP"
+                : fetching
+                ? "Verifying..."
+                : "Verify OTP"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </DialogFooter>
@@ -327,7 +323,9 @@ export const Upcoming_Contest = ({
                     </span>
                   </Link>
                   <Badge
-                    className={`${isContestToday ? "bg-red-500" : ""} flex-shrink-0 text-xs md:text-sm`}
+                    className={`${
+                      isContestToday ? "bg-red-500" : ""
+                    } flex-shrink-0 text-xs md:text-sm`}
                   >
                     {isContestToday
                       ? "Today"
@@ -344,5 +342,5 @@ export const Upcoming_Contest = ({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

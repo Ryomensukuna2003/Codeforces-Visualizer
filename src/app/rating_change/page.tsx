@@ -13,11 +13,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { RatingChange } from "../types";
-import { useStore } from "../../components/Providers/fetchAPI";
-
+import { useStore } from "../../components/Providers/fetchAPI"; // Zustand store
+import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+import NavBar_sm from "@/components/ui/NavBar-sm";
 
 export default function ContestsPage() {
   const [fullRating, setFullRating] = useState<RatingChange[] | null>(null);
@@ -25,17 +25,17 @@ export default function ContestsPage() {
   const [totalContests, setTotalContests] = useState(0);
   const contestsPerPage = 100;
   const { allRating } = useStore() as any;
-
+  const { username } = useUsernameStore() as { username: string };
 
   useEffect(() => {
     fetchAPI();
-  }, [currentPage]);
+  }, [currentPage, username, allRating]);
 
   const fetchAPI = async () => {
     const from = (currentPage - 1) * contestsPerPage + 1;
     try {
       let ratingArr: RatingChange[] = [];
-      allRating.result.forEach((element: RatingChange) => {
+      allRating?.result.forEach((element: RatingChange) => {
         let obj1 = {
           contestName: element.contestName,
           ratingUpdateTimeSeconds: element.ratingUpdateTimeSeconds,
@@ -46,7 +46,9 @@ export default function ContestsPage() {
         };
         ratingArr.push(obj1);
       });
-
+      ratingArr = ratingArr.sort(
+        (a, b) => b.ratingUpdateTimeSeconds - a.ratingUpdateTimeSeconds
+      );
       setFullRating(ratingArr.slice(from - 1, from - 1 + contestsPerPage));
       setTotalContests(ratingArr.length);
     } catch (error) {
@@ -67,16 +69,9 @@ export default function ContestsPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6 ">
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-6 pt-4 flex gap-2 ">
-        <h1 className="text-3xl flex-1 font-bold">Contests</h1>
-        <Link className="mr-3" href="/">
-          <Button className="rounded" variant="outline">
-            Back to Dashboard
-          </Button>
-        </Link>
-        <ModeToggle />
-      </div>
+    <div className="container mx-auto ">
+      <NavBar_sm Title="Contest History" />
+
       <Card>
         <CardHeader className="font-2xl">
           <CardTitle>Contest History [{totalContests}]</CardTitle>

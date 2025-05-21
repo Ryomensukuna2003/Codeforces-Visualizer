@@ -17,8 +17,8 @@ const RecentSubmissions = ({ submissions }: RecentSubmissionsProps) => {
               <li
                 key={submission.id}
                 className="flex flex-col sm:flex-row justify-between items-center 
-                       p-2 bg-muted/50 sm:bg-transparent rounded-md transition-colors 
-                       space-y-1 sm:space-y-0"
+                       p-2 bg-muted/50 sm:bg-transparent transition-colors 
+                       space-y-1 sm:space-y-0 border-l-4 border-primary/20 pl-4 hover:bg-muted/50  rounded"
               >
                 <span className="text-sm md:text-base truncate max-w-full">
                   {submission.problem.name}
@@ -34,10 +34,7 @@ const RecentSubmissions = ({ submissions }: RecentSubmissionsProps) => {
                       ? "ACCEPTED"
                       : submission.verdict}
                   </Badge>
-                  <Badge
-                    variant="outline"
-                    className="text-xs  md:text-sm "
-                  >
+                  <Badge variant="outline" className="text-xs  md:text-sm ">
                     {submission.programmingLanguage}
                   </Badge>
                 </div>
