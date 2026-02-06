@@ -245,6 +245,7 @@ export function CodeforcesVisualizerComponent() {
   return (
     <div className="border-neutral-600 bg-card">
       <NavBar />
+      
 
       <div className=" pt-0">
         {isloading && (
@@ -258,7 +259,7 @@ export function CodeforcesVisualizerComponent() {
           </div>
         )}
         {!isloading && unratedUser && (
-          <div className="flex flex-col items-center justify-center w-screen h-screen">
+          <div className="flex flex-col items-center justify-center w-full min-h-screen">
             <h1 className="text-2xl font-bold text-center text-white">
               User is Unrated
             </h1>
@@ -289,11 +290,11 @@ export function CodeforcesVisualizerComponent() {
             />
 
             {/* Graphs  */}
-            <div className="flex flex-col border-y  border-neutral-600 md:flex-row">
-              <CardContent className="flex-1 p-0 ">
+            <div className="flex flex-col border-y border-neutral-600 md:flex-row">
+              <CardContent className="min-w-0 flex-1 p-0">
                 <ChartLineBar data={barGraphData} />
               </CardContent>
-              <CardContent className="flex-1 p-0">
+              <CardContent className="min-w-0 flex-1 p-0">
                 <ChartLineLinear data={LineGraphData} />
               </CardContent>
             </div>

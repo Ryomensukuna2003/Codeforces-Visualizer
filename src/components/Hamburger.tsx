@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "./ui/toggle";
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, Github, Linkedin } from 'lucide-react';
+import { Menu, X, Github, Mail } from "lucide-react";
 
 
 const Extra = () => {
@@ -48,7 +48,7 @@ const Extra = () => {
         >
           {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
-  
+
         {/* Video Panel */}
         <AnimatePresence>
           {isOpen && (
@@ -73,7 +73,9 @@ const Extra = () => {
                       <div className="h-20 border-l border-neutral-600 flex items-center">
                         <h1 className="text1 text-3xl justify-content-center p-6 border-r border-neutral-600">
                           CF Stats
-                          <span className="span1 w-full justify-center text-center">CF Stats</span>
+                          <span className="span1 w-full justify-center text-center">
+                            CF Stats
+                          </span>
                         </h1>
                       </div>
                     </div>
@@ -83,46 +85,59 @@ const Extra = () => {
                     </div>
                   </div>
                 </nav>
-  
+
                 {/* Content Container */}
                 <div className="mx-[10%] border-x border-neutral-600">
                   <div className="w-full flex-row  md:flex-row justify-center items-center text-center">
-  
                     <div className="flex h-[20vh]">
                       <div className="flex-1 border-r border-neutral-600"></div>
                       <div className="flex-1 border-r border-neutral-600"></div>
                       <div className="flex-1 h-full flex flex-col">
                         <div className="flex-1 border-b border-neutral-600 flex items-center justify-center"></div>
-                        <div className="flex-1 flex items-center justify-center text-3xl">[ {username} ]</div>
+                        <div className="flex-1 flex items-center justify-center text-3xl">
+                          [ {username} ]
+                        </div>
                       </div>
                     </div>
-  
-                    <Link href="/compare" className="w-full text-xl md:w-1/3 md:text-5xl border-b">
+
+                    <Link
+                      href="/compare"
+                      className="w-full text-xl md:w-1/3 md:text-5xl border-b"
+                    >
                       <h1 className=" text1 justify-content-center py-10 border-y  border-neutral-600">
                         Compare ID's
                         <span className="span1">Compare ID's</span>
                       </h1>
                     </Link>
-                    <Link href="/problems" className="w-full text-xl md:w-1/3 md:text-5xl border-b">
+                    <Link
+                      href="/problems"
+                      className="w-full text-xl md:w-1/3 md:text-5xl border-b"
+                    >
                       <h1 className=" text1 justify-content-center py-10 border-b  border-neutral-600">
                         View All Problems
                         <span className="span1">View All Problems</span>
                       </h1>
                     </Link>
-                    <Link href="/rating_change" className="w-full text-xl md:w-1/3 md:text-5xl border-b">
+                    <Link
+                      href="/rating_change"
+                      className="w-full text-xl md:w-1/3 md:text-5xl border-b"
+                    >
                       <h1 className=" text1 py-10 border-b border-neutral-600">
                         Rating Changes
                         <span className="span1">Rating Changes</span>
                       </h1>
                     </Link>
-                    <Link href="/submissions" className="w-full text-xl  md:w-1/3 md:text-5xl">
+                    <Link
+                      href="/submissions"
+                      className="w-full text-xl  md:w-1/3 md:text-5xl"
+                    >
                       <h1 className=" text1 py-10 border-b  border-neutral-600">
                         View All Submissions
                         <span className="span1">View All Submissions</span>
                       </h1>
                     </Link>
                   </div>
-  
+
                   <div className="flex border-b justify-center items-center border-neutral-600">
                     <a
                       href="https://github.com/ryomensukuna2003"
@@ -136,19 +151,17 @@ const Extra = () => {
                       <Github className="ml-4" />
                     </a>
                     <a
-                      href="https://www.linkedin.com/in/shivanshu-/"
-                      target="_blank"
+                      href="mailto:mshivanshu1264@gmail.com?subject=Feedback on CF Stats"
                       rel="noopener noreferrer"
                       className="group flex-1 flex justify-center items-center border-neutral-600 text-3xl p-8 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] font-bold relative
           transition-all duration-100 ease-out overflow-hidden
           hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0_0_hsl(var(--card))]"
                     >
-                      Linkedin
-                      <Linkedin className="ml-4" />
+                      Feedback
+                      <Mail className="ml-4" />
                     </a>
                   </div>
-  
-  
+
                   <div className="flex h-[20vh]">
                     <div className="flex-1 border-r border-neutral-600"></div>
                     <div className="flex-1 border-r border-neutral-600"></div>

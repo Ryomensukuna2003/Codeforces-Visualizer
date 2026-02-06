@@ -75,6 +75,16 @@
     @apply border-border;
   }
 
+  html {
+    /* Hide scrollbar while keeping scroll functionality */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and old Edge */
+  }
+
+  html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+
   body {
     @apply bg-background text-foreground;
   }

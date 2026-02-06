@@ -47,8 +47,8 @@ export default function ChartLineLinear({ data }: { data: Rating[] }) {
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="w-full overflow-x-auto">
-          <LineChart width={656} height={369} data={data}>
+        <ChartContainer config={chartConfig} className="w-full min-w-0 overflow-hidden">
+          <LineChart data={data}>
             <CartesianGrid vertical={false} />
             <YAxis
               className="pl-5"

@@ -5,7 +5,7 @@ import UsernamePopup from "../hooks/username-popup";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import localFont from "next/font/local";
+import { jetBrainsMono } from "./fonts";
 
 export const metadata: Metadata = {
   title: "CF-Stats - A Codeforces statistics visualization tool",
@@ -19,11 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-const local = localFont({
-  src: "/Fonts/JetBrainsMono-Variable.woff2",
-  display: "swap",
-});
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,10 +27,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${local.className} h-full w-screen`}
+      className={`${jetBrainsMono.className} h-full w-full min-w-0`}
       suppressHydrationWarning={true}
     >
-      <body className="h-full w-screen" suppressHydrationWarning={true}>
+      <body className="h-full w-full min-w-0 overflow-x-hidden" suppressHydrationWarning={true}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
