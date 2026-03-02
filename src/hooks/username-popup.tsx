@@ -25,7 +25,7 @@ export default function UsernamePopup() {
 
   return (
     <Dialog open={username === ""}>
-      <DialogContent className="sm:max-w-[425px] text-card-foreground w-full max-w-full mx-2" aria-describedby="username-dialog-description">
+      <DialogContent className="sm:max-w-[425px] text-card-foreground mx-2" aria-describedby="username-dialog-description">
         <DialogHeader>
           <DialogDescription id="username-dialog-description">
             Please enter your username to continue.
