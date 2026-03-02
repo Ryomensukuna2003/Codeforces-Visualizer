@@ -8,6 +8,11 @@
   }
 }
 
+/* Block-shaped caret: plain CSS so it isn't overridden by Tailwind (Safari/WebKit; limited support elsewhere) */
+.username-dialog-input {
+  caret-shape: block;
+}
+
 @layer base {
   :root {
     --id1-color: 0 0% 65%; /* Neutral Gray */

@@ -8,7 +8,7 @@ import { Input } from "./ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog"
 import { UpcomingContest as UpcomingContestType } from "@/types/contests";
 import Link from "next/link"
-import { Bell, Mail, ArrowRight } from "lucide-react"
+import { FileSpreadsheet, Mail, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useStore } from "./Providers/fetchAPI"
 import ContestSheet from "./contest-sheet"
@@ -18,6 +18,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp"
+import { link } from "fs"
 
 interface Contest {
   platform: string;
@@ -56,103 +57,10 @@ export const Upcoming_Contest = ({
   const [contests, setContests] = useState<Contest[]>([]);
   const [fetching, setFetching] = useState(false);
 
-  const generate_OTP = async (email: string) => {
-    if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      return "Invalid email address";
-    }
+  
 
-    try {
-      const response = await fetch("/api/generate_OTP", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
 
-      await response.json();
-
-      if (response.status === 400) {
-        return "Email already registered";
-      }
-      if (response.ok) {
-        setIsOtpSent(true);
-        return "OTP sent successfully";
-      }
-      return "Failed to send OTP";
-    } catch (error) {
-      console.error("OTP Generation error:", error);
-      return "OTP Generation error";
-    }
-  }
-
-  const verify_otp = async (email: string, otp: string) => {
-    if (!otp || otp.length !== 6) {
-      return "Invalid OTP";
-    }
-
-    try {
-      const response = await fetch("/api/verify_OTP", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      if (response.ok) {
-        await fetch("/api/add_subscriber", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        });
-        return "OTP verified successfully";
-      }
-      return "Invalid OTP, please try again";
-    } catch (error) {
-      console.error("Failed to verify OTP:", error);
-      return "Verification failed, please try again";
-    }
-  }
-
-  const handleSendOtp = async () => {
-    const toast_title = await generate_OTP(email);
-    if (toast_title === "Email already registered") {
-      setIsModalOpen(false);
-    }
-    toast({
-      variant: toast_title === "OTP sent successfully" ? "default" : "destructive",
-      title: toast_title,
-      description: toast_title === "OTP sent successfully"
-        ? "Please check your email for the OTP."
-        : "Please try again with a valid email address.",
-    })
-  }
-
-  const handleVerifyOtp = async () => {
-    setFetching(true);
-    try {
-      const toast_title = await verify_otp(email, otp);
-      if (toast_title === "OTP verified successfully") {
-        setIsModalOpen(false);
-        setIsOtpSent(false);
-        setEmail("");
-        setOtp("");
-      }
-      toast({
-        variant: toast_title === "OTP verified successfully" ? "default" : "destructive",
-        title: toast_title,
-        description: toast_title === "OTP verified successfully"
-          ? "You will now receive notifications for upcoming contests."
-          : "Please try again with the correct OTP.",
-      });
-    } finally {
-      setFetching(false);
-    }
-  }
-
+  
   const parseContestData = () => {
     if (!UpcomingContestData?.objects) return;
 
@@ -202,105 +110,19 @@ export const Upcoming_Contest = ({
       <CardHeader>
         <CardTitle>Upcoming Contests</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row flex-wrap">
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto flex-1"
-        >
-          <Bell className="h-4 w-4" />
-          Get notified for Upcoming contest
-        </Button>
-
-        <ContestSheet contests={contests} />
-      </CardContent>
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] w-full max-w-full mx-2">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center">
-              <Bell className="h-6 w-6 text-primary" />
-              Get Notified
-            </DialogTitle>
-          </DialogHeader>
-
-          <AnimatePresence mode="wait">
-            {!isOtpSent ? (
-              <motion.div
-                key="email"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="grid gap-4 py-4">
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <div className="flex-1 relative w-full">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-12 rounded w-full"
-                        placeholder="your@email.com"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="otp"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="grid gap-4 py-4">
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <InputOTP
-                      maxLength={6}
-                      value={otp}
-                      onChange={(value) => setOtp(value)}
-                      className="pl-12"
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                      </InputOTPGroup>
-                      <InputOTPSeparator />
-                      <InputOTPGroup>
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <DialogFooter className="flex items-center justify-center">
-            <Button
-              onClick={!isOtpSent ? handleSendOtp : handleVerifyOtp}
-              className="w-full sm:w-auto rounded"
-              disabled={
-                fetching ||
-                (!isOtpSent && !email) ||
-                (isOtpSent && otp.length !== 6)
-              }
-            >
-              {!isOtpSent
-                ? "Send OTP"
-                : fetching
-                ? "Verifying..."
-                : "Verify OTP"}
-              <ArrowRight className="ml-2 h-4 w-4" />
+      <CardContent className="flex flex-col sm:flex-row  w-full px-0">
+        <div className="flex-1 w-full">
+          <Link href="/blogs" className="block w-full">
+            <Button className="w-full h-full flex items-center justify-center">
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Codeforces Blogs
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </Link>
+        </div>
+        <div className="flex-1 w-full">
+          <ContestSheet contests={contests} />
+        </div>
+      </CardContent>
 
       <CardContent>
         {contests.length > 0 ? (
