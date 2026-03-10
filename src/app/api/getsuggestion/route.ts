@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Allow up to 60s for Gemini to respond (Vercel Pro; Hobby plan is capped at 10s)
+export const maxDuration = 60;
+
 const API_KEY = process.env.GEMINI_API_KEY;
 const MODEL_NAME = "gemini-flash-latest";
 
