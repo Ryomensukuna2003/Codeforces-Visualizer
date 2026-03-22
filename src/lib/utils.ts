@@ -60,14 +60,14 @@ export const processRatings = (
 export const processBarGraphData = (
   barGraphData: any,
   setAverageAcceptedProblemRating: Function,
-  totalAcceptedProblems: number
+  _totalAcceptedProblems: number
 ) => {
-  barGraphData?.forEach((element: { rating: number }) => {
-    setAverageAcceptedProblemRating((prev: number) => prev + element.rating);
-  });
-  setAverageAcceptedProblemRating(
-    (prev: number) => prev / totalAcceptedProblems
-  );
+  if (!barGraphData?.length) return;
+  let sum = 0;
+  for (const element of barGraphData) {
+    sum += element.rating ?? 0;
+  }
+  setAverageAcceptedProblemRating(Math.round(sum / barGraphData.length));
 };
 
 export const processSubmissions = (

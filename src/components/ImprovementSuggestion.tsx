@@ -97,11 +97,11 @@ export function ImprovementSuggestion({
               )}
             </Button>
           )}
-        {!suggestion && !isLoading && (
-          <div className="absolute  right-6 bottom-0 z-10">
-            <SleepingCat />
-          </div>
-        )}
+          {!suggestion && !isLoading && (
+            <div className="absolute right-10 -bottom-1 z-10">
+              <SleepingCat />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -46,6 +46,7 @@ import {
   processSingleHeatMapData,
 } from "../lib/utils";
 import { CompetitiveProgrammingQuotes } from "./CP-Quotes";
+import { StandRadarChart } from "./StandRadarChart";
 
 ChartJS.register(
   CategoryScale,
@@ -287,6 +288,16 @@ export function CodeforcesVisualizerComponent() {
             <ImprovementSuggestion
               userData={userData}
               problemStats={problemStats}
+            />
+
+            <StandRadarChart
+              submissions={allSubmissionsData?.result ?? []}
+              tagStatistics={TagStatistics}
+              contestsParticipated={contestsParticipated}
+              averageAcceptedProblemRating={averageAcceptedProblemRating}
+              userRating={userData.rating}
+              registrationTimeSeconds={userData.registrationTimeSeconds}
+              ratingHistory={LineGraphData}
             />
 
             {/* Graphs  */}
