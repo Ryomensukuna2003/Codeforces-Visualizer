@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -21,7 +21,7 @@ import { ProblemRatingDistribution } from "@/types/problems";
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Problems",
     color: "hsl(var(--foreground))",
   },
 } satisfies ChartConfig;
@@ -31,50 +31,61 @@ interface ChartLineBarProps {
 }
 
 export function ChartLineBar({ data }: ChartLineBarProps) {
-
-  const max_Submissions= data.reduce((max, p) => p.count > max ? p.count : max, data[0]?.count);
+  const max_Submissions = data.reduce(
+    (max, p) => (p.count > max ? p.count : max),
+    data[0]?.count
+  );
 
   return (
     <Card className="border-none">
       <CardHeader>
         <CardTitle>Problems Rating</CardTitle>
-        <CardDescription>Rating of various problems.</CardDescription>
+        <CardDescription>Rating distribution of solved problems.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart
+          <AreaChart
             data={data}
             margin={{
               top: 20,
             }}
           >
+            <defs>
+              <linearGradient id="fillProblems" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="hsl(var(--foreground))"
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(var(--foreground))"
+                  stopOpacity={0.0}
+                />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="rating" // Corrected to use "rating"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-              />
-              <YAxis domain={[0, Math.ceil(max_Submissions / 50) * 50]} />
-              <ChartTooltip
-                cursor={true}
-                content={<ChartTooltipContent  />}
-                
-              />
-            <Bar dataKey="count" type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={1}
-              stroke="var(--color-desktop)"   radius={8}>
-              <LabelList
-                dataKey="count" // Displaying the count values
-                position="top"
-                offset={20}
-                className="p-5 border border-red border-5px"
-                fontSize={12}
-                angle={0} // Removed the angle to show count clearly
-              />
-            </Bar>
-          </BarChart>
+              dataKey="rating"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+            />
+            <YAxis domain={[0, Math.ceil(max_Submissions / 50) * 50]} />
+            <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
+            <Area
+              dataKey="count"
+              type="monotone"
+              fill="url(#fillProblems)"
+              stroke="var(--color-desktop)"
+              strokeWidth={1}
+              dot={false}
+              activeDot={{
+                r: 4,
+                fill: "var(--color-desktop)",
+              }}
+            />
+          </AreaChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">

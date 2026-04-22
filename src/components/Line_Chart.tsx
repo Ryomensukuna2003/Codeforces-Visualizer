@@ -1,6 +1,6 @@
 "use client"
 import { TrendingUp } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import {
   Card,
   CardContent,
@@ -34,7 +34,7 @@ export default function ChartLineLinear({ data }: { data: Rating[] }) {
     <Card className="border-0 border-l">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle>Line Chart - Linear</CardTitle>
+          <CardTitle>Rating Over Time</CardTitle>
           <CardDescription>Rating Changes Over Contests</CardDescription>
         </div>
         <div className="relative z-30 flex flex-col justify-center gap-1 border-t  px-6 py-4 text-left bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
@@ -48,7 +48,21 @@ export default function ChartLineLinear({ data }: { data: Rating[] }) {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="w-full min-w-0 overflow-hidden">
-          <LineChart data={data}>
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="fillRating" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="hsl(var(--foreground))"
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(var(--foreground))"
+                  stopOpacity={0.0}
+                />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} />
             <YAxis
               className="pl-5"
@@ -67,19 +81,19 @@ export default function ChartLineLinear({ data }: { data: Rating[] }) {
               }}
             />
             <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
-            <Line
+            <Area
               dataKey="rating"
               type="linear"
+              fill="url(#fillRating)"
               stroke="var(--color-desktop)"
-              strokeWidth={2}
-              dot={{
+              strokeWidth={1}
+              dot={false}
+              activeDot={{
+                r: 4,
                 fill: "var(--color-desktop)",
               }}
-              activeDot={{
-                r: 6,
-              }}
             />
-          </LineChart>
+          </AreaChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">

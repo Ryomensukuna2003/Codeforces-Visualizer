@@ -2,25 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
-import { Checkbox } from "@/components/ui/checkbox";
-import { ModeToggle } from "../../components/ui/toggle";
-import { ChevronUp, ChevronDown } from "lucide-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Problem, ProblemStatistics, CombinedData } from '../types'
-import NavBar_sm from "@/components/ui/NavBar-sm";
+import { useUsernameStore } from "@/components/Providers/contextProvider";
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Problem, ProblemStatistics, CombinedData } from "../types";
+import { NavBar } from "@/components/ui/NavBar";
 
 export default function ProblemsPage() {
   const [problems, setProblems] = useState<CombinedData[]>([]);
@@ -58,7 +43,6 @@ export default function ProblemsPage() {
               stat.contestId === problem.contestId &&
               stat.index === problem.index
           );
-
           if (stats) {
             combinedArray.push({
               contestId: problem.contestId,
@@ -72,8 +56,8 @@ export default function ProblemsPage() {
           }
         });
         setProblems(combinedArray);
-        const filtered = data.result.problems.filter(
-          (problem: Problem) =>
+        const filtered = combinedArray.filter(
+          (problem) =>
             problem.rating >= initialRating && problem.rating <= endingFilter
         );
         setFilteredProblems(filtered);
@@ -81,7 +65,7 @@ export default function ProblemsPage() {
       } else {
         throw new Error("Failed to fetch problems");
       }
-    } catch (err) {
+    } catch {
       setError(
         "An error occurred while fetching problems. Please try again later."
       );
@@ -90,10 +74,9 @@ export default function ProblemsPage() {
     }
   };
 
-  const updateDisplayedProblems = (problems: Problem[], page: number) => {
+  const updateDisplayedProblems = (problems: CombinedData[], page: number) => {
     const from = (page - 1) * contestsPerPage;
-    const to = from + contestsPerPage;
-    setDisplayedProblems(problems.slice(from, to));
+    setDisplayedProblems(problems.slice(from, from + contestsPerPage) as any);
   };
 
   useEffect(() => {
@@ -122,130 +105,154 @@ export default function ProblemsPage() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     updateDisplayedProblems(sorted, currentPage);
   };
+
   const totalPages = Math.ceil(filteredProblems.length / contestsPerPage);
 
-  const goToNextPage = () => {
-    setCurrentPage((page) => Math.min(page + 1, totalPages));
-  };
-
-  const goToPreviousPage = () => {
-    setCurrentPage((page) => Math.max(page - 1, 1));
-  };
-
   return (
-    <div className="container mx-auto">
-      <NavBar_sm Title="Problems" />
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex justify-between items-center">
-            <span>Problem List</span>
-            <div className="flex items-center space-x-2">
-              <Input
-                type="text"
-                placeholder="Filter by rating"
-                value={initialRating}
-                onChange={(e) => setInitialFilter(Number(e.target.value))}
-                className="w-40"
-              />
-              <p className="text-base"> to </p>
-              <Input
-                type="text"
-                placeholder="Filter by rating"
-                value={endingFilter}
-                onChange={(e) => setEndingFilter(Number(e.target.value))}
-                className="w-40"
-              />
-              <Button onClick={filterQuestions}>Filter</Button>
-              <Button onClick={handleSort}>
-                Sort by Difficulty{" "}
-                {sortOrder === "asc" ? (
-                  <ChevronUp className="ml-2 h-4 w-4" />
-                ) : (
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center">Loading problems...</div>
-          ) : error ? (
-            <div className="text-center text-red-500">{error}</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="pl-5">Name</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Tags</TableHead>
-                  <TableHead>Solved</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayedProblems.map((problem) => (
-                  <TableRow
-                    key={`${problem.contestId}${problem.index}`}
-                    className={
-                      Attempted.includes(`${problem.name}|${problem.rating}`)
-                        ? "bg-secondary "
-                        : ""
-                    }
-                  >
-                    <TableCell className="pl-5">
-                      <Link
-                        href={`https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:underline"
-                      >
-                        {problem.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{problem.rating || "Unrated"}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {problem.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">
+    <div className="min-h-screen bg-background">
+      <NavBar />
+
+      {/* Header -- full width with filters */}
+      <div className="w-full border-b border-neutral-600">
+        <div className="flex items-center h-14 px-6">
+          <span className="font-mono text-lg text-foreground mr-auto">
+            Problem List
+          </span>
+          <div className="flex items-center gap-0">
+            <input
+              type="number"
+              value={initialRating}
+              onChange={(e) => setInitialFilter(Number(e.target.value))}
+              className="h-14 w-20 bg-transparent border-l border-neutral-600 px-3 font-mono text-sm text-foreground focus:outline-none text-center"
+            />
+            <span className="font-mono text-xs text-muted-foreground px-2">to</span>
+            <input
+              type="number"
+              value={endingFilter}
+              onChange={(e) => setEndingFilter(Number(e.target.value))}
+              className="h-14 w-20 bg-transparent border-l border-neutral-600 px-3 font-mono text-sm text-foreground focus:outline-none text-center"
+            />
+            <button
+              onClick={filterQuestions}
+              className="h-14 px-5 border-l border-neutral-600 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors"
+            >
+              Filter
+            </button>
+            <button
+              onClick={handleSort}
+              className="h-14 px-5 border-l border-neutral-600 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors flex items-center gap-1"
+            >
+              Sort by Difficulty
+              {sortOrder === "asc" ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="mx-[10%] border-x border-neutral-600">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20 font-mono text-muted-foreground">
+            Loading problems...
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-20 font-mono text-red-500">
+            {error}
+          </div>
+        ) : (
+          <>
+            {displayedProblems.map((problem: any) => {
+              const isSolved = Attempted.includes(
+                `${problem.name}|${problem.rating}`
+              );
+              return (
+                <Link
+                  key={`${problem.contestId}${problem.index}`}
+                  href={`https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group flex items-stretch border-b border-neutral-600 hover:bg-secondary/30 transition-colors ${
+                    isSolved ? "bg-secondary/20" : ""
+                  }`}
+                >
+                  {/* Solved indicator */}
+                  <div className="shrink-0 w-14 border-r border-neutral-600 flex items-center justify-center font-mono text-sm">
+                    {isSolved ? (
+                      <span className="text-foreground">[*]</span>
+                    ) : (
+                      <span className="text-muted-foreground/30">[ ]</span>
+                    )}
+                  </div>
+
+                  {/* Problem info */}
+                  <div className="flex-1 px-6 py-4">
+                    <div className="text-sm text-foreground group-hover:underline">
+                      {problem.index}. {problem.name}
+                    </div>
+                    {problem.tags && problem.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {problem.tags.map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="text-[10px] px-2 py-0.5 border border-neutral-700 text-muted-foreground font-mono"
+                          >
                             {tag}
-                          </Badge>
+                          </span>
                         ))}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Checkbox
-                        checked={Attempted.includes(
-                          `${problem.name}|${problem.rating}`
-                        )}
-                        // onCheckedChange={field.onChange}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          <div className="flex justify-between items-center mt-4">
-            <Button
-              onClick={goToPreviousPage}
+                    )}
+                  </div>
+
+                  {/* Rating */}
+                  <div className="shrink-0 w-24 border-l border-neutral-600 flex items-center justify-center font-mono text-sm text-foreground">
+                    {problem.rating || "—"}
+                  </div>
+
+                  {/* Solved count */}
+                  <div className="shrink-0 w-24 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+                    {problem.solvedCount ? `×${problem.solvedCount}` : "—"}
+                  </div>
+                </Link>
+              );
+            })}
+          </>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex border-b border-neutral-600">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
-              variant="outline"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors disabled:opacity-30 disabled:hover:bg-transparent border-r border-neutral-600"
             >
-              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-            </Button>
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              onClick={goToNextPage}
+              <ChevronLeft className="h-4 w-4" /> Previous
+            </button>
+            <div className="flex items-center justify-center px-8 py-4 font-mono text-sm text-muted-foreground">
+              {currentPage} / {totalPages}
+            </div>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
-              variant="outline"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors disabled:opacity-30 disabled:hover:bg-transparent border-l border-neutral-600"
             >
-              Next <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
+              Next <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        )}
+
+        {/* Bottom spacer */}
+        <div className="flex h-[15vh]">
+          <div className="shrink-0 w-14 border-r border-neutral-600"></div>
+          <div className="flex-1"></div>
+          <div className="shrink-0 w-24 border-l border-neutral-600"></div>
+          <div className="shrink-0 w-24 border-l border-neutral-600"></div>
+        </div>
+      </div>
     </div>
   );
 }

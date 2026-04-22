@@ -204,7 +204,7 @@ export function CodeforcesVisualizerComponent() {
       setBarGraphData(ratingFreq);
       setLineGraphData(ratingArr);
       setUserInfo(userInfoData.result[0]);
-      setSubmissions(allSubmissionsData.result.slice(0, 10));
+      setSubmissions(allSubmissionsData.result.slice(0, 20));
       setquestions(allSubmissionsData.result.length);
       setUpcomingContests(upcomingContests);
       setisloading(false);
@@ -271,33 +271,21 @@ export function CodeforcesVisualizerComponent() {
         )}
         {!isloading && !unratedUser && (
           <>
-            <div className="relative">
-              <div className="flex flex-col border-b border-neutral-600 md:flex-row">
-                <CardContent className="flex-1 p-0 border-r border-neutral-600">
-                  <CodeforcesUserCard
-                    userInfo={userData}
-                    problemStats={problemStats}
-                  />
-                </CardContent>
-                <CardContent className="flex-1 p-0 ">
-                  <Upcoming_Contest upcomingContest={upcomingContests || []} />
-                </CardContent>
+            <div className="flex flex-col md:flex-row">
+              <div className="flex-1 md:border-r border-neutral-600">
+                <CodeforcesUserCard
+                  userInfo={userData}
+                  problemStats={problemStats}
+                />
+              </div>
+              <div className="flex-1">
+                <Upcoming_Contest upcomingContest={upcomingContests || []} />
               </div>
             </div>
 
             <ImprovementSuggestion
               userData={userData}
               problemStats={problemStats}
-            />
-
-            <StandRadarChart
-              submissions={allSubmissionsData?.result ?? []}
-              tagStatistics={TagStatistics}
-              contestsParticipated={contestsParticipated}
-              averageAcceptedProblemRating={averageAcceptedProblemRating}
-              userRating={userData.rating}
-              registrationTimeSeconds={userData.registrationTimeSeconds}
-              ratingHistory={LineGraphData}
             />
 
             {/* Graphs  */}
@@ -309,6 +297,16 @@ export function CodeforcesVisualizerComponent() {
                 <ChartLineLinear data={LineGraphData} />
               </CardContent>
             </div>
+
+            <StandRadarChart
+              submissions={allSubmissionsData?.result ?? []}
+              tagStatistics={TagStatistics}
+              contestsParticipated={contestsParticipated}
+              averageAcceptedProblemRating={averageAcceptedProblemRating}
+              userRating={userData.rating}
+              registrationTimeSeconds={userData.registrationTimeSeconds}
+              ratingHistory={LineGraphData}
+            />
 
             <HeatMapGraph data={HeatMap} />
 

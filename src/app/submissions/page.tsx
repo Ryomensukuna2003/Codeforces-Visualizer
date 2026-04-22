@@ -1,136 +1,151 @@
 "use client";
+
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useUsernameStore } from "@/components/Providers/contextProvider";
 import { useStore } from "@/components/Providers/fetchAPI";
-
-import { ModeToggle } from "../../components/ui/toggle";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { SubmissionsType } from "@/types/problems";
-import NavBar_sm from "@/components/ui/NavBar-sm";
+import { NavBar } from "@/components/ui/NavBar";
 
 export default function SubmissionsPage() {
-  const { username } = useUsernameStore() as {
-    username: string;
-  };
+  const { username } = useUsernameStore() as { username: string };
   const { allSubmissionsData } = useStore() as any;
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 100;
 
-  // Get the current page's submissions
   const getCurrentPageSubmissions = () => {
-    if (
-      !allSubmissionsData ||
-      !allSubmissionsData.result ||
-      !Array.isArray(allSubmissionsData.result)
-    ) {
+    if (!allSubmissionsData?.result || !Array.isArray(allSubmissionsData.result)) {
       return [];
     }
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return allSubmissionsData.result.slice(startIndex, endIndex);
+    const start = (currentPage - 1) * itemsPerPage;
+    return allSubmissionsData.result.slice(start, start + itemsPerPage);
   };
 
   const submissions = getCurrentPageSubmissions();
   const totalSubmissions = allSubmissionsData?.result?.length || 0;
-  const finalPage =
-    !allSubmissionsData || currentPage * itemsPerPage >= totalSubmissions;
+  const totalPages = Math.ceil(totalSubmissions / itemsPerPage);
+  const finalPage = !allSubmissionsData || currentPage >= totalPages;
 
-  const goToNextPage = () => {
-    setCurrentPage(currentPage + 1);
-  };
-
-  const goToPreviousPage = () => {
-    setCurrentPage(currentPage - 1);
-  };
+  function verdictShort(verdict: string): string {
+    if (verdict === "OK") return "AC";
+    const map: Record<string, string> = {
+      WRONG_ANSWER: "WA",
+      TIME_LIMIT_EXCEEDED: "TLE",
+      MEMORY_LIMIT_EXCEEDED: "MLE",
+      RUNTIME_ERROR: "RE",
+      COMPILATION_ERROR: "CE",
+      CHALLENGED: "HACK",
+      SKIPPED: "SKIP",
+    };
+    return map[verdict] || verdict;
+  }
 
   return (
-    <div className="container mx-auto">
-      <NavBar_sm Title="Submissions" />
-      <Card>
-        <CardHeader className="font-2xl">
-          <CardTitle>Recent Submissions </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="text-xl">
-                <TableHead>Problem</TableHead>
-                <TableHead>Verdict</TableHead>
-                <TableHead>Language</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Memory</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {submissions.map((submission: any) => (
-                <TableRow key={submission.id}>
-                  <TableCell>
-                    <Link
-                      href={`https://codeforces.com/contest/${submission.problem.contestId}/submission/${submission.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {submission.problem.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className="py-1"
-                      variant={
-                        submission.verdict === "OK" ? "default" : "destructive"
-                      }
-                    >
-                      {submission.verdict === "OK"
-                        ? "ACCEPTED"
-                        : submission.verdict}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{submission.programmingLanguage}</TableCell>
-                  <TableCell>
-                    {submission.timeConsumedMillis || "—"} ms
-                  </TableCell>
-                  <TableCell>
-                    {submission.memoryConsumedBytes
-                      ? (submission.memoryConsumedBytes / 1024).toFixed(2) +
-                        " KB"
-                      : "—"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="flex justify-between items-center mt-4">
-            <Button
-              onClick={goToPreviousPage}
+    <div className="min-h-screen bg-background">
+      <NavBar />
+
+      {/* Header */}
+      <div className="w-full border-b border-neutral-600">
+        <div className="flex items-center justify-between px-6 h-14">
+          <span className="font-mono text-lg text-foreground">
+            All Submissions
+          </span>
+          <span className="font-mono text-sm text-muted-foreground">
+            [{totalSubmissions}]
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="mx-[10%] border-x border-neutral-600">
+        {submissions.map((sub: any) => {
+          const isAC = sub.verdict === "OK";
+          return (
+            <Link
+              key={sub.id}
+              href={`https://codeforces.com/contest/${sub.problem.contestId}/submission/${sub.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-stretch border-b border-neutral-600 hover:bg-secondary/30 transition-colors"
+            >
+              {/* Verdict indicator */}
+              <div className="shrink-0 w-16 border-r border-neutral-600 flex items-center justify-center">
+                <span
+                  className={`font-mono text-xs font-bold ${
+                    isAC ? "text-foreground" : "text-red-500"
+                  }`}
+                >
+                  {verdictShort(sub.verdict)}
+                </span>
+              </div>
+
+              {/* Problem info */}
+              <div className="flex-1 px-6 py-4">
+                <div className="text-sm text-foreground group-hover:underline">
+                  {sub.problem.index}. {sub.problem.name}
+                </div>
+                <div className="text-xs text-muted-foreground font-mono mt-1">
+                  {sub.problem.rating ? `Rating ${sub.problem.rating}` : "Unrated"}
+                  {sub.problem.tags?.length > 0 && (
+                    <span className="ml-3 text-muted-foreground/50">
+                      {sub.problem.tags.join(", ")}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Language */}
+              <div className="shrink-0 w-48 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+                {sub.programmingLanguage}
+              </div>
+
+              {/* Time */}
+              <div className="shrink-0 w-20 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+                {sub.timeConsumedMillis || "—"}ms
+              </div>
+
+              {/* Memory */}
+              <div className="shrink-0 w-24 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+                {sub.memoryConsumedBytes
+                  ? Math.round(sub.memoryConsumedBytes / 1024) + "KB"
+                  : "—"}
+              </div>
+            </Link>
+          );
+        })}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex border-b border-neutral-600">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
-              variant="outline"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors disabled:opacity-30 disabled:hover:bg-transparent border-r border-neutral-600"
             >
-              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-            </Button>
-            <span>Page {currentPage}</span>
-            <Button
-              onClick={goToNextPage}
+              <ChevronLeft className="h-4 w-4" /> Previous
+            </button>
+            <div className="flex items-center justify-center px-8 py-4 font-mono text-sm text-muted-foreground">
+              {currentPage} / {totalPages}
+            </div>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={finalPage}
-              variant="outline"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors disabled:opacity-30 disabled:hover:bg-transparent border-l border-neutral-600"
             >
-              Next <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
+              Next <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        )}
+
+        {/* Bottom spacer */}
+        <div className="flex h-[15vh]">
+          <div className="shrink-0 w-16 border-r border-neutral-600"></div>
+          <div className="flex-1"></div>
+          <div className="shrink-0 w-48 border-l border-neutral-600"></div>
+          <div className="shrink-0 w-20 border-l border-neutral-600"></div>
+          <div className="shrink-0 w-24 border-l border-neutral-600"></div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -53,7 +53,7 @@ export function SubmissionLineChart({ data, id1, id2 }: SubmissionLineChartProps
                   stroke="hsl(var(--id2-color))"
                 />
               );
-            }} dataKey={id1} strokeWidth={2} stroke={chartConfig.id1.color} name={`${chartConfig.id1.label} `} />
+            }} dataKey={id1} strokeWidth={1} stroke={chartConfig.id1.color} name={`${chartConfig.id1.label} `} />
           <Line
             dot={false}
             activeDot={(props: any) => {
@@ -73,7 +73,7 @@ export function SubmissionLineChart({ data, id1, id2 }: SubmissionLineChartProps
             }}
             type="monotone"
             dataKey={id2}
-            strokeWidth={2}
+            strokeWidth={1}
             stroke={chartConfig.id2.color}
             name={`${chartConfig.id2.label}`}
           />

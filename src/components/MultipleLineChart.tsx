@@ -88,7 +88,7 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
               type="monotone"
 
               stroke="hsl(var(--id1-color))"
-              strokeWidth={2}
+              strokeWidth={1}
               dot={false}
               activeDot={(props: any) => {
                 const { cx, cy, payload } = props;
@@ -111,7 +111,7 @@ export function MultipleLineChart({ user1, user2, chartData }: MultipleLineChart
 
               type="monotone"
               stroke="hsl(var(--id2-color))"
-              strokeWidth={2}
+              strokeWidth={1}
               dot={false}
               activeDot={(props: any) => {
                 const { cx, cy, payload } = props;

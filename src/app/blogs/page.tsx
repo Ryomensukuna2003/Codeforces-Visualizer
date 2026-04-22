@@ -1,22 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useStore } from "../../components/Providers/fetchAPI";
-import NavBar_sm from "@/components/ui/NavBar-sm";
-import axios from "axios";
+import { NavBar } from "@/components/ui/NavBar";
 
 type RecentAction = {
   timeSeconds: number;
@@ -58,67 +45,83 @@ export default function BlogsPage() {
       : [];
 
   return (
-    <div className="container mx-auto ">
-      <NavBar_sm Title="Codeforces Blogs & Tutorials" />
+    <div className="min-h-screen bg-background">
+      <NavBar />
 
-      <Card>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="text-xl ">
-                <TableHead className="py-4">Title</TableHead>
-                <TableHead className="py-4">Author</TableHead>
-                <TableHead className="py-4">Date</TableHead>
-                <TableHead className="py-4">Upvotes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {blogs.map((action) => {
-                const entry = action.blogEntry;
-                if (!entry) return null;
-                const key = `${action.timeSeconds}-${entry.id}-${action.comment?.id ?? "e"}`;
-                return (
-                  <TableRow key={key}>
-                    <TableCell>
-                      <Link
-                        href={`https://codeforces.com/blog/entry/${entry.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        {stripHtml(entry.title) || `Blog #${entry.id}`}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{entry.authorHandle}</TableCell>
-                    <TableCell>{formatDate(action.timeSeconds)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className="py-1"
-                        variant={entry.rating >= 0 ? "secondary" : "destructive"}
-                      >
-                        {entry.rating >= 0 ? "+" : ""}
-                        {entry.rating}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          {
-            blogs.length === 0 && (
-              <div className="flex flex-col items-center justify-center my-4">
-                Try Entering a username or Codeforces API is down not sure.
-              </div>
-            )
-          }
-          {
-            blogs.length > 0 && (
-              <div className="text-center mt-4">
-                Codeforces set a limit of 100 blogs, so can't do much about it.
-              </div>
-            )
-          }
-        </CardContent>
-      </Card>
+      {/* Header */}
+      <div className="w-full border-b border-neutral-600">
+        <div className="flex items-center justify-between px-6 h-14">
+          <span className="font-mono text-lg text-foreground">
+            Codeforces Blogs & Tutorials
+          </span>
+          <span className="font-mono text-sm text-muted-foreground">
+            [{blogs.length}]
+          </span>
+        </div>
+      </div>
+
+      {/* Column labels */}
+      <div className="mx-[10%] border-x border-neutral-600">
+        <div className="flex items-stretch h-10 border-b border-neutral-600">
+          <div className="flex-1 px-6 flex items-center font-mono text-xs text-muted-foreground">
+            Title
+          </div>
+          <div className="shrink-0 w-40 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+            Author
+          </div>
+          <div className="shrink-0 w-32 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+            Date
+          </div>
+          <div className="shrink-0 w-20 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+            Votes
+          </div>
+        </div>
+
+        {/* Rows */}
+        {blogs.length > 0 ? (
+          blogs.map((action) => {
+            const entry = action.blogEntry;
+            if (!entry) return null;
+            const key = `${action.timeSeconds}-${entry.id}-${action.comment?.id ?? "e"}`;
+            return (
+              <Link
+                key={key}
+                href={`https://codeforces.com/blog/entry/${entry.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-stretch border-b border-neutral-600 hover:bg-secondary/30 transition-colors"
+              >
+                <div className="flex-1 px-6 py-3 font-mono text-sm text-foreground truncate group-hover:underline">
+                  {stripHtml(entry.title) || `Blog #${entry.id}`}
+                </div>
+                <div className="shrink-0 w-40 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+                  {entry.authorHandle}
+                </div>
+                <div className="shrink-0 w-32 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
+                  {formatDate(action.timeSeconds)}
+                </div>
+                <div className="shrink-0 w-20 border-l border-neutral-600 flex items-center justify-center font-mono text-xs">
+                  <span className={entry.rating >= 0 ? "text-foreground" : "text-red-500"}>
+                    {entry.rating >= 0 ? "+" : ""}{entry.rating}
+                  </span>
+                </div>
+              </Link>
+            );
+          })
+        ) : (
+          <div className="flex items-center justify-center py-8 border-b border-neutral-600 text-muted-foreground font-mono text-sm">
+            Try entering a username or Codeforces API is down.
+          </div>
+        )}
+
+        {/* Bottom spacer */}
+        <div className="flex h-[15vh]">
+          <div className="flex-1"></div>
+          <div className="shrink-0 w-40 border-l border-neutral-600"></div>
+          <div className="shrink-0 w-32 border-l border-neutral-600"></div>
+          <div className="shrink-0 w-20 border-l border-neutral-600"></div>
+        </div>
+      </div>
     </div>
   );
 }

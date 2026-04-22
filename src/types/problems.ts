@@ -61,6 +61,8 @@ export interface Submissions {
   };
   verdict: string;
   programmingLanguage: string;
+  creationTimeSeconds?: number;
+  relativeTimeSeconds?: number;
 }
 
 /**

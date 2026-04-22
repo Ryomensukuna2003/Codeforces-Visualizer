@@ -88,7 +88,7 @@ function SegmentedStatBar({
           <div
             key={i}
             className={cn(
-              "h-full min-w-0 flex-1 rounded-full",
+              "h-full min-w-0 flex-1",
               i < filled ? "bg-foreground" : "bg-muted"
             )}
           />

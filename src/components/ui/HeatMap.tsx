@@ -177,7 +177,7 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
               dataKey="desktop"
               type="monotone"
               stroke={chartConfig.submissions.color}
-              strokeWidth={2}
+              strokeWidth={1}
               dot={false}
             />
           </LineChart>
