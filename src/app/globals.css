@@ -2,12 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
 /* Block-shaped caret: plain CSS so it isn't overridden by Tailwind (Safari/WebKit; limited support elsewhere) */
 .username-dialog-input {
   caret-shape: block;
@@ -15,13 +9,12 @@
 
 @layer base {
   :root {
-    --id1-color: 0 0% 65%; /* Neutral Gray */
-    --id2-color: 0 0% 0%;  /* Black */
-    --background: 0 0% 100%;
+    /* Not pure white: `card` is the panel and `background` the ground behind
+       it, the same relationship dark mode has. When both were 100% every
+       `bg-background` lift in a `bg-card` panel painted white on white. */
+    --background: 0 0% 98.5%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
-    --popup: 240 10% 3.9%;
-    --white: 255 100% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
@@ -38,21 +31,44 @@
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
-    --card-border: 222.2 84% 4.9%;
-    --text-color-light: hsl(var(--foreground));
-    --background-color-light: hsl(var(--background));
-    --text-color-dark: hsl(var(--foreground));
-    --background-color-dark: hsl(var(--background));
+    /* Radius is 0 everywhere. Keeping the token means any shadcn primitive that
+       still ships a `rounded-lg/md/sm` renders square instead of fighting it. */
+    --radius: 0rem;
+
+    /* Text ramp, three tiers: --foreground / --muted-foreground / --faint.
+       The old build spent six greys on text, two of which sat at 2.0–2.7:1
+       and carried every label on the page. Nothing fainter than this is text. */
+    --faint: 0 0% 45%;
+
+    /* Dossier surfaces — table headers, hairlines, meter tracks, field borders.
+       `--rule` divides sections, `--hair` divides rows. Nothing else draws a line. */
+    --inset: 0 0% 97.5%;
+    --rule: 0 0% 78%;
+    --hair: 0 0% 90%;
+    --track: 0 0% 92.5%;
+    --rowhover: 0 0% 96%;
+    --field: 0 0% 80%;
+    --chip: 0 0% 84%;
+
+    /* Dossier failure flags — red is reserved for failure and urgency */
+    --flag-bg: 0 100% 98%;
+    --flag-wash: 0 100% 97%;
+    --flag-rule: 0 57% 85%;
+    --flag-fg: 0 45% 45%;
+
+    /* Rank / difficulty ramp — luminance steps, never hue.
+       1 newbie · 2 pupil · 3 specialist · 4 expert+. Chart band fills are the
+       same ramp expressed as foreground opacity (see BAND_OPACITY in dossier.ts). */
+    --tier-1: 0 0% 64%;
+    --tier-2: 0 0% 45%;
+    --tier-3: 0 0% 25%;
+    --tier-4: 0 0% 3.9%;
   }
 
   .dark {
-    --id1-color: 0 0% 85%; /* Light Neutral Gray for better contrast */
-    --id2-color: 0 0% 35%; /* Near Black */
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 0%;
-    --popup: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
@@ -69,9 +85,30 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
-    --card-border: 210 40% 98%;
-    --text-color-dark: hsl(var(--foreground));
-    --background-color-dark: hsl(var(--background));
+
+    /* Text ramp on #000 — foreground 20.1:1 · muted 8.3:1 · faint 6.0:1 */
+    --faint: 0 0% 54%;
+
+    /* Dossier surfaces — #080808 #525252 #1a1a1a #131313 #0f0f0f #333333 #2b2b2b */
+    --inset: 0 0% 3.1%;
+    --rule: 0 0% 32%;
+    --hair: 0 0% 10.2%;
+    --track: 0 0% 7.5%;
+    --rowhover: 0 0% 5.9%;
+    --field: 0 0% 20%;
+    --chip: 0 0% 16.9%;
+
+    /* Dossier failure flags — #0a0000 #0d0000 #4a1414 #c26a6a */
+    --flag-bg: 0 100% 2%;
+    --flag-wash: 0 100% 2.6%;
+    --flag-rule: 0 57% 18%;
+    --flag-fg: 0 42% 59%;
+
+    /* Rank ramp — #5c5c5c #8f8f8f #d4d4d4 #fafafa */
+    --tier-1: 0 0% 36.1%;
+    --tier-2: 0 0% 56.1%;
+    --tier-3: 0 0% 83.1%;
+    --tier-4: 0 0% 98%;
   }
 }
 
@@ -93,55 +130,45 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* The one focus treatment in the app. Components draw no ring of their own,
+     so this is never doubled. `foreground` rather than red: red is reserved for
+     failure and urgency, and knowing where you are is neither. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--foreground));
+    outline-offset: 1px;
+  }
+
+  /* No native spinners — the stepper chrome fights the square grid, and the
+     rating fields are stepped with the keyboard or typed directly. */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 
-.text1 {
-  display: flex;
-  color: rgba(var(--foreground), 0.2);
-  background: linear-gradient(to right, rgba(var(--foreground), 1), rgba(var(--foreground), 1)) no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
-  background-size: 0%;
-  transition: background-size cubic-bezier(.1, .5, .5, 1) 0.5s;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
+/* The wordmark's fill-swipe now lives in Sidebar.tsx as Tailwind utilities.
+   The old `.text1` gradient half of it never worked: `rgba(var(--foreground), .2)`
+   is invalid CSS because the token is an HSL triplet, so the declaration was
+   dropped and the opaque inherited colour painted over the clipped background.
 
-.span1 {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: hsl(var(--foreground));
-  color: hsl(var(--background));
-  clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-  transform-origin: top;
-  transition: all cubic-bezier(.1, .5, .5, 1) 0.4s;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.text1:hover>.span1 {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
-}
-
-.text1:hover {
-  background-size: 100%;
-}
-
-@keyframes terminal-blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-
-.cursor-blink {
-  animation: terminal-blink 1s steps(1) infinite;
-}
-
-
-
-
+   `.cursor-blink` / `@keyframes terminal-blink` went with it — they drove the
+   `$ finger <handle>` caret in AboutCard, which this direction cut. */
 

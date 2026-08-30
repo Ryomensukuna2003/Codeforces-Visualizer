@@ -2,7 +2,7 @@
  * JoJo-style "Stand" radar metrics (0–100) from Codeforces submission/user data.
  */
 
-import type { TagStatistics } from "@/types/contests";
+import type { TagStatistics } from "@/app/types";
 
 type SubmissionLike = {
   verdict: string;
@@ -104,9 +104,15 @@ function durabilityScore(contestsParticipated: number): number {
   return clamp((contestsParticipated / 300) * 100);
 }
 
-/** Recent rating momentum vs overall span */
-function potentialScore(ratingHistory: RatingPoint[]): number {
-  if (ratingHistory.length < 2) return 50;
+/**
+ * Recent rating momentum vs overall span.
+ *
+ * `null` when there is no trajectory to measure yet. A hardcoded 50 put a
+ * half-filled meter beside five empty ones and called it neutral — a claim about
+ * a user we know nothing about.
+ */
+function potentialScore(ratingHistory: RatingPoint[]): number | null {
+  if (ratingHistory.length < 2) return null;
   const first = ratingHistory[0].rating;
   const last = ratingHistory[ratingHistory.length - 1].rating;
   const totalGain = last - first;
@@ -123,7 +129,8 @@ function potentialScore(ratingHistory: RatingPoint[]): number {
 
 export type StandRadarDatum = {
   metric: string;
-  value: number;
+  /** `null` where the metric has no data behind it yet — rendered as "—". */
+  value: number | null;
 };
 
 /** Shown in UI tooltips — how each score is computed */
@@ -142,7 +149,6 @@ export const STAND_METRIC_DESCRIPTIONS: Record<string, string> = {
     "Rating momentum: blends overall rating change from your first to last rated contest (40%) with change over your last few contests (60%). A blended gain of ~+600 approaches 100%; neutral trend ≈ 50%.",
 };
 
-export const STAND_SEGMENTS = 40;
 
 export function buildStandRadarData(params: {
   submissions: SubmissionLike[];
@@ -170,6 +176,12 @@ export function buildStandRadarData(params: {
     { metric: "Power", value: Math.round(powerScore(submissions, userRating)) },
     { metric: "Speed", value: Math.round(speedScore(submissions, registrationTimeSeconds)) },
     { metric: "Durability", value: Math.round(durabilityScore(contestsParticipated)) },
-    { metric: "Potential", value: Math.round(potentialScore(ratingHistory)) },
+    {
+      metric: "Potential",
+      value: (() => {
+        const p = potentialScore(ratingHistory);
+        return p === null ? null : Math.round(p);
+      })(),
+    },
   ];
 }

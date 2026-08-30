@@ -1,0 +1,65 @@
+# Runs the checks that were previously only ever run by hand.
+#
+# Deliberately calls `next build` directly rather than `pnpm build`: the package
+# script is `prisma generate && prisma migrate deploy && next build`, and CI must
+# never apply migrations. That belongs to the deploy, with the deploy's own
+# credentials.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # `prisma validate` resolves every `env()` in the datasource block at load
+    # time, whether or not it is going to connect — so with no variables set it
+    # fails with P1012 before it has read a single model. These are placeholders
+    # and are never dialled: no step in this job opens a database connection, and
+    # `migrate` is deliberately absent (see the note at the top of this file).
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # tsc needs the generated client; nothing here touches a database.
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Checks
+        run: |
+          for t in cn verdict analytics feedback compare; do
+            echo "--- $t"
+            node "src/lib/$t.test.mjs"
+          done
+
+      - name: Build
+        run: pnpm exec next build
+
+      - name: Prisma schema is formatted and valid
+        run: |
+          pnpm exec prisma validate
+          pnpm exec prisma format --check

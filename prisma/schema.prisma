@@ -8,16 +8,118 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+/// Legacy. The contest-reminder mailer and its cron were removed; nothing reads
+/// or writes this any more. Kept because it holds real addresses that would be
+/// destroyed by dropping it — export them, then drop the table deliberately.
 model Subscriber {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  createdAt DateTime  @default(now())
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
   @@index([email])
 }
 
+/// Legacy handle log. Written by nothing since the Snapshot table replaced it —
+/// every lookup used to append two rows here (the save call was duplicated in
+/// fetchAPI and codeforces-visualizer) and nothing ever read them back. Kept so
+/// the existing rows aren't destroyed; drop it once you've exported anything
+/// worth keeping.
 model User {
   id        String   @id @default(cuid())
   username  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// One row per handle per day: the derived numbers the overview already
+/// computes, kept so they can be compared against themselves later.
+///
+/// This is the only thing here Codeforces cannot give you back. `user.rating`
+/// is a full rating history, but there is no endpoint for what your AC rate,
+/// solved count or tag distribution looked like three months ago — that exists
+/// only if something recorded it. Everything stored is public on the handle's
+/// own Codeforces profile; nothing about how the site was used is in this table.
+model Snapshot {
+  id         String   @id @default(cuid())
+  handle     String
+  /// Date, not timestamp — one snapshot a day is the resolution that matters,
+  /// and it makes the upsert key stable.
+  capturedOn DateTime @db.Date
+
+  // ── Profile (user.info) ──────────────────────────────────────────────
+  rating    Int?
+  maxRating Int?
+  rank      String?
+  maxRank   String?
+
+  // ── Practice (user.status) ───────────────────────────────────────────
+  /// Distinct problems with an accepted submission.
+  solved          Int
+  /// Every submission, accepted or not.
+  submissions     Int
+  /// Accepted ÷ total, 0–100.
+  acRate          Float
+  /// Mean rating of the problems solved, weighted by how many at each rating.
+  avgSolvedRating Int
+
+  // ── Contests (user.rating) ───────────────────────────────────────────
+  contests          Int
+  bestRank          Int?
+  worstRank         Int?
+  avgRatingChange   Float
+  bestRatingChange  Int
+  worstRatingChange Int
+
+  // ── Stand parameters (src/lib/stand-radar-metrics.ts) ────────────────
+  accuracy   Int
+  range      Int
+  power      Int
+  speed      Int
+  durability Int
+  /// Null until there are two rated contests to measure a trajectory between.
+  potential  Int?
+
+  // ── Distributions ────────────────────────────────────────────────────
+  /// `{ "greedy": 412, "dp": 118, … }` — solves per tag.
+  tagCounts Json
+
+  createdAt DateTime @default(now())
+
+  @@unique([handle, capturedOn])
+  @@index([handle, capturedOn])
+  @@index([capturedOn])
+}
+
+/// Aggregate product-health counters. One row per day per counter name.
+///
+/// Deliberately holds no session id, no handle and no ordering, so nobody's
+/// path through the site can be reconstructed from it — it answers "how often
+/// does the product fail", not "what did this person do". Route-level traffic
+/// is already covered by Vercel Analytics and is not duplicated here.
+model DailyMetric {
+  day   DateTime @db.Date
+  /// e.g. `fetch:invalid-handle`, `fetch:unreachable`, `coach:failed`.
+  name  String
+  count Int      @default(0)
+
+  @@id([day, name])
+  @@index([day])
+}
+
+/// Anonymous notes on how to improve the site.
+///
+/// Deliberately holds nothing that identifies a submitter — no user id, no
+/// handle, no IP, no user agent. Abuse control happens in Redis against an
+/// ephemeral, TTL'd key and never reaches this table.
+model Feedback {
+  id        String   @id @default(cuid())
+  /// One of FEEDBACK_CATEGORIES in src/lib/feedback.ts
+  category  String
+  /// Optional 1–5 score
+  rating    Int?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([category])
 }
