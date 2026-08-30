@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI, type GenerationConfig } from "@google/generative-ai";
 
-// Allow up to 60s for Gemini to respond (Vercel Pro; Hobby plan is capped at 10s)
+// Allow up to 60s for Gemini to respond. This is well inside the limit on every
+// plan — Vercel's default function timeout is 300s, Hobby included; the old 10s
+// Hobby cap this comment used to warn about is long gone. Measured best case for
+// this prompt is ~10.8s, so the ceiling is headroom for a slow model, not a risk.
 export const maxDuration = 60;
 
 const API_KEY = process.env.GEMINI_API_KEY;
