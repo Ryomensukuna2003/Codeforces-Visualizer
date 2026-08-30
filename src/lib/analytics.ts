@@ -14,7 +14,15 @@
  * `layout.tsx`) and is not duplicated here.
  */
 
-/** Counter names. A closed set so the table can't grow a long tail of typos. */
+/**
+ * Counter names. A closed set so the table can't grow a long tail of typos.
+ *
+ * Failure counters alone can only ever answer "how often does this break". They
+ * cannot answer "does anyone use this", so every judgement about which features
+ * earn their keep was a guess. Each `:failed` now has a success partner, and the
+ * pair is the useful unit: `coach:failed / coach:clicked` is a failure *rate*,
+ * where either number alone is unreadable.
+ */
 export const METRICS = [
   "fetch:invalid-handle",
   "fetch:unreachable",
@@ -22,6 +30,11 @@ export const METRICS = [
   "coach:failed",
   "compare:failed",
   "feedback:sent",
+  // Successes. Denominators for the counters above, and the only evidence that
+  // a screen is reached at all.
+  "overview:loaded",
+  "coach:clicked",
+  "compare:completed",
 ] as const;
 
 export type MetricName = (typeof METRICS)[number];

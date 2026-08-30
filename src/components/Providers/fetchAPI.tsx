@@ -7,7 +7,7 @@ import { TTL, cachedGet, clearApiCache, getJson } from "@/lib/api-cache";
  * Bump an aggregate product counter. Fire-and-forget: analytics must never be
  * able to fail a page load, so this swallows everything.
  */
-const countMetric = (name: string) => {
+export const countMetric = (name: string) => {
   void axios.post("/api/metric", { name }).catch(() => {});
 };
 
@@ -79,6 +79,11 @@ export const useStore = create(
           fromCache: stamps.length === 3,
           isLoading: false,
         });
+        // The denominator for `fetch:invalid-handle` and `fetch:unreachable`.
+        // Without it those two counters are a raw failure count with no scale:
+        // twelve unreachables is either a bad afternoon or a total outage, and
+        // there was no way to tell which.
+        countMetric("overview:loaded");
       } catch (error) {
         console.error("Failed to fetch data:", error);
         // Codeforces answers a bad handle with 400 and a `comment` naming it.

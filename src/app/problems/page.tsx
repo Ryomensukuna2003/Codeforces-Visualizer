@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useUsernameStore } from "@/components/Providers/contextProvider";
-import { useStore } from "@/components/Providers/fetchAPI";
+import { countMetric, useStore } from "@/components/Providers/fetchAPI";
 import { Problem, ProblemStatistics, CombinedData } from "@/app/types";
 import {
   FigCaption,
@@ -93,11 +93,7 @@ export default function ProblemsPage() {
       } catch {
         if (!cancelled) {
           setError("Could not load the problemset from Codeforces.");
-          void fetch("/api/metric", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: "problemset:failed" }),
-          }).catch(() => {});
+          countMetric("problemset:failed");
         }
       } finally {
         if (!cancelled) setIsLoading(false);

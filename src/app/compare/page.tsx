@@ -5,6 +5,7 @@ import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRightLeft } from "lucide-react";
 import { useUsernameStore } from "@/components/Providers/contextProvider";
+import { countMetric } from "@/components/Providers/fetchAPI";
 import { useToast } from "@/hooks/use-toast";
 import { cachedGet, TTL } from "@/lib/api-cache";
 import { cn, reachFloor } from "@/lib/utils";
@@ -117,6 +118,7 @@ export default function ComparePage() {
       ]);
       setYou(ya);
       setRival(rb);
+      countMetric("compare:completed");
     } catch (error) {
       // `cachedGet` throws `{ status, comment }`, not an axios error — reading
       // `error.response.status` here would silently stop the "no such handle"
@@ -125,6 +127,9 @@ export default function ComparePage() {
       const comment: string = (error as any)?.comment ?? "";
       const who = (error as any)?.handle;
       const badHandle = status === 400 || /handle|not found/i.test(comment);
+      // `compare:failed` has been in METRICS since it was written and nothing
+      // ever fired it, so this route has reported nothing about itself at all.
+      countMetric("compare:failed");
       toast({
         variant: "destructive",
         title: badHandle ? "No such handle" : "Could not reach Codeforces",

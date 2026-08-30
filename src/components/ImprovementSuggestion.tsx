@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useUsernameStore } from "@/components/Providers/contextProvider"; // Zustand store
+import { countMetric } from "@/components/Providers/fetchAPI";
 import MarkdownFade from "./ui/markdownFade";
 import { ImprovementSuggestionProps } from "@/app/types";
 import SleepingCat from "./cat";
@@ -32,6 +33,10 @@ export function ImprovementSuggestion({
     }
 
     setIsLoading(true);
+    // Counted here rather than on success, because this is the question the
+    // counter exists to answer: does anyone press the button. A success-only
+    // count cannot distinguish "nobody wants this" from "it never works".
+    countMetric("coach:clicked");
     try {
       const response = await fetch("/api/getsuggestion", {
         method: "POST",
@@ -51,11 +56,7 @@ export function ImprovementSuggestion({
       // Check again before setting state to avoid race conditions
       if (currentUsername === username) {
         const failed = !response.ok || !data?.suggestion;
-        if (failed) void fetch("/api/metric", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: "coach:failed" }),
-        }).catch(() => {});
+        if (failed) countMetric("coach:failed");
         setSuggestion(
           failed
             ? "Sorry, we couldn't generate a suggestion at this time. Please try again later."
