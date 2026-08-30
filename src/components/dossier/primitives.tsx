@@ -339,7 +339,9 @@ export function FilterCell({
         // tab strip beside it and every control fills it, so nothing sits as a
         // small box floating inside a larger one. The first cell carries the
         // page rail; the rest keep the tighter interior gutter.
-        "flex items-stretch gap-2 pl-4 pr-4 text-meta text-muted-foreground",
+        // `field-cell` moves the focus underline onto this box, so it spans the
+        // whole cell rather than just the control sitting in its padding.
+        "field-cell flex items-stretch gap-2 pl-4 pr-4 text-meta text-muted-foreground",
         "border-l border-hair first:border-l-0 first:pl-5",
         className
       )}
