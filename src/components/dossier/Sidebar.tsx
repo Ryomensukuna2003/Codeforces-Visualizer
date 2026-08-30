@@ -38,19 +38,26 @@ export function DossierSidebar() {
             letterforms work here precisely because it reads as a shape.
             The swipe fills the whole cell edge to edge; the old effect sized it
             to the glyphs, which left a stray rectangle floating in the header on
-            hover. It is the inverted fill, not red — red is for failure. */}
+            hover. It is the inverted fill, not red — red is for failure.
+
+            ALL CAPS, and it has to stay that way. This face renders lowercase as
+            lighter small-cap forms, so the title-case "CF Stats" this used to say
+            came out with a heavy "CF S" against a thin "tats" — one word that
+            looked like two fonts. Case is a weight switch here, not just a
+            shape one. Both copies below must match, or the hover fill will
+            reveal a different string than the one it covers. */}
         <Link
           href="/"
           className="group relative flex min-w-0 flex-1 items-center overflow-hidden px-4 py-4 md:px-[18px] md:py-5"
         >
           <span className="truncate font-mark text-body tracking-tight text-foreground">
-            CF Stats
+            CF STATS
           </span>
           <span
             aria-hidden
             className="pointer-events-none absolute inset-0 flex items-center bg-foreground px-4 font-mark text-body tracking-tight text-background [clip-path:polygon(0_0,100%_0,100%_0,0_0)] [transition:clip-path_.35s_cubic-bezier(.1,.5,.5,1)] group-hover:[clip-path:polygon(0_0,100%_0,100%_100%,0_100%)] md:px-[18px]"
           >
-            CF Stats
+            CF STATS
           </span>
         </Link>
 
