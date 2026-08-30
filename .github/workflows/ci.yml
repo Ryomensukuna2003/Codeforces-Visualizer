@@ -18,6 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    # `prisma validate` resolves every `env()` in the datasource block at load
+    # time, whether or not it is going to connect — so with no variables set it
+    # fails with P1012 before it has read a single model. These are placeholders
+    # and are never dialled: no step in this job opens a database connection, and
+    # `migrate` is deliberately absent (see the note at the top of this file).
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
+
     steps:
       - uses: actions/checkout@v4
 
