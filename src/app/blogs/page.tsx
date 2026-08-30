@@ -41,8 +41,14 @@ const ENTITIES: Record<string, string> = {
 
 /** CF blog titles arrive as HTML: strip the tags and decode the entities. */
 function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]+>/g, "")
+  let withoutTags = html;
+  let previous: string;
+  do {
+    previous = withoutTags;
+    withoutTags = withoutTags.replace(/<[^>]+>/g, "");
+  } while (withoutTags !== previous);
+
+  return withoutTags
     .replace(/&(#(\d+)|#x([0-9a-f]+)|[a-z]+);/gi, (m, _all, dec, hex) => {
       if (dec) return String.fromCodePoint(Number(dec));
       if (hex) return String.fromCodePoint(parseInt(hex, 16));
