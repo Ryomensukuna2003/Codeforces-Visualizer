@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUsernameStore } from "@/components/Providers/contextProvider";
 
 /**
  * Shared dossier chrome.
@@ -49,14 +50,32 @@ export function Label({
 export function PageHeader({
   eyebrow,
   title,
+  intro,
   actions,
   children,
 }: {
   eyebrow: string;
   title: string;
+  /**
+   * One or two sentences saying what this screen shows — rendered **only when
+   * there is no handle**.
+   *
+   * That state is the one a crawler always renders, since the handle lives in
+   * localStorage and the server has none; it is also what someone arriving from
+   * a search result sees. Every route was a title and an empty table to both of
+   * them — well under 350 characters of body text, which is thin content no
+   * matter how good the `<title>` is.
+   *
+   * Gating on the handle is what keeps it from becoming clutter: prose that
+   * explains the page is worth reading exactly once, and a returning user with a
+   * handle set never sees it at all.
+   */
+  intro?: React.ReactNode;
   actions?: React.ReactNode;
   children?: React.ReactNode;
 }) {
+  const { username } = useUsernameStore() as unknown as { username: string };
+
   return (
     <div className="border-b border-rule px-5 pb-6 pt-7">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
@@ -70,6 +89,9 @@ export function PageHeader({
           <div className="flex flex-wrap items-center gap-2">{actions}</div>
         ) : null}
       </div>
+      {intro && !username ? (
+        <p className="mt-5 max-w-[68ch] text-body text-muted-foreground">{intro}</p>
+      ) : null}
       {children}
     </div>
   );
@@ -317,7 +339,9 @@ export function FilterCell({
         // tab strip beside it and every control fills it, so nothing sits as a
         // small box floating inside a larger one. The first cell carries the
         // page rail; the rest keep the tighter interior gutter.
-        "flex items-stretch gap-2 pl-4 pr-4 text-meta text-muted-foreground",
+        // `field-cell` moves the focus underline onto this box, so it spans the
+        // whole cell rather than just the control sitting in its padding.
+        "field-cell flex items-stretch gap-2 pl-4 pr-4 text-meta text-muted-foreground",
         "border-l border-hair first:border-l-0 first:pl-5",
         className
       )}

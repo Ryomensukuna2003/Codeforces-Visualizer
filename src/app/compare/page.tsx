@@ -238,6 +238,7 @@ export default function ComparePage() {
       <PageHeader
         eyebrow="Head to head"
         title="Compare"
+        intro="Score any two Codeforces handles head to head: who finished ahead in every contest you both entered, how the rating gap moved between you, which topics they have solved and you have not, and which of those problems sit inside your current range."
         actions={
           <button
             type="button"
@@ -252,7 +253,7 @@ export default function ComparePage() {
 
       {/* Handles -------------------------------------------------------- */}
       <div className="flex flex-col items-stretch border-b border-rule sm:flex-row">
-        <div className="flex-1 border-b border-hair px-5 py-4 sm:border-b-0 sm:border-r">
+        <div className="field-cell flex-1 border-b border-hair px-5 py-4 sm:border-b-0 sm:border-r">
           <label htmlFor="user1" className="mb-2.5 block text-label font-medium text-faint">
             You
           </label>
@@ -284,7 +285,7 @@ export default function ComparePage() {
           <ArrowRightLeft className="h-5 w-5 text-faint" />
         </button>
 
-        <div className="flex-1 border-t border-hair px-5 py-4 sm:border-t-0">
+        <div className="field-cell flex-1 border-t border-hair px-5 py-4 sm:border-t-0">
           <label htmlFor="user2" className="mb-2.5 block text-label font-medium text-faint">
             Rival
           </label>

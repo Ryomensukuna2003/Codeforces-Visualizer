@@ -14,7 +14,8 @@ import { StandParameters } from "./dossier/StandParameters";
 import { FigCaption, Label, StatStrip } from "./dossier/primitives";
 import { buildStandRadarData } from "@/lib/stand-radar-metrics";
 import { group, shortDate, signed } from "@/lib/dossier";
-import { buildVerdict, cn, deltaLast30d, submissionSummary } from "@/lib/utils";
+import Link from "next/link";
+import { buildVerdict, cn, deltaLast30d, submissionSummary, weakTags } from "@/lib/utils";
 
 import {
   UserInfo,
@@ -215,6 +216,13 @@ export function CodeforcesVisualizerComponent() {
 
   const summary = useMemo(() => submissionSummary(allSubmissionsData), [allSubmissionsData]);
   const delta30 = useMemo(() => deltaLast30d(allRating), [allRating]);
+  // Weakest topic by AC rate, over tags with enough attempts to mean anything.
+  // Reads the submission history already in the store, so this costs no fetch.
+  const weakest = useMemo(
+    () => (allSubmissionsData?.result ? weakTags(allSubmissionsData)[0] ?? null : null),
+    [allSubmissionsData]
+  );
+
   const verdict = useMemo(
     () => buildVerdict(allSubmissionsData, allRating, userData.rating),
     [allSubmissionsData, allRating, userData.rating]
@@ -413,6 +421,29 @@ export function CodeforcesVisualizerComponent() {
               )
             )}
           </p>
+
+          {/* The verdict names a weakness and then left you to find it yourself.
+              `weakTags` reads the submissions already in the store — no new
+              fetch, and specifically not the 5 MB problemset, which `/` has
+              never downloaded. Row grammar, not a button: label, tag, figure,
+              arrow. Red stays on the rule above; this is not a failure. */}
+          {weakest ? (
+            <Link
+              href={`/problems?tag=${encodeURIComponent(weakest.tag)}`}
+              className="group mt-4 inline-flex items-baseline gap-2.5 text-meta"
+            >
+              <Label caps>Weakest</Label>
+              <span className="font-display font-bold text-foreground underline-offset-4 group-hover:underline">
+                {weakest.tag}
+              </span>
+              <span className="font-mono tabular-nums text-faint">
+                {weakest.rate}% AC over {weakest.attempts} attempts
+              </span>
+              <span aria-hidden className="text-faint transition-transform group-hover:translate-x-0.5">
+                →
+              </span>
+            </Link>
+          ) : null}
         </div>
       </div>
 

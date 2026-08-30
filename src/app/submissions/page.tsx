@@ -147,6 +147,7 @@ export default function SubmissionsPage() {
       <PageHeader
         eyebrow="02 — Submission log"
         title="All submissions"
+        intro="Every submission this handle has made on Codeforces, filtered by verdict, rating, tag and language — with a tempo chart of practice volume over time and the last 60 outcomes at a glance. Useful for finding which topic your wrong answers actually cluster in."
         actions={
           <>
             <span className="font-mono text-meta tabular-nums text-muted-foreground">

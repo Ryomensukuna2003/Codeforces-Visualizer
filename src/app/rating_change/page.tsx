@@ -114,6 +114,7 @@ export default function ContestsPage() {
       <PageHeader
         eyebrow="04 — Rated history"
         title="Rating change"
+        intro="Your Codeforces rating plotted against the rank bands, with the per-contest delta aligned underneath it and every rated contest listed with its rank and change. Shows whether a climb came from many small gains or one good round."
         actions={
           <BoxTabs
             options={TABS}
@@ -155,6 +156,7 @@ export default function ContestsPage() {
         <TH className="w-[96px]">Rank</TH>
         <TH className="w-[130px] sm:w-[150px]">Rating</TH>
         <TH className="w-[130px] sm:w-[170px]">Change</TH>
+        <TH className="w-[52px]"> </TH>
       </THead>
 
       {visible.length ? (
@@ -162,11 +164,14 @@ export default function ContestsPage() {
           const up = c.delta >= 0;
           const width = c.seed ? 0 : Math.min(50, (Math.abs(c.delta) / peakDelta) * 50);
           return (
+            // Every row used to leave for codeforces.com. This page lists the
+            // exact objects /analysis takes apart, so handing each one to
+            // Codeforces sent people out of the app at the moment they were
+            // most likely to want the post-mortem. The round is the link now;
+            // Codeforces is still reachable from the cell at the end of the row.
             <Link
               key={`${c.id}-${c.ratingUpdateTimeSeconds}`}
-              href={`https://codeforces.com/contest/${c.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/analysis?contest=${c.id}`}
               className={rowClass}
             >
               <TD first className="block py-3.5">
@@ -199,6 +204,39 @@ export default function ContestsPage() {
                   }`}
                 >
                   {signed(c.delta)}
+                </span>
+              </TD>
+              {/* Codeforces, demoted to a cell rather than owning the whole row.
+                  `stopPropagation` is not enough on its own — this is a nested
+                  anchor inside the row's Link, so the click has to be prevented
+                  from bubbling into Next's router as well. */}
+              <TD className="w-[52px] justify-end">
+                <span
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`Open ${c.contestName} on Codeforces`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(
+                      `https://codeforces.com/contest/${c.id}`,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter" && e.key !== " ") return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(
+                      `https://codeforces.com/contest/${c.id}`,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                  }}
+                  className="cursor-pointer font-mono text-label text-faint transition-colors hover:text-foreground"
+                >
+                  CF ↗
                 </span>
               </TD>
             </Link>

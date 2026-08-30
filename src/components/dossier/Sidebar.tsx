@@ -34,23 +34,33 @@ export function DossierSidebar() {
 
       {/* Top bar — one row on mobile, wordmark block on desktop */}
       <div className="flex items-stretch border-b border-hair md:border-rule">
-        {/* Wordmark, not a word to read — Major Mono Display's constructed
-            letterforms work here precisely because it reads as a shape.
-            The swipe fills the whole cell edge to edge; the old effect sized it
-            to the glyphs, which left a stray rectangle floating in the header on
-            hover. It is the inverted fill, not red — red is for failure. */}
+        {/* Wordmark. Martian Mono — the same display face as the handle, the
+            page titles and the stat figures — set bold and all caps.
+
+            It used to have a face of its own, Major Mono Display, on the theory
+            that a logo is a shape rather than a word. In practice that face
+            draws `A` as a bare triangle and renders lowercase as lighter
+            small-cap forms, so the mark was both hard to read and, at the
+            title-case "CF Stats" it used to say, two visibly different weights
+            in one word. A name people are meant to recognise has to be legible
+            first. Dropping it also removed a whole Google Font from every page.
+
+            Both copies must keep the same string and classes: the second is the
+            hover fill, and any mismatch would reveal something different from
+            what it covers. The swipe fills the cell edge to edge — inverted
+            fill, never red; red is for failure. */}
         <Link
           href="/"
           className="group relative flex min-w-0 flex-1 items-center overflow-hidden px-4 py-4 md:px-[18px] md:py-5"
         >
-          <span className="truncate font-mark text-body tracking-tight text-foreground">
-            CF Stats
+          <span className="truncate font-display text-body font-bold tracking-tight text-foreground">
+            CF STATS
           </span>
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-0 flex items-center bg-foreground px-4 font-mark text-body tracking-tight text-background [clip-path:polygon(0_0,100%_0,100%_0,0_0)] [transition:clip-path_.35s_cubic-bezier(.1,.5,.5,1)] group-hover:[clip-path:polygon(0_0,100%_0,100%_100%,0_100%)] md:px-[18px]"
+            className="pointer-events-none absolute inset-0 flex items-center bg-foreground px-4 font-display text-body font-bold tracking-tight text-background [clip-path:polygon(0_0,100%_0,100%_0,0_0)] [transition:clip-path_.35s_cubic-bezier(.1,.5,.5,1)] group-hover:[clip-path:polygon(0_0,100%_0,100%_100%,0_100%)] md:px-[18px]"
           >
-            CF Stats
+            CF STATS
           </span>
         </Link>
 
@@ -70,8 +80,14 @@ export function DossierSidebar() {
           ) : null}
         </button>
 
-        <div className="flex shrink-0 items-center pr-3 md:pr-[18px]">
-          <ModeToggle className="h-7 w-7 rounded-none border-field bg-transparent" />
+        {/* A cell, not a button floating in padding. It used to be a 28px
+            bordered square with `pr-3` around it, which put a small box inside
+            a bigger box touching nothing — the same disconnected look already
+            fixed on the filter rows. Now it shares the header's full height and
+            divides from the wordmark with one rule, so the two read as adjacent
+            cells of one strip. */}
+        <div className="flex shrink-0 items-stretch border-l border-hair md:border-rule">
+          <ModeToggle className="h-full w-12 rounded-none border-0 bg-transparent md:w-[52px]" />
         </div>
       </div>
 

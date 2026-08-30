@@ -50,7 +50,16 @@ export default function ProblemsPage() {
   const [initialRating, setInitialFilter] = useState(800);
   const [endingFilter, setEndingFilter] = useState(3200);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [activeTags, setActiveTags] = useState<string[]>([]);
+  // Seeded from `?tag=` so the verdict on `/` can hand this page a topic and
+  // have it open already filtered. Lazy initialiser rather than an effect: an
+  // effect would render the unfiltered list first and then visibly reflow.
+  // `window.location`, not `useSearchParams` — that hook forces a Suspense
+  // boundary in a client page and fails the prerender.
+  const [activeTags, setActiveTags] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    const tag = new URLSearchParams(window.location.search).get("tag")?.trim();
+    return tag ? [tag] : [];
+  });
   const [unsolvedOnly, setUnsolvedOnly] = useState(false);
   const [recommended, setRecommended] = useState(false);
   const [page, setPage] = useState(1);
@@ -176,6 +185,7 @@ export default function ProblemsPage() {
       <PageHeader
         eyebrow="03 — Problem ladder"
         title="Problems"
+        intro="A ladder of every Codeforces rating band, showing how many problems you have solved out of how many exist at each step — so you can see the exact difficulty where your coverage thins out, and pick unsolved problems in your weakest tags to close it."
         actions={
           <>
             <button

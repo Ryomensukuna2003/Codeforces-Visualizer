@@ -1,7 +1,7 @@
-import { JetBrains_Mono, Major_Mono_Display, Martian_Mono } from "next/font/google";
+import { JetBrains_Mono, Martian_Mono } from "next/font/google";
 
 /**
- * All monospace, three voices.
+ * All monospace, two voices.
  *
  * The readability problem was never the mono itself — it was nine font sizes
  * crammed between 9 and 13.5px at 2:1 contrast. With the scale and the contrast
@@ -9,13 +9,18 @@ import { JetBrains_Mono, Major_Mono_Display, Martian_Mono } from "next/font/goog
  * identity wants.
  *
  * `text`    — the workhorse: dense rows, labels, data columns.
- * `display` — handle, page titles, stat values, verdict figures. Blocky and
- *             heavy: mass over refinement, which is the brutalist read. Needs
- *             a real 700 weight, because the emphasis mechanic depends on it.
- * `mark`    — the wordmark only. Major Mono Display draws lowercase as
- *             constructed small-cap forms (`a` becomes a delta, `y` a triangle),
- *             which is wrong for a handle or a sentence and exactly right for a
- *             logo, where the letters are a shape rather than a word to read.
+ * `display` — wordmark, handle, page titles, stat values, verdict figures.
+ *             Blocky and heavy: mass over refinement, which is the brutalist
+ *             read. Needs a real 700 weight, because the emphasis mechanic and
+ *             the wordmark both depend on it.
+ *
+ * There was a third, `mark`: Major Mono Display, for the wordmark alone, chosen
+ * because it draws letters as constructed shapes rather than words. That is a
+ * fine argument for an abstract logo and a bad one for a name people have to
+ * read and recall — it renders `A` as a bare triangle, and its lowercase is a
+ * lighter weight than its caps, so a title-case mark came out looking like two
+ * different fonts. Removed: the wordmark is `display` now, and the page loads
+ * one fewer font family.
  */
 
 export const textFont = JetBrains_Mono({
@@ -32,9 +37,3 @@ export const displayFont = Martian_Mono({
   variable: "--font-display",
 });
 
-export const markFont = Major_Mono_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
-  variable: "--font-mark",
-});

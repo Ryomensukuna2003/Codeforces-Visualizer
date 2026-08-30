@@ -133,10 +133,64 @@
 
   /* The one focus treatment in the app. Components draw no ring of their own,
      so this is never doubled. `foreground` rather than red: red is reserved for
-     failure and urgency, and knowing where you are is neither. */
+     failure and urgency, and knowing where you are is neither.
+
+     Inset, not outset. At `outline-offset: 1px` the ring landed just OUTSIDE
+     the element, so on anything already carrying a border — which, in a design
+     built from 1px rules, is nearly everything — it drew a second rectangle one
+     pixel beyond the first. In dark mode that outer rectangle is white, which
+     is the stray white box that appeared around a focused field. Drawn inside
+     its own bounds it cannot collide with a neighbouring rule, and it lands on
+     the element's own edge instead of hovering off it. */
   :focus-visible {
     outline: 2px solid hsl(var(--foreground));
-    outline-offset: 1px;
+    outline-offset: -2px;
+  }
+
+  /* Fields get an underline, not a box.
+
+     Most fields here sit inside a filter cell that deliberately strips their
+     border, so they render with `border-width: 0` — meaning any rectangular
+     indicator has to invent a box that is not otherwise there, which is what
+     made the focused field read as a stray white rectangle pasted over the
+     layout. A 2px rule along the bottom edge marks the same field without
+     drawing an outline around it, and reads as the line a caret sits on.
+
+     Inset shadow rather than a real border so nothing reflows on focus.
+     Emphatically not removed: this is the only cue a keyboard user has about
+     which field they are typing into. */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+    box-shadow: inset 0 -2px 0 0 hsl(var(--foreground));
+  }
+
+  /* Where a field sits inside a cell, the underline belongs to the CELL.
+     Fields here are laid out inside padded cells and often share the row with
+     something else — a rank badge, a unit label — so an underline drawn on the
+     control itself stops short of the box it is meant to mark, floating a
+     partial line inside a larger rectangle. That is the same disconnected look
+     the filter rows were rebuilt to remove.
+
+     Marking the cell instead means the rule always spans exactly the box it
+     belongs to, whatever the control inside it is doing.
+
+     `:has()` is scoped to real fields on purpose: a button inside the same cell
+     brings its own inset outline, and both firing would double the indicator. */
+  .field-cell:has(:is(input, textarea, select):focus-visible) {
+    box-shadow: inset 0 -2px 0 0 hsl(var(--foreground));
+  }
+
+  /* The suppression is deliberately nested behind the same `:has()` as the rule
+     above, rather than written as a plain descendant selector. A browser without
+     `:has()` support drops both together and the field keeps its own underline —
+     short, but present. Written flat, the unsupported browser would drop only
+     the cell rule and still honour this one, leaving a keyboard user with no
+     focus indicator at all. Accessibility degrades to ugly, never to absent. */
+  .field-cell:has(:is(input, textarea, select):focus-visible)
+    :is(input, textarea, select):focus-visible {
+    box-shadow: none;
   }
 
   /* No native spinners — the stepper chrome fights the square grid, and the

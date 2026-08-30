@@ -107,6 +107,7 @@ export default function BlogsPage() {
       <PageHeader
         eyebrow="06 — Community"
         title="Blogs & tutorials"
+        intro="Recent Codeforces blog entries, editorials and tutorials, sortable by newest or by score."
         actions={<BoxTabs options={TABS} value={tab} onChange={setTab} />}
       />
 
