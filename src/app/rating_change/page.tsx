@@ -114,6 +114,7 @@ export default function ContestsPage() {
       <PageHeader
         eyebrow="04 — Rated history"
         title="Rating change"
+        intro="Your Codeforces rating plotted against the rank bands, with the per-contest delta aligned underneath it and every rated contest listed with its rank and change. Shows whether a climb came from many small gains or one good round."
         actions={
           <BoxTabs
             options={TABS}

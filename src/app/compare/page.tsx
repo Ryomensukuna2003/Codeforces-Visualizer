@@ -238,6 +238,7 @@ export default function ComparePage() {
       <PageHeader
         eyebrow="Head to head"
         title="Compare"
+        intro="Score any two Codeforces handles head to head: who finished ahead in every contest you both entered, how the rating gap moved between you, which topics they have solved and you have not, and which of those problems sit inside your current range."
         actions={
           <button
             type="button"

@@ -176,6 +176,7 @@ export default function ProblemsPage() {
       <PageHeader
         eyebrow="03 — Problem ladder"
         title="Problems"
+        intro="A ladder of every Codeforces rating band, showing how many problems you have solved out of how many exist at each step — so you can see the exact difficulty where your coverage thins out, and pick unsolved problems in your weakest tags to close it."
         actions={
           <>
             <button
