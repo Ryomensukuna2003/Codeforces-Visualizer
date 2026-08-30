@@ -15,7 +15,6 @@ const config: Config = {
   			sans: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
   			mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
   			display: ['var(--font-display)', 'var(--font-mono)', 'ui-monospace', 'monospace'],
-			mark: ['var(--font-mark)', 'var(--font-display)', 'ui-monospace', 'monospace']
   		},
   		/* The type scale — seven steps, each with a job. Replaces the 20 ad-hoc
   		   `text-[Npx]` sizes the first pass accumulated. */

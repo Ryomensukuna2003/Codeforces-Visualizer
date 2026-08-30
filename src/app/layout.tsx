@@ -5,7 +5,7 @@ import UsernamePopup from "../hooks/username-popup";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { displayFont, markFont, textFont } from "./fonts";
+import { displayFont, textFont } from "./fonts";
 import { DossierShell } from "@/components/dossier/Shell";
 
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -66,7 +66,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${displayFont.variable} ${markFont.variable} ${textFont.variable} font-sans h-full w-full min-w-0`}
+      className={`${displayFont.variable} ${textFont.variable} font-sans h-full w-full min-w-0`}
       suppressHydrationWarning={true}
     >
       <body className="h-full w-full min-w-0 overflow-x-hidden" suppressHydrationWarning={true}>
