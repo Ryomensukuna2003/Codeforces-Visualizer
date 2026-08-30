@@ -88,10 +88,20 @@ export default function AnalysisPage() {
         b.ratingUpdateTimeSeconds - a.ratingUpdateTimeSeconds
     );
     setContests(sorted);
-    // Open on the most recent round. The post-mortem you want is almost always
-    // the one you just played, and an empty page asked for a click to show
-    // anything at all.
-    setSelectedContest((current) => current ?? sorted[0] ?? null);
+    // `?contest=` wins, then the most recent round. The post-mortem you want is
+    // almost always the one you just played, and an empty page asked for a click
+    // to show anything at all — but a link that names a round has to open on
+    // that round, which is what makes the rows on /rating_change worth clicking.
+    //
+    // `window.location`, not `useSearchParams`: that hook forces a Suspense
+    // boundary in a client page and fails the prerender at build time.
+    const wanted = Number(
+      new URLSearchParams(window.location.search).get("contest")
+    );
+    const asked = wanted
+      ? sorted.find((c: RatingEntry) => c.contestId === wanted)
+      : undefined;
+    setSelectedContest((current) => asked ?? current ?? sorted[0] ?? null);
   }, [allRating]);
 
   useEffect(() => {
