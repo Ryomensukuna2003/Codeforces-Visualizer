@@ -42,7 +42,7 @@ jobs:
 
       - name: Checks
         run: |
-          for t in cn verdict analytics feedback; do
+          for t in cn verdict analytics feedback compare; do
             echo "--- $t"
             node "src/lib/$t.test.mjs"
           done

@@ -203,6 +203,7 @@ nav strip (≈95px of chrome before content).
 | 05 | `/analysis` | Contest picker (opens on most recent) → stat strip → gantt of where the round went → per-problem breakdown → "tags that cost you time" |
 | 06 | `/blogs` | Sort tabs → title / author / date / votes table |
 | 07 | `/feedback` | Anonymous form: category, optional 1–5 score, free text |
+| — | `/compare` | Two handles → the head-to-head verdict → 5-cell record strip → rating-gap chart → shared-contest table (RECENT / BIGGEST WINS / BIGGEST LOSSES) → tag ledger with diverging bars → what they've solved in your reach, 50/page |
 
 ### Shared chrome
 
@@ -318,8 +319,10 @@ src/
     dossier.ts               ramp, rank bands, formatters, NAV
     utils.ts                 derived values (verdict, weak tags, rung coverage…)
     api-cache.ts             read-through cache for Codeforces endpoints
+    compare.ts               head-to-head derivations for /compare
     feedback.ts              feedback contract + validation
-    *.test.mjs               node-runnable checks (cn, verdict, feedback)
+    *.test.mjs               node-runnable checks (cn, verdict, analytics,
+                             feedback, compare) — CI runs all of them
   app/types.ts               the one type barrel
 tailwind.config.ts           type scale, families, colour tokens
 ```

@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
-import axios from "axios";
 import { WALL } from "./dossier";
 
 /**
@@ -206,139 +205,6 @@ export const getUpcomingContests = (contestData: any, now: number) => {
     );
 };
 
-export const FetchUserData = async (handle: string) => {
-  const [userInfoData, allSubmissionsData, allRating] = await Promise.all([
-    axios
-      .get(`https://codeforces.com/api/user.info?handles=${handle}`)
-      .then((res) => res.data),
-    axios
-      .get(`https://codeforces.com/api/user.status?handle=${handle}&from=1`)
-      .then((res) => res.data),
-    axios
-      .get(`https://codeforces.com/api/user.rating?handle=${handle}`)
-      .then((res) => res.data),
-  ]);
-  if (userInfoData.status === "FAILED") {
-    return {
-      userInfoData: `${handle} is not Valid`,
-      allSubmissionsData: null,
-      allRating: null,
-    };
-  }
-  return {
-    userInfoData: userInfoData.result[0],
-    allSubmissionsData,
-    allRating,
-  };
-};
-
-export const CompareRatingChange = (
-  user1RatingChangeData: Map<number, number>,
-  user2RatingChangeData: Map<number, number>,
-  user1: string,
-  user2: string
-): { date: number; [key: string]: number }[] => {
-  const allDates = new Set<number>();
-  const result: { date: number; [key: string]: number }[] = [];
-
-  // Collect all unique dates from both users
-  user1RatingChangeData.forEach((_, date) => allDates.add(date));
-  user2RatingChangeData.forEach((_, date) => allDates.add(date));
-
-  // Sort all dates in ascending order
-  const sortedDates = Array.from(allDates).sort((a, b) => a - b);
-
-  // Initialize cumulative ratings for both users
-  let user1Rating = 0;
-  let user2Rating = 0;
-
-  // Iterate over all sorted dates and compute cumulative ratings
-  sortedDates.forEach((date) => {
-    if (user1RatingChangeData.has(date)) {
-      user1Rating = user1RatingChangeData.get(date)!;
-    }
-    if (user2RatingChangeData.has(date)) {
-      user2Rating = user2RatingChangeData.get(date)!;
-    }
-
-    result.push({
-      date,
-      [user1]: user1Rating,
-      [user2]: user2Rating,
-    });
-  });
-
-  return result;
-};
-
-// Compare Rating Change Utils End ------------------------------------------
-
-// Compare HeatMapData Utils Start ------------------------------------------
-
-export function processHeatMapData(allSubmissionsData: any, username: string) {
-  if (allSubmissionsData?.result) {
-    // Group submissions by date
-    const groupedByDate = allSubmissionsData.result.reduce(
-      (acc: Record<string, number>, submission: any) => {
-        const date = new Date(submission.creationTimeSeconds * 1000)
-          .toISOString()
-          .split("T")[0];
-        acc[date] = (acc[date] || 0) + 1;
-        return acc;
-      },
-      {}
-    );
-
-    // Map grouped data to the final structure
-    const ExtractedHeatMapData = Object.keys(groupedByDate).map((date) => ({
-      date: date,
-      [username]: groupedByDate[date],
-    }));
-
-    // Sort by date in ascending order
-    ExtractedHeatMapData.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-    return ExtractedHeatMapData;
-  }
-
-  console.dir("No result in allSubmissionsData, returning empty array");
-  return [];
-}
-
-export const CompareHeatMapData = (
-  user1HeatMapData: { date: string; [key: string]: number | string }[],
-  user2HeatMapData: { date: string; [key: string]: number | string }[],
-  user1: string,
-  user2: string
-) => {
-  const allDates = new Set<string>();
-  // Collect all unique dates from both users
-  user1HeatMapData.forEach((data) => allDates.add(data.date));
-  user2HeatMapData.forEach((data) => allDates.add(data.date));
-
-  const result: { date: string; [key: string]: number | string }[] = [];
-
-  // Iterate over all unique dates and create the array dynamically
-  allDates.forEach((date) => {
-    const user1Solved = user1HeatMapData.find((data) => data.date === date);
-    const user2Solved = user2HeatMapData.find((data) => data.date === date);
-
-    // If either user has data for this date, include it
-    if (user1Solved || user2Solved) {
-      result.push({
-        date: date.toString(),
-        [user1]: user1Solved ? user1Solved[user1] || 0 : 0,
-        [user2]: user2Solved ? user2Solved[user2] || 0 : 0,
-      });
-    }
-  });
-  result.sort((a, b) => (a.date > b.date ? 1 : -1));
-  return result;
-};
-
-// Compare HeatMapData Utils End ------------------------------------------
-
 // Dossier derived values ---------------------------------------------------
 // Everything below is computed from data the app already fetches — no new
 // requests, no new global state. See design_handoff_cf_dossier/README.md.
@@ -376,8 +242,17 @@ const pct = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 10
  * The pivot is the user's rating floored to the nearest 100 so the sentence reads
  * as a round number ("52% on ≤1500 problems") rather than "≤1543".
  */
+/**
+ * The rung a rating sits on — the pivot the verdict splits AC rate around, and
+ * the floor of the "in your reach" band on /compare. Extracted so the two pages
+ * cannot drift into disagreeing about where your ceiling is.
+ */
+export function reachFloor(rating: number): number {
+  return Math.max(800, Math.floor((rating || 800) / 100) * 100);
+}
+
 export function acRateSplit(allSubmissionsData: any, userRating: number) {
-  const pivot = Math.max(800, Math.floor((userRating || 800) / 100) * 100);
+  const pivot = reachFloor(userRating);
   const acc = {
     pivot,
     below: { ac: 0, total: 0, rate: 0 },
@@ -600,47 +475,6 @@ export function timeCostPerTag(
     }
   }
   return Array.from(map.values()).sort((a, b) => b.seconds - a.seconds || b.failures - a.failures);
-}
-
-export type H2HMetric = {
-  label: string;
-  left: number;
-  right: number;
-  leftLabel: string;
-  rightLabel: string;
-  /** Bar widths as percentages of the shared max, so the two sides are comparable. */
-  leftW: number;
-  rightW: number;
-  /** true when higher wins; every current metric is higher-is-better. */
-  leftWins: boolean;
-  tied: boolean;
-};
-
-/**
- * Scored head-to-head. Winner renders `#fafafa`, loser `#737373` — that single
- * contrast is the whole readout, so the score is derived here, once.
- */
-export function h2hScore(
-  rows: { label: string; left: number; right: number; fmt?: (n: number) => string }[]
-) {
-  const metrics: H2HMetric[] = rows.map((r) => {
-    const max = Math.max(r.left, r.right, 1);
-    const fmt = r.fmt ?? ((n: number) => String(n));
-    return {
-      label: r.label,
-      left: r.left,
-      right: r.right,
-      leftLabel: fmt(r.left),
-      rightLabel: fmt(r.right),
-      leftW: Math.round((r.left / max) * 100),
-      rightW: Math.round((r.right / max) * 100),
-      leftWins: r.left >= r.right,
-      tied: r.left === r.right,
-    };
-  });
-  const ahead = metrics.filter((m) => m.leftWins && !m.tied).length;
-  const behind = metrics.filter((m) => !m.leftWins).length;
-  return { metrics, ahead, behind };
 }
 
 export type VerdictPart = { text: string; bold?: boolean; accent?: boolean };

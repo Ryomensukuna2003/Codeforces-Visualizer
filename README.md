@@ -29,7 +29,7 @@ narrower versions of the same question.
 | 05 | **Timeline** | Where one round actually went: a gantt of attempts, time lost to failures, and the tags that cost you most |
 | 06 | **Blogs** | Recent Codeforces blog entries and editorials |
 | 07 | **Feedback** | Anonymous notes on what to fix |
-| — | **Compare** | Two handles scored head to head with both rating curves overlaid |
+| — | **Compare** | Your record against a rival: who finished ahead in every contest you both entered, how the gap moved, which tags they've solved and you haven't, and what to practise |
 
 <details>
 <summary>More screens</summary>
@@ -143,6 +143,7 @@ node src/lib/cn.test.mjs         # Tailwind class merging keeps the type scale
 node src/lib/verdict.test.mjs    # the verdict never contradicts itself
 node src/lib/analytics.test.mjs  # the public snapshot endpoint rejects junk
 node src/lib/feedback.test.mjs   # feedback validation
+node src/lib/compare.test.mjs    # head-to-head: ties, chronology, tag diffs
 pnpm exec tsc --noEmit
 ```
 
