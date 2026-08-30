@@ -23,20 +23,21 @@ export default function UsernamePopup() {
     }
   };
 
-  // The sidebar's "Viewing" block reopens this to switch handles, so the dialog
-  // follows the store flag rather than `username === ""`. Dismissable only once
-  // a handle is set — otherwise there is nothing behind it to look at.
+  // This dialog now has exactly one job: switching handles from the sidebar's
+  // "Viewing" block. It used to double as the front door — forced open whenever
+  // `username === ""` and undismissable in that state — which made a modal with
+  // no close control the first thing every new visitor met. `/` renders the
+  // landing page in that case instead, so there is always something behind this
+  // to return to, and it is always dismissable.
   return (
     <Dialog
-      open={UsernamePopupisopen || username === ""}
+      open={UsernamePopupisopen}
       onOpenChange={(open) => {
-        if (!open && username !== "") setUsernamePopupisopen(false);
+        if (!open) setUsernamePopupisopen(false);
       }}
     >
       <DialogContent
-        // Nothing behind it to look at until a handle is set, so there is no
-        // close control to offer.
-        dismissable={username !== ""}
+        dismissable
         className="sm:max-w-[425px] text-card-foreground mx-2"
         aria-describedby="username-dialog-description"
       >
