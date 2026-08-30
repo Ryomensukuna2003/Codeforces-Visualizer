@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card } from "@/components/ui/card"
-import { Blockquote } from './ui/blockquote'
-import { jetBrainsMono } from '@/app/fonts'
+import { Label } from './dossier/primitives'
 
 const quotes = [
   {
@@ -77,22 +75,26 @@ const quotes = [
 
 
 
+/**
+ * Shown in the verdict slot while the dossier is being assembled — set in the
+ * page's own type, not a floating card. The first render is deterministic so
+ * the server and the client agree; the effect swaps in a random one after.
+ */
 export function CompetitiveProgrammingQuotes() {
-  const [currentQuote, setCurrentQuote] = useState<{ quote: string; } | null>(null)
+  const [quote, setQuote] = useState(quotes[0].quote)
 
   useEffect(() => {
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)]
-    setCurrentQuote(randomQuote)
+    setQuote(quotes[Math.floor(Math.random() * quotes.length)].quote)
   }, [])
 
   return (
-    <Card
-      className={`${jetBrainsMono.className} bg-card absolute inset-0 m-auto dark:bg-card dark:border-card-border backdrop-blur-sm border-none`}
-      style={{ width: 'fit-content', height: 'fit-content' }}
-    >
-      <Blockquote>
-        {currentQuote?.quote}
-      </Blockquote>
-    </Card>
+    <>
+      <Label caps className="mb-3 block">
+        Reading the file
+      </Label>
+      <p className="max-w-[68ch] text-lead text-muted-foreground [text-wrap:pretty]">
+        {quote}
+      </p>
+    </>
   )
 }

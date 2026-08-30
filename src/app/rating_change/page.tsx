@@ -1,144 +1,219 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { RatingChange } from "../types";
+import { useMemo, useState } from "react";
 import { useStore } from "../../components/Providers/fetchAPI";
 import { useUsernameStore } from "@/components/Providers/contextProvider";
-import { NavBar } from "@/components/ui/NavBar";
+import { RankBandChart, DeltaRow } from "@/components/dossier/RankBandChart";
+import {
+  BoxTabs,
+  EmptyOrLoading,
+  FigCaption,
+  PageHeader,
+  Pagination,
+  StatStrip,
+  TD,
+  TH,
+  THead,
+  rowClass,
+} from "@/components/dossier/primitives";
+import { group, longDate, shortDate, signed } from "@/lib/dossier";
+
+type Row = {
+  id: number;
+  contestName: string;
+  ratingUpdateTimeSeconds: number;
+  rank: number;
+  oldRating: number;
+  newRating: number;
+  delta: number;
+  /** Codeforces reports the first rated contest as 0 -> initial rating. */
+  seed: boolean;
+};
+
+const TABS = ["ALL", "DIV 2", "DIV 3", "EDU"] as const;
+type Tab = (typeof TABS)[number];
+
+const MATCHERS: Record<Tab, (name: string) => boolean> = {
+  ALL: () => true,
+  "DIV 2": (n) => /div\.?\s*2/i.test(n),
+  "DIV 3": (n) => /div\.?\s*3/i.test(n),
+  EDU: (n) => /educational/i.test(n),
+};
+
+const PER_PAGE = 100;
 
 export default function ContestsPage() {
-  const [fullRating, setFullRating] = useState<RatingChange[] | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalContests, setTotalContests] = useState(0);
-  const contestsPerPage = 100;
-  const { allRating } = useStore() as any;
-  const { username } = useUsernameStore() as { username: string };
+  const { allRating, isLoading } = useStore() as any;
+  const { username } = useUsernameStore() as any;
+  const [tab, setTab] = useState<Tab>("ALL");
+  const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    fetchAPI();
-  }, [currentPage, username, allRating]);
+  /** Oldest first — the chart reads left to right, the table newest first. */
+  const chrono = useMemo<Row[]>(
+    () =>
+      (allRating?.result ?? [])
+        .map((r: any) => ({
+          id: r.contestId,
+          contestName: r.contestName,
+          ratingUpdateTimeSeconds: r.ratingUpdateTimeSeconds,
+          rank: r.rank,
+          oldRating: r.oldRating,
+          newRating: r.newRating,
+          delta: r.newRating - r.oldRating,
+          seed: r.oldRating === 0,
+        }))
+        .sort((a: Row, b: Row) => a.ratingUpdateTimeSeconds - b.ratingUpdateTimeSeconds),
+    [allRating]
+  );
 
-  const fetchAPI = async () => {
-    const from = (currentPage - 1) * contestsPerPage + 1;
-    try {
-      let ratingArr: RatingChange[] = [];
-      allRating?.result.forEach((element: RatingChange) => {
-        ratingArr.push({
-          contestName: element.contestName,
-          ratingUpdateTimeSeconds: element.ratingUpdateTimeSeconds,
-          rank: element.rank,
-          oldRating: element.oldRating,
-          newRating: element.newRating,
-          id: element.id,
-        });
-      });
-      ratingArr = ratingArr.sort(
-        (a, b) => b.ratingUpdateTimeSeconds - a.ratingUpdateTimeSeconds
-      );
-      setFullRating(ratingArr.slice(from - 1, from - 1 + contestsPerPage));
-      setTotalContests(ratingArr.length);
-    } catch (error) {
-      console.error("Failed to fetch rating data:", error);
+  const filtered = useMemo(
+    () => chrono.filter((r) => MATCHERS[tab](r.contestName)),
+    [chrono, tab]
+  );
+
+  const stats = useMemo(() => {
+    if (!chrono.length) {
+      return { contests: 0, current: 0, peak: 0, best: 0, worst: 0 };
     }
-  };
+    // The seeding contest's "+1508" is not a gain — it would own both the
+    // best-gain stat and the delta row's scale.
+    const deltas = chrono.filter((r) => !r.seed).map((r) => r.delta);
+    if (!deltas.length) deltas.push(0);
+    return {
+      contests: chrono.length,
+      current: chrono[chrono.length - 1].newRating,
+      peak: Math.max(...chrono.map((r) => r.newRating)),
+      best: Math.max(...deltas),
+      worst: Math.min(...deltas),
+    };
+  }, [chrono]);
 
-  const contests = fullRating || [];
-  const totalPages = Math.ceil(totalContests / contestsPerPage);
+  const chartData = useMemo(
+    () =>
+      filtered.map((r) => ({
+        label: shortDate(r.ratingUpdateTimeSeconds),
+        rating: r.newRating,
+        delta: r.seed ? null : r.delta,
+      })),
+    [filtered]
+  );
+
+  /** Largest absolute delta — both the bar row and the inline table bars scale to it. */
+  const peakDelta = useMemo(
+    () => Math.max(1, ...filtered.filter((r) => !r.seed).map((r) => Math.abs(r.delta))),
+    [filtered]
+  );
+
+  const newestFirst = useMemo(() => filtered.slice().reverse(), [filtered]);
+  const totalPages = Math.ceil(newestFirst.length / PER_PAGE);
+  const visible = newestFirst.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavBar />
+    <>
+      <PageHeader
+        eyebrow="04 — Rated history"
+        title="Rating change"
+        actions={
+          <BoxTabs
+            options={TABS}
+            value={tab}
+            onChange={(t) => {
+              setTab(t);
+              setPage(1);
+            }}
+          />
+        }
+      />
 
-      {/* Header -- full width flush to navbar */}
-      <div className="w-full border-b border-neutral-600">
-        <div className="flex items-center justify-between px-6 h-14">
-          <span className="font-mono text-lg text-foreground">
-            Contest History
-          </span>
-          <span className="font-mono text-sm text-muted-foreground">
-            [{totalContests}]
-          </span>
-        </div>
+      <StatStrip
+        items={[
+          { label: "Contests", value: stats.contests },
+          { label: "Current", value: stats.current || "—" },
+          { label: "Peak", value: stats.peak || "—" },
+          { label: "Best gain", value: signed(stats.best) },
+          { label: "Worst drop", value: signed(stats.worst), accent: stats.worst < 0 },
+        ]}
+      />
+
+      {/* The chart and the per-contest deltas are one object; the delta row uses
+          the same data length and margins so the x-positions align. */}
+      <div className="border-b border-rule">
+        <FigCaption aside={`${filtered.length} rated contests`}>
+          Rating on rank bands, with the change from each contest below
+        </FigCaption>
+        <RankBandChart
+          data={chartData}
+          series={[{ key: "rating", label: "rating" }]}
+          height={210}
+        />
+        <DeltaRow data={chartData} height={56} />
       </div>
 
-      {/* Content */}
-      <div className="mx-[10%] border-x border-neutral-600">
-        {contests.map((contest: any) => {
-          const delta = contest.newRating - contest.oldRating;
+      <THead>
+        <TH first>Contest</TH>
+        <TH className="w-[96px]">Rank</TH>
+        <TH className="w-[130px] sm:w-[150px]">Rating</TH>
+        <TH className="w-[130px] sm:w-[170px]">Change</TH>
+      </THead>
+
+      {visible.length ? (
+        visible.map((c) => {
+          const up = c.delta >= 0;
+          const width = c.seed ? 0 : Math.min(50, (Math.abs(c.delta) / peakDelta) * 50);
           return (
             <Link
-              key={`${contest.id}${contest.contestName}`}
-              href={`https://codeforces.com/contest/${contest.id}`}
+              key={`${c.id}-${c.ratingUpdateTimeSeconds}`}
+              href={`https://codeforces.com/contest/${c.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-stretch border-b border-neutral-600 hover:bg-secondary/30 transition-colors"
+              className={rowClass}
             >
-              <div className="flex-1 px-6 py-5">
-                <div className="text-sm text-foreground group-hover:underline">
-                  {contest.contestName}
+              <TD first className="block py-3.5">
+                <div className="truncate text-body text-foreground">{c.contestName}</div>
+                <div className="mt-1 font-mono text-label tabular-nums text-faint">
+                  {longDate(c.ratingUpdateTimeSeconds)}
                 </div>
-                <div className="text-xs text-muted-foreground font-mono mt-1">
-                  {new Date(
-                    contest.ratingUpdateTimeSeconds * 1000
-                  ).toLocaleDateString()}
-                  <span className="ml-4">Rank #{contest.rank}</span>
+              </TD>
+              <TD className="w-[96px] font-mono text-meta tabular-nums text-faint">
+                #{group(c.rank)}
+              </TD>
+              <TD className="w-[130px] gap-2 font-mono text-meta tabular-nums sm:w-[150px]">
+                <span className="text-faint">{c.oldRating}</span>
+                <span className="text-faint">→</span>
+                <span className="font-semibold text-foreground">{c.newRating}</span>
+              </TD>
+              <TD className="w-[130px] gap-3 px-4 sm:w-[170px]">
+                <div className="relative hidden h-1.5 flex-1 bg-track sm:block">
+                  <div
+                    className={`absolute inset-y-0 ${up ? "bg-foreground" : "bg-red-500"}`}
+                    style={{
+                      left: up ? "50%" : `${50 - width}%`,
+                      width: `${width}%`,
+                    }}
+                  />
                 </div>
-              </div>
-              <div className="shrink-0 w-40 border-l border-neutral-600 text-center font-mono text-sm flex items-center justify-center">
-                <span className="text-muted-foreground">{contest.oldRating}</span>
-                <span className="text-muted-foreground mx-2">→</span>
-                <span className="text-foreground font-bold">{contest.newRating}</span>
-              </div>
-              <div className="shrink-0 w-24 border-l border-neutral-600 text-center flex items-center justify-center">
                 <span
-                  className={`font-mono text-sm font-bold ${
-                    delta > 0
-                      ? "text-foreground"
-                      : delta < 0
-                      ? "text-red-500"
-                      : "text-muted-foreground"
+                  className={`w-11 text-right font-mono text-meta font-semibold tabular-nums ${
+                    up ? "text-foreground" : "text-red-500"
                   }`}
                 >
-                  {delta > 0 ? "+" : ""}
-                  {delta}
+                  {signed(c.delta)}
                 </span>
-              </div>
+              </TD>
             </Link>
           );
-        })}
+        })
+      ) : (
+        <EmptyOrLoading
+          loading={isLoading}
+          hasHandle={Boolean(username)}
+          filtered={chrono.length ? "No contests match this filter." : undefined}
+          empty="No rated contests on this handle yet."
+        />
+      )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex border-b border-neutral-600">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors disabled:opacity-30 disabled:hover:bg-transparent border-r border-neutral-600"
-            >
-              <ChevronLeft className="h-4 w-4" /> Previous
-            </button>
-            <div className="flex items-center justify-center px-8 py-4 font-mono text-sm text-muted-foreground">
-              {currentPage} / {totalPages}
-            </div>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 font-mono text-sm text-foreground hover:bg-secondary/30 transition-colors disabled:opacity-30 disabled:hover:bg-transparent border-l border-neutral-600"
-            >
-              Next <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
-        {/* Bottom spacer */}
-        <div className="flex h-[15vh]">
-          <div className="flex-1"></div>
-          <div className="shrink-0 w-40 border-l border-neutral-600"></div>
-          <div className="shrink-0 w-24 border-l border-neutral-600"></div>
-        </div>
-      </div>
-    </div>
+      <Pagination page={page} totalPages={totalPages} onPage={setPage} />
+    </>
   );
 }

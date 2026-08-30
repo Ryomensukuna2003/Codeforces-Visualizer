@@ -1,9 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useStore } from "../../components/Providers/fetchAPI";
-import { NavBar } from "@/components/ui/NavBar";
+import {
+  BoxTabs,
+  Notice,
+  PageHeader,
+  TD,
+  TH,
+  THead,
+  rowClass,
+} from "@/components/dossier/primitives";
+import { longDate, signed } from "@/lib/dossier";
+import { cn } from "@/lib/utils";
 
 type RecentAction = {
   timeSeconds: number;
@@ -17,111 +27,137 @@ type RecentAction = {
   comment?: { id: number };
 };
 
+const TABS = ["Recent", "Top voted", "Editorials"] as const;
+type Tab = (typeof TABS)[number];
+
+const ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+};
+
+/** CF blog titles arrive as HTML: strip the tags and decode the entities. */
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, "").trim();
+  return html
+    .replace(/<[^>]+>/g, "")
+    .replace(/&(#(\d+)|#x([0-9a-f]+)|[a-z]+);/gi, (m, _all, dec, hex) => {
+      if (dec) return String.fromCodePoint(Number(dec));
+      if (hex) return String.fromCodePoint(parseInt(hex, 16));
+      return ENTITIES[m.slice(1, -1).toLowerCase()] ?? m;
+    })
+    .trim();
 }
 
-function formatDate(seconds: number): string {
-  return new Date(seconds * 1000).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+/** The optional kind chip, read off the title — CF has no field for it. */
+function kindOf(title: string): string | null {
+  if (/editorial/i.test(title)) return "editorial";
+  if (/tutorial/i.test(title)) return "tutorial";
+  if (/invitation|announcement|round \d+ \(/i.test(title)) return "announcement";
+  return null;
 }
 
 export default function BlogsPage() {
-  const [recentBlogs, setRecentBlogs] = useState<{ result?: RecentAction[] } | RecentAction[] | null>(null);
-  const { recentBlogs: recentBlogsData } = useStore() as { recentBlogs?: { result?: RecentAction[] } | RecentAction[] };
+  const { recentBlogs } = useStore() as {
+    recentBlogs?: { result?: RecentAction[] } | RecentAction[];
+  };
+  const [tab, setTab] = useState<Tab>("Recent");
 
-  useEffect(() => {
-    setRecentBlogs(recentBlogsData ?? null);
-  }, [recentBlogsData]);
+  const entries = useMemo(() => {
+    const raw = Array.isArray(recentBlogs)
+      ? recentBlogs
+      : Array.isArray(recentBlogs?.result)
+        ? recentBlogs.result
+        : [];
 
-  const raw = recentBlogs ?? recentBlogsData;
-  const blogs: RecentAction[] = Array.isArray(raw)
-    ? raw
-    : Array.isArray((raw as { result?: RecentAction[] })?.result)
-      ? (raw as { result: RecentAction[] }).result
-      : [];
+    // recentActions repeats an entry once per comment; keep the newest touch.
+    const seen = new Map<number, { action: RecentAction; title: string; kind: string | null }>();
+    for (const action of raw) {
+      const entry = action.blogEntry;
+      if (!entry) continue;
+      const title = stripHtml(entry.title) || `Blog #${entry.id}`;
+      const prev = seen.get(entry.id);
+      if (!prev || action.timeSeconds > prev.action.timeSeconds) {
+        seen.set(entry.id, { action, title, kind: kindOf(title) });
+      }
+    }
+    return Array.from(seen.values());
+  }, [recentBlogs]);
+
+  const rows = useMemo(() => {
+    const out = entries.filter((e) => (tab === "Editorials" ? e.kind === "editorial" : true));
+    out.sort((a, b) =>
+      tab === "Top voted"
+        ? b.action.blogEntry.rating - a.action.blogEntry.rating
+        : b.action.timeSeconds - a.action.timeSeconds
+    );
+    return out;
+  }, [entries, tab]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavBar />
+    <>
+      <PageHeader
+        eyebrow="06 — Community"
+        title="Blogs & tutorials"
+        actions={<BoxTabs options={TABS} value={tab} onChange={setTab} />}
+      />
 
-      {/* Header */}
-      <div className="w-full border-b border-neutral-600">
-        <div className="flex items-center justify-between px-6 h-14">
-          <span className="font-mono text-lg text-foreground">
-            Codeforces Blogs & Tutorials
-          </span>
-          <span className="font-mono text-sm text-muted-foreground">
-            [{blogs.length}]
-          </span>
-        </div>
-      </div>
+      <THead>
+        <TH first>Title</TH>
+        <TH className="hidden w-[160px] sm:flex">Author</TH>
+        <TH className="hidden w-[140px] md:flex">Date</TH>
+        <TH className="w-[90px]">Votes</TH>
+      </THead>
 
-      {/* Column labels */}
-      <div className="mx-[10%] border-x border-neutral-600">
-        <div className="flex items-stretch h-10 border-b border-neutral-600">
-          <div className="flex-1 px-6 flex items-center font-mono text-xs text-muted-foreground">
-            Title
-          </div>
-          <div className="shrink-0 w-40 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
-            Author
-          </div>
-          <div className="shrink-0 w-32 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
-            Date
-          </div>
-          <div className="shrink-0 w-20 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
-            Votes
-          </div>
-        </div>
-
-        {/* Rows */}
-        {blogs.length > 0 ? (
-          blogs.map((action) => {
-            const entry = action.blogEntry;
-            if (!entry) return null;
-            const key = `${action.timeSeconds}-${entry.id}-${action.comment?.id ?? "e"}`;
-            return (
-              <Link
-                key={key}
-                href={`https://codeforces.com/blog/entry/${entry.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-stretch border-b border-neutral-600 hover:bg-secondary/30 transition-colors"
-              >
-                <div className="flex-1 px-6 py-3 font-mono text-sm text-foreground truncate group-hover:underline">
-                  {stripHtml(entry.title) || `Blog #${entry.id}`}
-                </div>
-                <div className="shrink-0 w-40 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
-                  {entry.authorHandle}
-                </div>
-                <div className="shrink-0 w-32 border-l border-neutral-600 flex items-center justify-center font-mono text-xs text-muted-foreground">
-                  {formatDate(action.timeSeconds)}
-                </div>
-                <div className="shrink-0 w-20 border-l border-neutral-600 flex items-center justify-center font-mono text-xs">
-                  <span className={entry.rating >= 0 ? "text-foreground" : "text-red-500"}>
-                    {entry.rating >= 0 ? "+" : ""}{entry.rating}
+      {rows.length ? (
+        rows.map(({ action, title, kind }) => {
+          const entry = action.blogEntry;
+          return (
+            <Link
+              key={entry.id}
+              href={`https://codeforces.com/blog/entry/${entry.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={rowClass}
+            >
+              <TD first className="gap-3 py-3.5">
+                <span className="truncate text-body text-foreground">{title}</span>
+                {kind ? (
+                  <span className="shrink-0 border border-chip px-1.5 py-px text-label text-faint">
+                    {kind}
                   </span>
-                </div>
-              </Link>
-            );
-          })
-        ) : (
-          <div className="flex items-center justify-center py-8 border-b border-neutral-600 text-muted-foreground font-mono text-sm">
-            Try entering a username or Codeforces API is down.
-          </div>
-        )}
+                ) : null}
+              </TD>
+              <TD className="hidden w-[160px] sm:flex">
+                <span className="truncate text-meta text-muted-foreground">
+                  {entry.authorHandle}
+                </span>
+              </TD>
+              <TD className="hidden w-[140px] font-mono text-meta tabular-nums text-faint md:flex">
+                {longDate(action.timeSeconds)}
+              </TD>
+              <TD
+                className={cn(
+                  "w-[90px] font-mono text-meta font-semibold tabular-nums",
+                  entry.rating < 0 ? "text-red-500" : "text-foreground"
+                )}
+              >
+                {signed(entry.rating)}
+              </TD>
+            </Link>
+          );
+        })
+      ) : (
+        <Notice>
+          {entries.length
+            ? "No editorials in the current feed."
+            : "The Codeforces feed came back empty. Try again shortly."}
+        </Notice>
+      )}
 
-        {/* Bottom spacer */}
-        <div className="flex h-[15vh]">
-          <div className="flex-1"></div>
-          <div className="shrink-0 w-40 border-l border-neutral-600"></div>
-          <div className="shrink-0 w-32 border-l border-neutral-600"></div>
-          <div className="shrink-0 w-20 border-l border-neutral-600"></div>
-        </div>
-      </div>
-    </div>
+      <div className="h-16" />
+    </>
   );
 }

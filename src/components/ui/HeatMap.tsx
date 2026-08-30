@@ -2,13 +2,6 @@
 import * as React from "react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
@@ -35,6 +28,16 @@ interface HeatMapGraphProps {
 
 export function HeatMapGraph({ data }: HeatMapGraphProps) {
   const [timeRange, setTimeRange] = React.useState("ALL")
+  // Measured in an effect, not during render: reading window while rendering
+  // breaks SSR and desyncs hydration. NavBar already does it this way.
+  const [isWideScreen, setIsWideScreen] = React.useState(false)
+
+  React.useEffect(() => {
+    const onResize = () => setIsWideScreen(window.innerWidth > 768)
+    onResize()
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
 
   const filteredData = React.useMemo(() => {
     const referenceDate = new Date()
@@ -79,110 +82,79 @@ export function HeatMapGraph({ data }: HeatMapGraphProps) {
 
 
   return (
-    <Card className="border-0 ">
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 ">
-          <CardTitle>Submissions Heatmap</CardTitle>
-          <CardDescription>
-            Total submissions for the selected time range
-          </CardDescription>
-        </div>
-        <div className="relative z-30 flex flex-col justify-center gap-1 border-t  px-6 py-4 text-left bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
-          <span className="text-sm text-muted-foreground">Total Submissions</span>
-          <span className="text-lg font-bold">{total.toLocaleString()}</span>
-        </div>
-        <div className="relative z-30 flex flex-col justify-center gap-1  border-t px-6 py-4 text-left bg-muted/50 border-r sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
-          <span className="text-sm text-muted-foreground">Max Submissions</span>
-          <span className="text-lg font-bold">{max_submissions.toLocaleString()}</span>
-        </div>
-      </CardHeader>
-      <CardContent className="px-2 sm:p-6">
-      <Select value={timeRange} onValueChange={setTimeRange}>
-        <div className="flex justify-center mt-2">
+    <div>
+      {/* Controls strip — the figure caption above already names this chart. */}
+      {/* A strip of cells, like the filter rows: the range picker fills the row
+          rather than floating in it as a smaller bordered box. */}
+      <div className="flex flex-wrap items-stretch border-b border-hair text-meta">
+        <span className="flex items-center py-3 pl-5 pr-6 text-faint">
+          Total <span className="ml-2 text-meta tabular-nums text-foreground">{total.toLocaleString()}</span>
+        </span>
+        <span className="flex items-center py-3 pr-6 text-faint">
+          Busiest day <span className="ml-2 text-meta tabular-nums text-foreground">{max_submissions.toLocaleString()}</span>
+        </span>
+        <div className="flex-1" />
+        <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
-            className="w-[160px] rounded-lg sm:ml-auto mb-4 justify-center"
+            className="h-auto w-[170px] self-stretch rounded-none border-0 border-l border-hair px-5 text-meta"
             aria-label="Select a time range"
           >
-            <SelectValue placeholder="Select Time Range" />
+            <SelectValue placeholder="Select time range" />
           </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="ALL" className="rounded-lg">
-              All Time
-            </SelectItem>
-            <SelectItem value="90d" className="rounded-lg">
-              Last 3 months
-            </SelectItem>
-            <SelectItem value="30d" className="rounded-lg">
-              Last 30 days
-            </SelectItem>
-            <SelectItem value="7d" className="rounded-lg">
-              Last 7 days
-            </SelectItem>
-            <SelectItem value="2024" className="rounded-lg">
-              Year 2024
-            </SelectItem>
-            <SelectItem value="2023" className="rounded-lg">
-              Year 2023
-            </SelectItem>
+          <SelectContent className="rounded-none">
+            <SelectItem value="ALL" className="rounded-none">All time</SelectItem>
+            <SelectItem value="90d" className="rounded-none">Last 3 months</SelectItem>
+            <SelectItem value="30d" className="rounded-none">Last 30 days</SelectItem>
+            <SelectItem value="7d" className="rounded-none">Last 7 days</SelectItem>
           </SelectContent>
-          </div>
         </Select>
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full overflow-x-auto"
-        >
-          <LineChart
-            accessibilityLayer
-            data={filteredData}
-            margin={{
-              left: 0,
-              right: 0,
+      </div>
+
+      <ChartContainer
+        config={chartConfig}
+        className="aspect-auto h-[200px] w-full px-5 pt-3"
+      >
+        <LineChart accessibilityLayer data={filteredData} margin={{ left: 0, right: 0 }}>
+          <CartesianGrid vertical={false} stroke="hsl(var(--hair))" />
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            minTickGap={32}
+            tick={{ fontSize: 11, fill: "hsl(var(--faint))" }}
+            tickFormatter={(value) => {
+              const date = new Date(value)
+              return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
             }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              className="font-bold"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value)
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
-                }}
+          />
+          {isWideScreen && (
+            <YAxis dataKey="desktop" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "hsl(var(--faint))" }} width={30} />
+          )}
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                className="w-[150px] rounded-none"
+                nameKey="submissions"
+                labelFormatter={(value) =>
+                  new Date(value).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                }
               />
-              {window.innerWidth > 768 && (
-                <YAxis dataKey="desktop" className="font-bold" />
-              )}
-              <ChartTooltip
-                content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="submissions"
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  }}
-                />
-              }
-            />
-            <Line
-              dataKey="desktop"
-              type="monotone"
-              stroke={chartConfig.submissions.color}
-              strokeWidth={1}
-              dot={false}
-            />
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+            }
+          />
+          <Line
+            dataKey="desktop"
+            type="monotone"
+            stroke={chartConfig.submissions.color}
+            strokeWidth={1}
+            dot={false}
+          />
+        </LineChart>
+      </ChartContainer>
+    </div>
   )
 }

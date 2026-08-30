@@ -6,14 +6,16 @@ export const maxDuration = 60;
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const MODEL_NAME = "gemini-flash-latest";
-
-if (!API_KEY) {
-  throw new Error("GEMINI_API_KEY is not defined");
-}
-
-const genAI = new GoogleGenerativeAI(API_KEY);
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 export async function POST(request: NextRequest) {
+  if (!genAI) {
+    return NextResponse.json(
+      { error: "Gemini API key is not configured" },
+      { status: 503 }
+    );
+  }
+
   try {
     const { userData, problemStats } = await request.json();
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
